@@ -1,0 +1,56 @@
+zh-TW:
+  site:
+    name: "PitLane"
+    tagline: "全球 F1 新聞中心"
+
+  nav:
+    home: "首頁"
+    news: "新聞"
+    breaking: "快訊"
+    drivers: "車手"
+    teams: "車隊"
+    search: "搜尋"
+
+  news:
+    breaking: "即時快訊"
+    latest: "最新新聞"
+    read_more: "閱讀更多"
+    published_at: "發布於 %{date}"
+    source: "來源：%{source}"
+    related_articles: "相關報導"
+    no_results: "找不到相關文章"
+    load_more: "載入更多"
+
+  categories:
+    BREAKING: "快訊"
+    NEWS: "新聞"
+    RACE_REPORT: "賽事報導"
+    QUALIFYING: "排位賽"
+    PRACTICE: "練習賽"
+    TECHNICAL: "技術分析"
+    TRANSFER: "轉會消息"
+    OPINION: "專欄評論"
+
+  filters:
+    all: "全部"
+    by_driver: "依車手"
+    by_team: "依車隊"
+    by_category: "依分類"
+    clear: "清除篩選"
+
+  drivers:
+    title: "F1 車手"
+    team: "車隊"
+    number: "車號"
+    nationality: "國籍"
+
+  teams:
+    title: "F1 車隊"
+    drivers: "車手陣容"
+
+  common:
+    loading: "載入中..."
+    error: "發生錯誤"
+    retry: "重試"
+    back: "返回"
+    share: "分享"

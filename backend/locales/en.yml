@@ -1,0 +1,56 @@
+en:
+  site:
+    name: "PitLane"
+    tagline: "Your Global F1 News Hub"
+
+  nav:
+    home: "Home"
+    news: "News"
+    breaking: "Breaking"
+    drivers: "Drivers"
+    teams: "Teams"
+    search: "Search"
+
+  news:
+    breaking: "Breaking News"
+    latest: "Latest News"
+    read_more: "Read More"
+    published_at: "Published %{date}"
+    source: "Source: %{source}"
+    related_articles: "Related Articles"
+    no_results: "No articles found"
+    load_more: "Load More"
+
+  categories:
+    BREAKING: "Breaking"
+    NEWS: "News"
+    RACE_REPORT: "Race Report"
+    QUALIFYING: "Qualifying"
+    PRACTICE: "Practice"
+    TECHNICAL: "Technical"
+    TRANSFER: "Transfers"
+    OPINION: "Opinion"
+
+  filters:
+    all: "All"
+    by_driver: "By Driver"
+    by_team: "By Team"
+    by_category: "By Category"
+    clear: "Clear Filters"
+
+  drivers:
+    title: "F1 Drivers"
+    team: "Team"
+    number: "Number"
+    nationality: "Nationality"
+
+  teams:
+    title: "F1 Teams"
+    drivers: "Drivers"
+
+  common:
+    loading: "Loading..."
+    error: "Something went wrong"
+    retry: "Try again"
+    back: "Back"
+    share: "Share"
