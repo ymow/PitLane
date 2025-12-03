@@ -7,11 +7,13 @@ from django.core.cache import cache
 from django.db.models import Q
 import i18n
 
-from apps.news.models import Article, Translation, Driver, Team
+from apps.news.models import Article, Translation
+from apps.teams.models import Driver, Team
 from .serializers import (
     ArticleListSerializer, ArticleDetailSerializer,
     DriverSerializer, TeamSerializer
 )
+from .services import ergast_service
 
 
 class ArticleViewSet(viewsets.ReadOnlyModelViewSet):
@@ -275,3 +277,146 @@ class SearchView(APIView):
         )
 
         return Response({'items': serializer.data})
+
+
+class F1StandingsAPIView(APIView):
+    """Get current F1 championship standings."""
+    
+    def get(self, request):
+        """Get both driver and constructor standings."""
+        try:
+            standings = ergast_service.get_current_standings()
+            return Response(standings)
+        except Exception as e:
+            return Response(
+                {'error': 'Failed to fetch standings data'},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+
+class F1RaceScheduleAPIView(APIView):
+    """Get F1 race schedule."""
+    
+    def get(self, request):
+        """Get race schedule for current season."""
+        year = request.query_params.get('year')
+        
+        try:
+            schedule = ergast_service.get_race_schedule(year)
+            return Response({'races': schedule})
+        except Exception as e:
+            return Response(
+                {'error': 'Failed to fetch race schedule'},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+
+class F1RaceResultsAPIView(APIView):
+    """Get F1 race results."""
+    
+    def get(self, request):
+        """Get race results."""
+        year = request.query_params.get('year')
+        round_number = request.query_params.get('round')
+        
+        try:
+            results = ergast_service.get_race_results(year, round_number)
+            return Response({'results': results})
+        except Exception as e:
+            return Response(
+                {'error': 'Failed to fetch race results'},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+
+class F1DriversAPIView(APIView):
+    """Get F1 drivers data."""
+    
+    def get(self, request):
+        """Get all drivers for the season."""
+        year = request.query_params.get('year')
+        
+        try:
+            drivers = ergast_service.get_drivers(year)
+            return Response({'drivers': drivers})
+        except Exception as e:
+            return Response(
+                {'error': 'Failed to fetch drivers data'},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+
+class F1ConstructorsAPIView(APIView):
+    """Get F1 constructors data."""
+    
+    def get(self, request):
+        """Get all constructors for the season."""
+        year = request.query_params.get('year')
+        
+        try:
+            constructors = ergast_service.get_constructors(year)
+            return Response({'constructors': constructors})
+        except Exception as e:
+            return Response(
+                {'error': 'Failed to fetch constructors data'},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+
+class F1QualifyingAPIView(APIView):
+    """Get F1 qualifying results."""
+    
+    def get(self, request):
+        """Get qualifying results."""
+        year = request.query_params.get('year')
+        round_number = request.query_params.get('round')
+        
+        try:
+            results = ergast_service.get_qualifying_results(year, round_number)
+            return Response({'qualifying': results})
+        except Exception as e:
+            return Response(
+                {'error': 'Failed to fetch qualifying results'},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+
+class F1LiveDataAPIView(APIView):
+    """Get live F1 data summary."""
+    
+    def get(self, request):
+        """Get combined live data for dashboard."""
+        try:
+            # Get latest standings and next race info
+            standings = ergast_service.get_current_standings()
+            schedule = ergast_service.get_race_schedule()
+            
+            # Find next race
+            from datetime import datetime, date
+            today = date.today()
+            next_race = None
+            
+            for race in schedule:
+                race_date = datetime.strptime(race['date'], '%Y-%m-%d').date()
+                if race_date >= today:
+                    next_race = race
+                    break
+            
+            # Get latest results (last completed race)
+            latest_results = ergast_service.get_race_results()
+            last_race = latest_results[-1] if latest_results else None
+            
+            return Response({
+                'standings': standings,
+                'next_race': next_race,
+                'last_race': last_race,
+                'season_progress': {
+                    'completed_races': len([r for r in schedule if datetime.strptime(r['date'], '%Y-%m-%d').date() < today]),
+                    'total_races': len(schedule)
+                }
+            })
+        except Exception as e:
+            return Response(
+                {'error': 'Failed to fetch live data'},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )

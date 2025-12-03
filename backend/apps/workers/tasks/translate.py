@@ -26,6 +26,19 @@ def get_translator():
 @shared_task(bind=True, max_retries=3, rate_limit='10/m')
 def translate_article(self, article_id: str, target_lang: str):
     """Translate article to target language."""
+    # Check if API key is configured
+    if not settings.ANTHROPIC_API_KEY:
+        logger.warning(
+            f'Translation skipped for article {article_id} to {target_lang} - '
+            f'ANTHROPIC_API_KEY not configured. Add API key to .env to enable translations.'
+        )
+        return {
+            'article_id': article_id,
+            'lang': target_lang,
+            'status': 'skipped',
+            'reason': 'api_key_missing'
+        }
+
     try:
         article = Article.objects.get(id=article_id)
     except Article.DoesNotExist:

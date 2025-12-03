@@ -1,6 +1,7 @@
 """API serializers."""
 from rest_framework import serializers
-from apps.news.models import Article, Translation, Driver, Team, Source, Tag
+from apps.news.models import Article, Translation, Source, Tag
+from apps.teams.models import Driver, Team
 
 
 class SourceSerializer(serializers.ModelSerializer):
@@ -14,16 +15,14 @@ class TeamSerializer(serializers.ModelSerializer):
     """Team serializer."""
     class Meta:
         model = Team
-        fields = ['id', 'code', 'name', 'short_name', 'primary_color', 'logo_url']
+        fields = ['id', 'code', 'base_name', 'primary_color', 'logo_url']
 
 
 class DriverSerializer(serializers.ModelSerializer):
     """Driver serializer."""
-    team = TeamSerializer(read_only=True)
-
     class Meta:
         model = Driver
-        fields = ['id', 'code', 'number', 'first_name', 'last_name', 'nationality', 'team', 'image_url']
+        fields = ['id', 'code', 'racing_number', 'first_name', 'last_name', 'full_name', 'nationality', 'headshot_url']
 
 
 class TagSerializer(serializers.ModelSerializer):
@@ -39,9 +38,9 @@ class ArticleListSerializer(serializers.Serializer):
     title = serializers.SerializerMethodField()
     slug = serializers.SerializerMethodField()
     summary = serializers.SerializerMethodField()
-    image_url = serializers.URLField()
+    image_url = serializers.URLField(source='featured_image_url', allow_null=True)
     published_at = serializers.DateTimeField()
-    category = serializers.CharField()
+    category = serializers.SerializerMethodField()
     priority = serializers.CharField()
     source = SourceSerializer()
     drivers = serializers.SerializerMethodField()
@@ -72,6 +71,17 @@ class ArticleListSerializer(serializers.Serializer):
         translation = obj.translations.filter(lang=lang, status='PUBLISHED').first()
         return translation.summary if translation else None
 
+    def get_category(self, obj):
+        """Get primary category name."""
+        primary_category = obj.categories.filter(
+            articlecategory__is_primary=True
+        ).first()
+        if primary_category:
+            return primary_category.name
+        # Fallback to first category
+        first_category = obj.categories.first()
+        return first_category.name if first_category else None
+
     def get_drivers(self, obj):
         """Get drivers with minimal info."""
         return [
@@ -82,7 +92,7 @@ class ArticleListSerializer(serializers.Serializer):
     def get_teams(self, obj):
         """Get teams with minimal info."""
         return [
-            {'code': t.code, 'short_name': t.short_name}
+            {'code': t.code, 'base_name': t.base_name}
             for t in obj.teams.all()[:3]
         ]
 
@@ -94,9 +104,9 @@ class ArticleDetailSerializer(serializers.Serializer):
     slug = serializers.SerializerMethodField()
     summary = serializers.SerializerMethodField()
     body = serializers.SerializerMethodField()
-    image_url = serializers.URLField()
+    image_url = serializers.URLField(source='featured_image_url', allow_null=True)
     published_at = serializers.DateTimeField()
-    category = serializers.CharField()
+    category = serializers.SerializerMethodField()
     priority = serializers.CharField()
     original_url = serializers.URLField()
     source = SourceSerializer()
@@ -127,3 +137,14 @@ class ArticleDetailSerializer(serializers.Serializer):
         lang = self.context.get('lang', 'en')
         translation = obj.translations.filter(lang=lang, status='PUBLISHED').first()
         return translation.body if translation else obj.original_body
+
+    def get_category(self, obj):
+        """Get primary category name."""
+        primary_category = obj.categories.filter(
+            articlecategory__is_primary=True
+        ).first()
+        if primary_category:
+            return primary_category.name
+        # Fallback to first category
+        first_category = obj.categories.first()
+        return first_category.name if first_category else None

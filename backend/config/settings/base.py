@@ -32,6 +32,12 @@ INSTALLED_APPS = [
     'corsheaders',
 
     # Local apps
+    'apps.brands',
+    'apps.teams',
+    'apps.circuits',
+    'apps.racing',
+    'apps.championships',
+    'apps.stewards',
     'apps.news',
     'apps.api',
     'apps.fetcher',
