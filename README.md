@@ -7,6 +7,8 @@ PitLane is a world-class, multi-language Formula 1 news aggregation platform des
 - **Multi-language Support**: 10+ languages including English, Chinese, Spanish, Portuguese, and more
 - **AI-Powered Translation**: Claude AI provides high-quality, F1-specific translations
 - **Real-time Updates**: News aggregation every 5 minutes from 15+ premium sources
+- **Live Telemetry**: Real-time race data (Speed, RPM, Gear, Throttle) via OpenF1
+- **Deep Analysis**: Automated post-race performance charts (Pace, Strategy) using FastF1
 - **Smart Categorization**: Automatic classification of breaking news, race reports, technical analysis, etc.
 - **Entity Extraction**: Automatic tagging of drivers, teams, and topics
 - **Fast Performance**: Server-side rendering with Redis caching for sub-2s page loads
@@ -20,13 +22,15 @@ PitLane is a world-class, multi-language Formula 1 news aggregation platform des
 - **Redis** - Caching and task queue
 - **PostgreSQL** - Database
 - **Anthropic Claude** - AI translation
+- **FastF1** - Post-race data analysis
 - **python-i18n** - Internationalization
 
-### Frontend (Coming Soon)
-- **React 18** - UI framework
+### Frontend (Live)
+- **React 19** - UI framework
 - **Vike** - SSR framework
-- **Base UI** - Headless component library
-- **Tailwind CSS** - Styling
+- **Tailwind CSS v4** - Styling
+- **OpenF1** - Live telemetry integration
+- **Recharts/Chart.js** - Data visualization
 
 ## 🚀 Quick Start
 
