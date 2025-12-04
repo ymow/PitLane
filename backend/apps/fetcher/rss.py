@@ -37,7 +37,11 @@ class RSSFetcher:
             List of RSSItem objects
         """
         try:
-            feed = feedparser.parse(self.feed_url)
+            # Polite fetching with custom User-Agent
+            feed = feedparser.parse(
+                self.feed_url,
+                agent='PitLaneBot/1.0 (+http://pitlane.com)'
+            )
 
             if feed.bozo:
                 logger.warning(f"Feed parsing warning for {self.feed_url}: {feed.bozo_exception}")
@@ -59,6 +63,20 @@ class RSSFetcher:
             logger.error(f"Error fetching feed {self.feed_url}: {e}")
             return []
 
+    def _clean_body(self, body: str) -> str:
+        """Remove common RSS clutter."""
+        if not body:
+            return ""
+            
+        # Basic cleanup (can be expanded)
+        cleaned = body.strip()
+        
+        # Remove common "Read more" patterns
+        cleaned = cleaned.replace("Read more...", "")
+        cleaned = cleaned.replace("Continue reading...", "")
+        
+        return cleaned
+
     def _parse_entry(self, entry) -> RSSItem:
         """Parse a single feed entry."""
         # Generate external ID from URL or guid
@@ -73,6 +91,8 @@ class RSSFetcher:
         body = entry.get('content', [{}])[0].get('value', '') if entry.get('content') else ''
         if not body:
             body = entry.get('summary', entry.get('description', ''))
+            
+        body = self._clean_body(body)
 
         # Get published date
         published_at = None

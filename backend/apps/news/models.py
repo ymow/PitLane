@@ -161,6 +161,8 @@ class Article(models.Model):
     # Status
     is_published = models.BooleanField(default=True, db_index=True)
     is_featured = models.BooleanField(default=False, db_index=True)
+    is_duplicate = models.BooleanField(default=False, db_index=True, help_text="Is this a duplicate of another article?")
+    quality_score = models.FloatField(default=0.0, db_index=True, help_text="Content quality score 0.0-100.0")
     view_count = models.IntegerField(default=0)
 
     created_at = models.DateTimeField(auto_now_add=True)
@@ -182,6 +184,50 @@ class Article(models.Model):
         if not self.original_slug:
             self.original_slug = slugify(self.original_title)
         super().save(*args, **kwargs)
+
+
+class ChunkType(models.TextChoices):
+    """Type of content chunk."""
+    HEADING = 'HEADING', 'Heading'
+    PARAGRAPH = 'PARAGRAPH', 'Paragraph'
+    LIST = 'LIST', 'List'
+    QUOTE = 'QUOTE', 'Quote'
+    IMAGE = 'IMAGE', 'Image'
+    OTHER = 'OTHER', 'Other'
+
+
+class ArticleChunk(models.Model):
+    """
+    Segmented content of an article for AI processing and granular access.
+    """
+    id = models.CharField(max_length=25, primary_key=True, default=generate_id, editable=False)
+    article = models.ForeignKey(
+        Article,
+        on_delete=models.CASCADE,
+        related_name='chunks'
+    )
+    sequence = models.IntegerField(help_text="Order of the chunk in the article")
+    content = models.TextField()
+    chunk_type = models.CharField(
+        max_length=20,
+        choices=ChunkType.choices,
+        default=ChunkType.PARAGRAPH
+    )
+    
+    # Future-proofing for vector search
+    # embedding = VectorField()  # To be added when pgvector is integrated
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'article_chunks'
+        ordering = ['sequence']
+        indexes = [
+            models.Index(fields=['article', 'sequence']),
+        ]
+
+    def __str__(self):
+        return f"{self.article.original_title} - Chunk {self.sequence}"
 
 
 class Translation(models.Model):

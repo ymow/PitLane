@@ -1,8 +1,10 @@
 """Celery tasks for processing articles."""
 from celery import shared_task
-from apps.news.models import Article
+from apps.news.models import Article, ArticleDriver, ArticleTeam, ArticleChunk
 from apps.processor.entity_extractor import F1EntityExtractor
 from apps.processor.categorizer import ArticleCategorizer
+from apps.processor.chunker import HTMLChunker
+from apps.processor.sanitizer import ArticleSanitizer
 from apps.workers.tasks.translate import queue_translations_for_article
 from django.utils import timezone
 from datetime import timedelta
@@ -13,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 @shared_task
 def process_article(article_id: str):
-    """Process article: extract entities, categorize, queue translations."""
+    """Process article: sanitize, score, chunk, extract, categorize, queue translations."""
     try:
         article = Article.objects.get(id=article_id)
     except Article.DoesNotExist:
@@ -21,40 +23,97 @@ def process_article(article_id: str):
         return
 
     try:
-        # Extract entities
+        # 0. Sanitize & Quality Score (ETL Transform)
+        sanitizer = ArticleSanitizer()
+        
+        # Clean the body
+        cleaned_body = sanitizer.sanitize(article.original_body)
+        article.original_body = cleaned_body
+        
+        # Calculate quality score
+        score = sanitizer.score_quality(
+            title=article.original_title,
+            body=cleaned_body,
+            has_image=bool(article.featured_image_url)
+        )
+        article.quality_score = score
+        article.save()
+
+        # 1. Content Chunking (using cleaned body)
+        chunker = HTMLChunker()
+        chunks_data = chunker.chunk_article(cleaned_body)
+        
+        # Clear existing chunks (idempotency)
+        ArticleChunk.objects.filter(article=article).delete()
+        
+        # Bulk create new chunks
+        chunks = [
+            ArticleChunk(
+                article=article,
+                sequence=chunk['sequence'],
+                content=chunk['content'],
+                chunk_type=chunk['type']
+            )
+            for chunk in chunks_data
+        ]
+        ArticleChunk.objects.bulk_create(chunks)
+
+        # 2. Extract Entities
         extractor = F1EntityExtractor()
         entities = extractor.process_article(
             title=article.original_title,
-            body=article.original_body
+            body=cleaned_body
         )
 
-        # Add drivers
-        for driver in entities['drivers']:
-            article.drivers.add(driver)
+        # Drivers
+        ArticleDriver.objects.filter(article=article).delete()
+        driver_relations = [
+            ArticleDriver(
+                article=article,
+                driver=d['entity'],
+                is_primary=d['is_primary']
+            )
+            for d in entities['drivers']
+        ]
+        ArticleDriver.objects.bulk_create(driver_relations)
 
-        # Add teams
-        for team in entities['teams']:
-            article.teams.add(team)
+        # Teams
+        ArticleTeam.objects.filter(article=article).delete()
+        team_relations = [
+            ArticleTeam(
+                article=article,
+                team=t['entity'],
+                is_primary=t['is_primary']
+            )
+            for t in entities['teams']
+        ]
+        ArticleTeam.objects.bulk_create(team_relations)
 
-        # Categorize
+        # 3. Categorize
         categorizer = ArticleCategorizer()
         article.category = categorizer.categorize(
             title=article.original_title,
-            body=article.original_body
+            body=cleaned_body
         )
         article.priority = categorizer.prioritize(
             title=article.original_title,
-            body=article.original_body
+            body=cleaned_body
         )
         article.save()
 
         logger.info(
-            f"Processed article {article_id}: {article.category}, "
-            f"{len(entities['drivers'])} drivers, {len(entities['teams'])} teams"
+            f"Processed {article_id}: Score={score}, Cat={article.category}, "
+            f"Chunks={len(chunks)}"
         )
 
-        # Queue translations
-        queue_translations_for_article.delay(article_id)
+        # 4. Translation Policy (Cost Optimization)
+        # Only translate if high quality or high priority
+        should_translate = score >= 50.0 or article.priority in ['HIGH', 'CRITICAL']
+        
+        if should_translate:
+            queue_translations_for_article.delay(article_id)
+        else:
+            logger.info(f"Skipping translation for low quality article {article_id} (Score: {score})")
 
     except Exception as e:
         logger.error(f"Error processing article {article_id}: {e}")

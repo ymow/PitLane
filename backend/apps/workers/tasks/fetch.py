@@ -5,6 +5,7 @@ from apps.fetcher.rss import RSSFetcher
 from apps.fetcher.sources import SOURCES
 from apps.news.models import Article, Source
 from apps.workers.tasks.process import process_article
+from apps.processor.deduplicator import Deduplicator
 import logging
 
 logger = logging.getLogger(__name__)
@@ -29,12 +30,16 @@ def fetch_single_source(self, source_slug: str):
     try:
         fetcher = RSSFetcher(source.feed_url)
         items = fetcher.fetch()
+        deduplicator = Deduplicator()
 
         new_count = 0
         for item in items:
-            # Check if already exists
+            # Check if already exists (External ID)
             if Article.objects.filter(external_id=item.external_id).exists():
                 continue
+
+            # Check content duplication (Cross-source)
+            is_duplicate = deduplicator.is_duplicate(item.title, source.lang)
 
             # Create article
             article = Article.objects.create(
@@ -48,14 +53,17 @@ def fetch_single_source(self, source_slug: str):
                 published_at=item.published_at,
                 fetched_at=timezone.now(),
                 image_url=item.image_url,
+                is_duplicate=is_duplicate
             )
 
-            # Chain: process → translate
-            process_article.delay(article.id)
+            # Only process if NOT a duplicate
+            if not is_duplicate:
+                process_article.delay(article.id)
+                new_count += 1
+            else:
+                logger.info(f"Skipped processing for duplicate: {item.title}")
 
-            new_count += 1
-
-        logger.info(f"Fetched {new_count} new articles from {source_slug}")
+        logger.info(f"Fetched {new_count} new (unique) articles from {source_slug}")
 
     except Exception as exc:
         logger.error(f"Error fetching {source_slug}: {exc}")

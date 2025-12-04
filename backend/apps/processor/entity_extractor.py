@@ -36,42 +36,109 @@ class F1EntityExtractor:
 
         logger.info(f"Loaded {len(set(self.drivers.values()))} drivers and {len(set(self.teams.values()))} teams")
 
-    def extract_drivers(self, text: str) -> Set[Driver]:
-        """Extract mentioned drivers from text."""
+    def _calculate_score(self, text: str, title: str, pattern: str) -> int:
+        """Calculate relevance score for an entity."""
+        score = 0
         text_upper = text.upper()
-        found = set()
+        title_upper = title.upper()
+        pattern_upper = pattern.upper()
+        
+        # Title mentions are worth 10 points
+        if re.search(rf'\b{re.escape(pattern_upper)}\b', title_upper):
+            score += 10
+            
+        # Body mentions are worth 1 point each
+        matches = re.findall(rf'\b{re.escape(pattern_upper)}\b', text_upper)
+        score += len(matches)
+        
+        return score
+
+    def extract_drivers(self, title: str, body: str) -> List[dict]:
+        """Extract drivers with relevance scoring."""
+        full_text = f"{title} {body}"
+        scores = {}  # driver_id -> {'entity': driver, 'score': 0}
 
         for pattern, driver in self.drivers.items():
-            # Word boundary matching
-            if re.search(rf'\b{re.escape(pattern)}\b', text_upper):
-                found.add(driver)
+            if driver.id in scores:
+                continue
+                
+            # Check if mentioned at all first to save regex cycles
+            if pattern in full_text.upper():
+                score = self._calculate_score(body, title, pattern)
+                if score > 0:
+                    if driver.id in scores:
+                        scores[driver.id]['score'] = max(scores[driver.id]['score'], score)
+                    else:
+                        scores[driver.id] = {
+                            'entity': driver,
+                            'score': score
+                        }
 
-        return found
+        # Determine primary status (Top 2 or score > 5)
+        results = []
+        if not scores:
+            return results
 
-    def extract_teams(self, text: str) -> Set[Team]:
-        """Extract mentioned teams from text."""
-        text_upper = text.upper()
-        found = set()
+        sorted_drivers = sorted(scores.values(), key=lambda x: x['score'], reverse=True)
+        
+        for i, item in enumerate(sorted_drivers):
+            # Primary if rank <= 1 (top 2) OR score >= 10 (in title)
+            is_primary = i <= 1 or item['score'] >= 10
+            results.append({
+                'entity': item['entity'],
+                'is_primary': is_primary,
+                'score': item['score']
+            })
+            
+        return results
+
+    def extract_teams(self, title: str, body: str) -> List[dict]:
+        """Extract teams with relevance scoring."""
+        full_text = f"{title} {body}"
+        scores = {}
 
         for pattern, team in self.teams.items():
-            if re.search(rf'\b{re.escape(pattern)}\b', text_upper):
-                found.add(team)
+            if team.id in scores:
+                continue
 
-        return found
+            if pattern in full_text.upper():
+                score = self._calculate_score(body, title, pattern)
+                if score > 0:
+                    if team.id in scores:
+                        scores[team.id]['score'] = max(scores[team.id]['score'], score)
+                    else:
+                        scores[team.id] = {
+                            'entity': team,
+                            'score': score
+                        }
+
+        results = []
+        if not scores:
+            return results
+
+        sorted_teams = sorted(scores.values(), key=lambda x: x['score'], reverse=True)
+        
+        for i, item in enumerate(sorted_teams):
+            is_primary = i <= 0 or item['score'] >= 10  # Only top 1 team is primary usually
+            results.append({
+                'entity': item['entity'],
+                'is_primary': is_primary,
+                'score': item['score']
+            })
+
+        return results
 
     def process_article(self, title: str, body: str) -> dict:
         """
-        Process article and return extracted entities.
+        Process article and return extracted entities with primary status.
 
         Returns:
             {
-                'drivers': [Driver, ...],
-                'teams': [Team, ...]
+                'drivers': [{'entity': Driver, 'is_primary': bool}, ...],
+                'teams': [{'entity': Team, 'is_primary': bool}, ...]
             }
         """
-        full_text = f"{title} {body}"
-
         return {
-            'drivers': list(self.extract_drivers(full_text)),
-            'teams': list(self.extract_teams(full_text))
+            'drivers': self.extract_drivers(title, body),
+            'teams': self.extract_teams(title, body)
         }

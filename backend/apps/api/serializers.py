@@ -32,6 +32,34 @@ class TagSerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'slug']
 
 
+class ArticleChunkSerializer(serializers.Serializer):
+    """Serializer for article content chunks."""
+    sequence = serializers.IntegerField()
+    content = serializers.CharField()
+    chunk_type = serializers.CharField()
+
+
+class ArticleDriverSerializer(serializers.Serializer):
+    """Driver with primary status."""
+    id = serializers.ReadOnlyField(source='driver.id')
+    code = serializers.ReadOnlyField(source='driver.code')
+    first_name = serializers.ReadOnlyField(source='driver.first_name')
+    last_name = serializers.ReadOnlyField(source='driver.last_name')
+    full_name = serializers.ReadOnlyField(source='driver.full_name')
+    headshot_url = serializers.ReadOnlyField(source='driver.headshot_url')
+    is_primary = serializers.BooleanField()
+
+
+class ArticleTeamSerializer(serializers.Serializer):
+    """Team with primary status."""
+    id = serializers.ReadOnlyField(source='team.id')
+    code = serializers.ReadOnlyField(source='team.code')
+    base_name = serializers.ReadOnlyField(source='team.base_name')
+    primary_color = serializers.ReadOnlyField(source='team.primary_color')
+    logo_url = serializers.ReadOnlyField(source='team.logo_url')
+    is_primary = serializers.BooleanField()
+
+
 class ArticleListSerializer(serializers.Serializer):
     """Article list serializer with translation support."""
     id = serializers.CharField()
@@ -84,34 +112,46 @@ class ArticleListSerializer(serializers.Serializer):
 
     def get_drivers(self, obj):
         """Get drivers with minimal info."""
+        # Optimize: use prefetch_related in viewset
+        relations = obj.articledriver_set.all()[:3]
         return [
-            {'code': d.code, 'last_name': d.last_name}
-            for d in obj.drivers.all()[:3]
+            {
+                'code': r.driver.code,
+                'last_name': r.driver.last_name,
+                'is_primary': r.is_primary
+            }
+            for r in relations
         ]
 
     def get_teams(self, obj):
         """Get teams with minimal info."""
+        relations = obj.articleteam_set.all()[:3]
         return [
-            {'code': t.code, 'base_name': t.base_name}
-            for t in obj.teams.all()[:3]
+            {
+                'code': r.team.code,
+                'base_name': r.team.base_name,
+                'is_primary': r.is_primary
+            }
+            for r in relations
         ]
 
 
 class ArticleDetailSerializer(serializers.Serializer):
-    """Article detail serializer with full content."""
+    """Article detail serializer with full content and chunks."""
     id = serializers.CharField()
     title = serializers.SerializerMethodField()
     slug = serializers.SerializerMethodField()
     summary = serializers.SerializerMethodField()
     body = serializers.SerializerMethodField()
+    chunks = ArticleChunkSerializer(many=True, read_only=True)
     image_url = serializers.URLField(source='featured_image_url', allow_null=True)
     published_at = serializers.DateTimeField()
     category = serializers.SerializerMethodField()
     priority = serializers.CharField()
     original_url = serializers.URLField()
     source = SourceSerializer()
-    drivers = DriverSerializer(many=True)
-    teams = TeamSerializer(many=True)
+    drivers = ArticleDriverSerializer(source='articledriver_set', many=True, read_only=True)
+    teams = ArticleTeamSerializer(source='articleteam_set', many=True, read_only=True)
     tags = TagSerializer(many=True)
 
     def get_title(self, obj):
