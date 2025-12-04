@@ -126,6 +126,9 @@ class Session(models.Model):
     # Status
     status = models.CharField(max_length=20, choices=SESSION_STATUS_CHOICES, default='SCHEDULED', db_index=True)
 
+    # External Link
+    openf1_session_key = models.IntegerField(null=True, blank=True, help_text="Session key for OpenF1/FastF1 API")
+
     # Weather and track conditions
     weather = models.CharField(max_length=20, choices=WEATHER_CHOICES, null=True, blank=True)
     air_temp_celsius = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
@@ -729,6 +732,9 @@ class RaceResult(models.Model):
     # Points
     points = models.DecimalField(max_digits=5, decimal_places=2, default=0)
     fastest_lap_point = models.BooleanField(default=False)
+
+    # Analysis
+    telemetry_chart = models.ImageField(upload_to='telemetry_charts/', null=True, blank=True)
 
     # Pit stops
     pit_stops = models.IntegerField(default=0)

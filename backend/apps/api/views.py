@@ -9,6 +9,7 @@ import i18n
 
 from apps.news.models import Article, Translation
 from apps.teams.models import Driver, Team
+from apps.racing.models import Race, Session, RaceResult
 from .serializers import (
     ArticleListSerializer, ArticleDetailSerializer,
     DriverSerializer, TeamSerializer
@@ -303,6 +304,24 @@ class F1RaceScheduleAPIView(APIView):
         
         try:
             schedule = ergast_service.get_race_schedule(year)
+            
+            # Enrich with local session data
+            for race in schedule:
+                try:
+                    race_year = int(race['date'][:4])
+                    
+                    session = Session.objects.filter(
+                        race__season__year=race_year,
+                        race__round_number=race['round'],
+                        session_type='RACE'
+                    ).first()
+                    
+                    if session:
+                        race['openf1_session_key'] = session.openf1_session_key
+                        race['status'] = session.status
+                except Exception:
+                    pass
+            
             return Response({'races': schedule})
         except Exception as e:
             return Response(
@@ -321,6 +340,35 @@ class F1RaceResultsAPIView(APIView):
         
         try:
             results = ergast_service.get_race_results(year, round_number)
+            
+            # Enrich with local analysis data (telemetry charts)
+            for race_data in results:
+                try:
+                    race_year = int(race_data['date'][:4])
+                    race_round = race_data['round']
+                    
+                    session = Session.objects.filter(
+                        race__season__year=race_year,
+                        race__round_number=race_round,
+                        session_type='RACE'
+                    ).first()
+                    
+                    if session:
+                        # Create a map of local results for efficiency
+                        local_results = {
+                            res.driver.code: res 
+                            for res in RaceResult.objects.filter(session=session).select_related('driver')
+                        }
+                        
+                        for res in race_data['results']:
+                            driver_code = res['driver'].get('code')
+                            if driver_code and driver_code in local_results:
+                                local_res = local_results[driver_code]
+                                if local_res.telemetry_chart:
+                                    res['telemetry_chart_url'] = request.build_absolute_uri(local_res.telemetry_chart.url)
+                except Exception as e:
+                    print(f"Error enriching results for {race_data.get('name')}: {e}")
+            
             return Response({'results': results})
         except Exception as e:
             return Response(
@@ -402,6 +450,28 @@ class F1LiveDataAPIView(APIView):
                     next_race = race
                     break
             
+            # Enrich with OpenF1 Session Key
+            if next_race:
+                from apps.racing.models import Session
+                # Try to find the Race Session for this round
+                try:
+                    # Assuming current year
+                    current_year = datetime.now().year
+                    round_num = next_race.get('round')
+                    
+                    session = Session.objects.filter(
+                        race__season__year=current_year,
+                        race__round_number=round_num,
+                        session_type='RACE'
+                    ).first()
+                    
+                    if session:
+                        next_race['openf1_session_key'] = session.openf1_session_key
+                        next_race['status'] = session.status
+                except Exception as e:
+                    # Log error but don't break the API
+                    print(f"Error fetching local session: {e}")
+
             # Get latest results (last completed race)
             latest_results = ergast_service.get_race_results()
             last_race = latest_results[-1] if latest_results else None

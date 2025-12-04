@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'apps.translator',
     'apps.processor',
     'apps.workers',
+    'apps.analysis',
 ]
 
 MIDDLEWARE = [
