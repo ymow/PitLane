@@ -1,16 +1,31 @@
 """Celery tasks for processing articles."""
 from celery import shared_task
-from apps.news.models import Article, ArticleDriver, ArticleTeam, ArticleChunk
+from apps.news.models import Article, ArticleDriver, ArticleTeam, ArticleChunk, ArticleCategory
 from apps.processor.entity_extractor import F1EntityExtractor
 from apps.processor.categorizer import ArticleCategorizer
 from apps.processor.chunker import HTMLChunker
 from apps.processor.sanitizer import ArticleSanitizer
+from apps.processor.monitoring import monitor_spacy_model_load, monitor_memory
 from apps.workers.tasks.translate import queue_translations_for_article
 from django.utils import timezone
 from datetime import timedelta
 import logging
+import spacy
 
 logger = logging.getLogger(__name__)
+
+# Load Spacy model once when the worker boots (Tech Tip 2)
+@monitor_spacy_model_load()
+def _load_spacy_model():
+    """Load Spacy model with memory monitoring."""
+    return spacy.load("en_core_web_sm")
+
+try:
+    logger.info("Loading Spacy model (en_core_web_sm)...")
+    nlp = _load_spacy_model()
+except Exception as e:
+    logger.error(f"Failed to load Spacy model: {e}")
+    nlp = None
 
 
 @shared_task
@@ -58,8 +73,8 @@ def process_article(article_id: str):
         ]
         ArticleChunk.objects.bulk_create(chunks)
 
-        # 2. Extract Entities
-        extractor = F1EntityExtractor()
+        # 2. Extract Entities (Reuse global nlp object)
+        extractor = F1EntityExtractor(nlp=nlp)
         entities = extractor.process_article(
             title=article.original_title,
             body=cleaned_body
@@ -91,10 +106,21 @@ def process_article(article_id: str):
 
         # 3. Categorize
         categorizer = ArticleCategorizer()
-        article.category = categorizer.categorize(
+        category = categorizer.categorize(
             title=article.original_title,
-            body=cleaned_body
+            body=cleaned_body,
+            lang=article.original_lang
         )
+        
+        if category:
+            # Clear existing categories and add the new one as primary
+            ArticleCategory.objects.filter(article=article).delete()
+            ArticleCategory.objects.create(
+                article=article,
+                category=category,
+                is_primary=True
+            )
+
         article.priority = categorizer.prioritize(
             title=article.original_title,
             body=cleaned_body
@@ -102,7 +128,7 @@ def process_article(article_id: str):
         article.save()
 
         logger.info(
-            f"Processed {article_id}: Score={score}, Cat={article.category}, "
+            f"Processed {article_id}: Score={score}, Cat={category.name if category else 'None'}, "
             f"Chunks={len(chunks)}"
         )
 
@@ -111,7 +137,10 @@ def process_article(article_id: str):
         should_translate = score >= 50.0 or article.priority in ['HIGH', 'CRITICAL']
         
         if should_translate:
-            queue_translations_for_article.delay(article_id)
+            try:
+                queue_translations_for_article.delay(article_id)
+            except Exception as e:
+                logger.info(f"Queue unavailable, skipping translation for {article_id}: {e}")
         else:
             logger.info(f"Skipping translation for low quality article {article_id} (Score: {score})")
 

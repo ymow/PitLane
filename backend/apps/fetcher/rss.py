@@ -5,6 +5,7 @@ from datetime import datetime
 from dataclasses import dataclass
 from typing import List
 from django.utils.text import slugify
+from django.utils import timezone
 import logging
 
 logger = logging.getLogger(__name__)
@@ -44,7 +45,15 @@ class RSSFetcher:
             )
 
             if feed.bozo:
-                logger.warning(f"Feed parsing warning for {self.feed_url}: {feed.bozo_exception}")
+                if feed.bozo_exception:
+                    logger.warning(f"Feed parsing warning for {self.feed_url}: {feed.bozo_exception}")
+                else:
+                    logger.warning(f"Feed parsing warning for {self.feed_url}: Malformed feed detected")
+
+            # Check if feed has entries
+            if not hasattr(feed, 'entries') or not feed.entries:
+                logger.warning(f"No entries found in feed {self.feed_url}")
+                return []
 
             items = []
             for entry in feed.entries:
@@ -53,7 +62,7 @@ class RSSFetcher:
                     if item:
                         items.append(item)
                 except Exception as e:
-                    logger.error(f"Error parsing entry: {e}")
+                    logger.error(f"Error parsing entry from {self.feed_url}: {e}")
                     continue
 
             logger.info(f"Fetched {len(items)} items from {self.feed_url}")
@@ -97,11 +106,11 @@ class RSSFetcher:
         # Get published date
         published_at = None
         if hasattr(entry, 'published_parsed') and entry.published_parsed:
-            published_at = datetime(*entry.published_parsed[:6])
+            published_at = timezone.make_aware(datetime(*entry.published_parsed[:6]))
         elif hasattr(entry, 'updated_parsed') and entry.updated_parsed:
-            published_at = datetime(*entry.updated_parsed[:6])
+            published_at = timezone.make_aware(datetime(*entry.updated_parsed[:6]))
         else:
-            published_at = datetime.now()
+            published_at = timezone.now()
 
         # Get image URL
         image_url = None
