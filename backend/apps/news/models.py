@@ -108,6 +108,7 @@ class Article(models.Model):
     original_body = models.TextField()
     original_summary = models.TextField(null=True, blank=True)
     original_url = models.URLField(max_length=1000)
+    simhash = models.CharField(max_length=64, null=True, blank=True, db_index=True, help_text="64-bit SimHash fingerprint for deduplication")
 
     # Metadata
     author = models.CharField(max_length=200, null=True, blank=True)

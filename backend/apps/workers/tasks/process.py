@@ -140,7 +140,22 @@ def process_article(article_id: str):
             try:
                 queue_translations_for_article.delay(article_id)
             except Exception as e:
-                logger.info(f"Queue unavailable, skipping translation for {article_id}: {e}")
+                logger.info(f"Queue unavailable, attempting synchronous translation for {article_id}: {e}")
+                # Fallback: Synchronous translation loop
+                from apps.workers.tasks.translate import translate_article, TARGET_LANGUAGES
+                
+                try:
+                    article_obj = Article.objects.get(id=article_id)
+                    for lang in TARGET_LANGUAGES:
+                        if lang != article_obj.original_lang:
+                            try:
+                                # Call the task function directly
+                                # Note: self.retry inside translate_article might fail if not mocked
+                                translate_article(article_id, lang)
+                            except Exception as te:
+                                logger.error(f"Sync translation failed for {lang}: {te}")
+                except Exception as loop_e:
+                     logger.error(f"Sync translation loop failed: {loop_e}")
         else:
             logger.info(f"Skipping translation for low quality article {article_id} (Score: {score})")
 
