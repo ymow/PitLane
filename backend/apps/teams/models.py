@@ -10,7 +10,7 @@ class Team(models.Model):
     Core team entity - represents an F1 team/constructor across all seasons.
     Temporal team identities (names, branding) are tracked via TeamIdentity.
     """
-    id = models.CharField(max_length=25, primary_key=True, default=generate_id, editable=False)
+    id = models.CharField(max_length=32, primary_key=True, default=generate_id, editable=False)
     code = models.CharField(max_length=10, unique=True, db_index=True)  # e.g., "RBR", "FER"
     base_name = models.CharField(max_length=200)  # Base name, e.g., "Red Bull Racing"
     country = models.CharField(max_length=100)
@@ -64,7 +64,7 @@ class Driver(models.Model):
         ('INACTIVE', 'Inactive'),
     ]
 
-    id = models.CharField(max_length=25, primary_key=True, default=generate_id, editable=False)
+    id = models.CharField(max_length=32, primary_key=True, default=generate_id, editable=False)
     code = models.CharField(max_length=10, unique=True, db_index=True)  # e.g., "VER", "HAM"
 
     # Personal information
@@ -114,7 +114,7 @@ class TeamIdentity(models.Model):
     Temporal team identity - tracks team name changes, branding, and supplier changes per season.
     Supports full team history (e.g., "Oracle Red Bull Racing" → "Red Bull Racing").
     """
-    id = models.CharField(max_length=25, primary_key=True, default=generate_id, editable=False)
+    id = models.CharField(max_length=32, primary_key=True, default=generate_id, editable=False)
     team = models.ForeignKey(
         Team,
         on_delete=models.CASCADE,
@@ -186,7 +186,7 @@ class DriverContract(models.Model):
         ('GUEST', 'Guest Driver'),
     ]
 
-    id = models.CharField(max_length=25, primary_key=True, default=generate_id, editable=False)
+    id = models.CharField(max_length=32, primary_key=True, default=generate_id, editable=False)
     driver = models.ForeignKey(
         Driver,
         on_delete=models.CASCADE,
@@ -244,7 +244,7 @@ class TeamSponsor(models.Model):
         ('SUPPLIER', 'Official Supplier'),
     ]
 
-    id = models.CharField(max_length=25, primary_key=True, default=generate_id, editable=False)
+    id = models.CharField(max_length=32, primary_key=True, default=generate_id, editable=False)
     team = models.ForeignKey(
         Team,
         on_delete=models.CASCADE,
@@ -298,7 +298,7 @@ class DriverSponsor(models.Model):
         ('EQUIPMENT', 'Equipment Sponsor'),
     ]
 
-    id = models.CharField(max_length=25, primary_key=True, default=generate_id, editable=False)
+    id = models.CharField(max_length=32, primary_key=True, default=generate_id, editable=False)
     driver = models.ForeignKey(
         Driver,
         on_delete=models.CASCADE,

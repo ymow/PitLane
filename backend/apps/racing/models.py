@@ -12,12 +12,14 @@ class Race(models.Model):
     RACE_STATUS_CHOICES = [
         ('SCHEDULED', 'Scheduled'),
         ('ONGOING', 'Ongoing'),
+        ('PROVISIONAL', 'Provisional'), # Added: Post-race investigation period
         ('COMPLETED', 'Completed'),
+        ('OFFICIAL', 'Official'),       # Added: Final validated result
         ('CANCELLED', 'Cancelled'),
         ('POSTPONED', 'Postponed'),
     ]
 
-    id = models.CharField(max_length=25, primary_key=True, default=generate_id, editable=False)
+    id = models.CharField(max_length=32, primary_key=True, default=generate_id, editable=False)
     season = models.ForeignKey(
         'championships.Season',
         on_delete=models.CASCADE,
@@ -106,7 +108,7 @@ class Session(models.Model):
         ('STORMY', 'Stormy'),
     ]
 
-    id = models.CharField(max_length=25, primary_key=True, default=generate_id, editable=False)
+    id = models.CharField(max_length=32, primary_key=True, default=generate_id, editable=False)
     race = models.ForeignKey(
         Race,
         on_delete=models.CASCADE,
@@ -308,7 +310,7 @@ class Car(models.Model):
     """
     Team's car for a specific season - tracks car identity and components.
     """
-    id = models.CharField(max_length=25, primary_key=True, default=generate_id, editable=False)
+    id = models.CharField(max_length=32, primary_key=True, default=generate_id, editable=False)
     team = models.ForeignKey(
         'teams.Team',
         on_delete=models.CASCADE,
@@ -389,7 +391,7 @@ class Component(models.Model):
         ('PENALIZED', 'Penalized'),  # Grid penalty applied
     ]
 
-    id = models.CharField(max_length=25, primary_key=True, default=generate_id, editable=False)
+    id = models.CharField(max_length=32, primary_key=True, default=generate_id, editable=False)
     car = models.ForeignKey(
         Car,
         on_delete=models.CASCADE,
@@ -475,7 +477,7 @@ class LapTime(models.Model):
         ('FASTEST_LAP', 'Fastest Lap'),
     ]
 
-    id = models.CharField(max_length=25, primary_key=True, default=generate_id, editable=False)
+    id = models.CharField(max_length=32, primary_key=True, default=generate_id, editable=False)
     session = models.ForeignKey(
         Session,
         on_delete=models.CASCADE,
@@ -548,7 +550,7 @@ class TelemetryData(models.Model):
     Detailed telemetry data for corner-by-corner analysis.
     Time-series data at specific points on track.
     """
-    id = models.CharField(max_length=25, primary_key=True, default=generate_id, editable=False)
+    id = models.CharField(max_length=32, primary_key=True, default=generate_id, editable=False)
     lap_time = models.ForeignKey(
         LapTime,
         on_delete=models.CASCADE,
@@ -594,7 +596,7 @@ class QualifyingResult(models.Model):
     Qualifying results for a driver in a qualifying session.
     Tracks individual Q1/Q2/Q3 times and final grid position.
     """
-    id = models.CharField(max_length=25, primary_key=True, default=generate_id, editable=False)
+    id = models.CharField(max_length=32, primary_key=True, default=generate_id, editable=False)
     session = models.ForeignKey(
         Session,
         on_delete=models.CASCADE,
@@ -683,7 +685,7 @@ class RaceResult(models.Model):
         ('+LAPS', 'Lapped'),
     ]
 
-    id = models.CharField(max_length=25, primary_key=True, default=generate_id, editable=False)
+    id = models.CharField(max_length=32, primary_key=True, default=generate_id, editable=False)
     session = models.ForeignKey(
         Session,
         on_delete=models.CASCADE,
@@ -786,7 +788,7 @@ class RaceEvent(models.Model):
         ('FORMATION_LAP', 'Formation Lap'),
     ]
 
-    id = models.CharField(max_length=25, primary_key=True, default=generate_id, editable=False)
+    id = models.CharField(max_length=32, primary_key=True, default=generate_id, editable=False)
     session = models.ForeignKey(
         Session,
         on_delete=models.CASCADE,
@@ -835,7 +837,7 @@ class PitStop(models.Model):
     """
     Pit stop data - tracks every pit stop with timing and tire changes.
     """
-    id = models.CharField(max_length=25, primary_key=True, default=generate_id, editable=False)
+    id = models.CharField(max_length=32, primary_key=True, default=generate_id, editable=False)
     session = models.ForeignKey(
         Session,
         on_delete=models.CASCADE,
@@ -906,7 +908,7 @@ class Overtake(models.Model):
         ('GIVEN_BACK', 'Position Given Back'),
     ]
 
-    id = models.CharField(max_length=25, primary_key=True, default=generate_id, editable=False)
+    id = models.CharField(max_length=32, primary_key=True, default=generate_id, editable=False)
     session = models.ForeignKey(
         Session,
         on_delete=models.CASCADE,
@@ -976,7 +978,7 @@ class TyreStint(models.Model):
         ('WET', 'Wet'),
     ]
 
-    id = models.CharField(max_length=25, primary_key=True, default=generate_id, editable=False)
+    id = models.CharField(max_length=32, primary_key=True, default=generate_id, editable=False)
     session = models.ForeignKey(
         Session,
         on_delete=models.CASCADE,

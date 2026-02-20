@@ -35,7 +35,7 @@ class Incident(models.Model):
         ('DISMISSED', 'Dismissed'),
     ]
 
-    id = models.CharField(max_length=25, primary_key=True, default=generate_id, editable=False)
+    id = models.CharField(max_length=32, primary_key=True, default=generate_id, editable=False)
     session = models.ForeignKey(
         'racing.Session',
         on_delete=models.CASCADE,
@@ -115,7 +115,7 @@ class StewardInvestigation(models.Model):
         ('APPEAL_WITHDRAWN', 'Appeal Withdrawn'),
     ]
 
-    id = models.CharField(max_length=25, primary_key=True, default=generate_id, editable=False)
+    id = models.CharField(max_length=32, primary_key=True, default=generate_id, editable=False)
     incident = models.ForeignKey(
         Incident,
         on_delete=models.CASCADE,
@@ -208,7 +208,7 @@ class Penalty(models.Model):
         ('RESCINDED', 'Rescinded'),
     ]
 
-    id = models.CharField(max_length=25, primary_key=True, default=generate_id, editable=False)
+    id = models.CharField(max_length=32, primary_key=True, default=generate_id, editable=False)
     investigation = models.ForeignKey(
         StewardInvestigation,
         null=True,

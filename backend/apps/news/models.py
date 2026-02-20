@@ -10,7 +10,7 @@ class NewsCategory(models.Model):
     """
     News article categories - separate table for flexible category management
     """
-    id = models.CharField(max_length=25, primary_key=True, default=generate_id, editable=False)
+    id = models.CharField(max_length=32, primary_key=True, default=generate_id, editable=False)
     name = models.CharField(max_length=100, unique=True)
     slug = models.SlugField(max_length=100, unique=True, db_index=True)
     description = models.TextField(null=True, blank=True)
@@ -34,7 +34,7 @@ class NewsCategoryTranslation(models.Model):
     """
     Translations for NewsCategory name and description.
     """
-    id = models.CharField(max_length=25, primary_key=True, default=generate_id, editable=False)
+    id = models.CharField(max_length=32, primary_key=True, default=generate_id, editable=False)
     category = models.ForeignKey(
         NewsCategory,
         on_delete=models.CASCADE,
@@ -70,7 +70,7 @@ class TranslationStatus(models.TextChoices):
 
 class Source(models.Model):
     """RSS feed source."""
-    id = models.CharField(max_length=25, primary_key=True, default=generate_id)
+    id = models.CharField(max_length=32, primary_key=True, default=generate_id)
     name = models.CharField(max_length=100)
     slug = models.SlugField(max_length=100, unique=True)
     feed_url = models.URLField(max_length=500)
@@ -91,7 +91,7 @@ class Source(models.Model):
 
 class Tag(models.Model):
     """Content tag for articles."""
-    id = models.CharField(max_length=25, primary_key=True, default=generate_id, editable=False)
+    id = models.CharField(max_length=32, primary_key=True, default=generate_id, editable=False)
     name = models.CharField(max_length=100, unique=True)
     slug = models.SlugField(max_length=100, unique=True, db_index=True)
     description = models.TextField(null=True, blank=True)
@@ -115,8 +115,8 @@ class Article(models.Model):
     """
     News article - main content entity with multilingual support.
     """
-    id = models.CharField(max_length=25, primary_key=True, default=generate_id, editable=False)
-    external_id = models.CharField(max_length=255, unique=True, db_index=True, null=True, blank=True)
+    id = models.CharField(max_length=32, primary_key=True, default=generate_id, editable=False)
+    external_id = models.CharField(max_length=325, unique=True, db_index=True, null=True, blank=True)
     source = models.ForeignKey(
         Source,
         on_delete=models.CASCADE,
@@ -223,7 +223,7 @@ class ArticleChunk(models.Model):
     """
     Segmented content of an article for AI processing and granular access.
     """
-    id = models.CharField(max_length=25, primary_key=True, default=generate_id, editable=False)
+    id = models.CharField(max_length=32, primary_key=True, default=generate_id, editable=False)
     article = models.ForeignKey(
         Article,
         on_delete=models.CASCADE,
@@ -257,7 +257,7 @@ class Translation(models.Model):
     """
     Article translation - supports multiple languages per article.
     """
-    id = models.CharField(max_length=25, primary_key=True, default=generate_id, editable=False)
+    id = models.CharField(max_length=32, primary_key=True, default=generate_id, editable=False)
     article = models.ForeignKey(
         Article,
         on_delete=models.CASCADE,
@@ -312,7 +312,7 @@ class Translation(models.Model):
 
 class ArticleCategory(models.Model):
     """Article-Category relationship."""
-    id = models.CharField(max_length=25, primary_key=True, default=generate_id, editable=False)
+    id = models.CharField(max_length=32, primary_key=True, default=generate_id, editable=False)
     article = models.ForeignKey(Article, on_delete=models.CASCADE)
     category = models.ForeignKey(NewsCategory, on_delete=models.CASCADE)
     is_primary = models.BooleanField(default=False)  # One category can be marked as primary
@@ -330,7 +330,7 @@ class ArticleCategory(models.Model):
 
 class ArticleDriver(models.Model):
     """Article-Driver relationship."""
-    id = models.CharField(max_length=25, primary_key=True, default=generate_id, editable=False)
+    id = models.CharField(max_length=32, primary_key=True, default=generate_id, editable=False)
     article = models.ForeignKey(Article, on_delete=models.CASCADE)
     driver = models.ForeignKey('teams.Driver', on_delete=models.CASCADE)
     is_primary = models.BooleanField(default=False)  # Main driver mentioned in article
@@ -345,7 +345,7 @@ class ArticleDriver(models.Model):
 
 class ArticleTeam(models.Model):
     """Article-Team relationship."""
-    id = models.CharField(max_length=25, primary_key=True, default=generate_id, editable=False)
+    id = models.CharField(max_length=32, primary_key=True, default=generate_id, editable=False)
     article = models.ForeignKey(Article, on_delete=models.CASCADE)
     team = models.ForeignKey('teams.Team', on_delete=models.CASCADE)
     is_primary = models.BooleanField(default=False)  # Main team mentioned in article
@@ -360,7 +360,7 @@ class ArticleTeam(models.Model):
 
 class ArticleCircuit(models.Model):
     """Article-Circuit relationship."""
-    id = models.CharField(max_length=25, primary_key=True, default=generate_id, editable=False)
+    id = models.CharField(max_length=32, primary_key=True, default=generate_id, editable=False)
     article = models.ForeignKey(Article, on_delete=models.CASCADE)
     circuit = models.ForeignKey('circuits.Circuit', on_delete=models.CASCADE)
 
@@ -374,7 +374,7 @@ class ArticleCircuit(models.Model):
 
 class ArticleRace(models.Model):
     """Article-Race relationship."""
-    id = models.CharField(max_length=25, primary_key=True, default=generate_id, editable=False)
+    id = models.CharField(max_length=32, primary_key=True, default=generate_id, editable=False)
     article = models.ForeignKey(Article, on_delete=models.CASCADE)
     race = models.ForeignKey('racing.Race', on_delete=models.CASCADE)
 
@@ -388,7 +388,7 @@ class ArticleRace(models.Model):
 
 class ArticleTag(models.Model):
     """Article-Tag relationship."""
-    id = models.CharField(max_length=25, primary_key=True, default=generate_id, editable=False)
+    id = models.CharField(max_length=32, primary_key=True, default=generate_id, editable=False)
     article = models.ForeignKey(Article, on_delete=models.CASCADE)
     tag = models.ForeignKey(Tag, on_delete=models.CASCADE)
 

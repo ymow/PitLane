@@ -5,7 +5,7 @@ from apps.processor.entity_extractor import F1EntityExtractor
 from apps.processor.categorizer import ArticleCategorizer
 from apps.processor.chunker import HTMLChunker
 from apps.processor.sanitizer import ArticleSanitizer
-from apps.processor.monitoring import monitor_spacy_model_load, monitor_memory
+from apps.processor.monitoring import monitor_memory
 from apps.workers.tasks.translate import queue_translations_for_article
 from django.utils import timezone
 from datetime import timedelta

@@ -130,63 +130,6 @@ def monitor_memory(component: str):
     return decorator
 
 
-def monitor_spacy_model_load():
-    """Special monitoring for Spacy model loading."""
-    def decorator(func: Callable) -> Callable:
-        @wraps(func)
-        def wrapper(*args, **kwargs):
-            logger.info("Loading Spacy model - monitoring memory usage...")
-            
-            # Memory before loading
-            memory_before = ProcessorMetrics.get_memory_usage()
-            system_before = ProcessorMetrics.get_system_memory()
-            
-            start_time = time.time()
-            
-            try:
-                result = func(*args, **kwargs)
-                
-                # Memory after loading
-                memory_after = ProcessorMetrics.get_memory_usage()
-                system_after = ProcessorMetrics.get_system_memory()
-                load_time = time.time() - start_time
-                
-                memory_increase = memory_after['rss_mb'] - memory_before['rss_mb']
-                
-                logger.info(
-                    f"Spacy model loaded successfully in {load_time:.2f}s. "
-                    f"Memory increase: {memory_increase:.1f}MB. "
-                    f"Total process memory: {memory_after['rss_mb']:.1f}MB. "
-                    f"System memory usage: {system_after['used_percent']:.1f}%"
-                )
-                
-                # Cache model loading metrics
-                model_metrics = {
-                    'load_time': load_time,
-                    'memory_increase_mb': memory_increase,
-                    'total_memory_mb': memory_after['rss_mb'],
-                    'system_memory_percent': system_after['used_percent'],
-                    'timestamp': time.time()
-                }
-                ProcessorMetrics.cache_metrics("spacy_model_load", model_metrics)
-                
-                # Alert if model loading used excessive memory
-                if memory_increase > 200:  # Alert if model uses over 200MB
-                    logger.warning(
-                        f"Spacy model loading used {memory_increase:.1f}MB memory. "
-                        f"Consider monitoring memory usage during peak traffic."
-                    )
-                
-                return result
-                
-            except Exception as e:
-                logger.error(f"Failed to load Spacy model after {time.time() - start_time:.2f}s: {e}")
-                raise
-                
-        return wrapper
-    return decorator
-
-
 # Django management command for memory diagnostics
 def log_processor_memory_status():
     """Log current memory status for all processor components."""
@@ -201,24 +144,5 @@ def log_processor_memory_status():
         f"System Memory: {system_memory['used_percent']:.1f}% used, "
         f"{system_memory['available_gb']:.1f}GB available"
     )
-    
-    # Check cached metrics
-    try:
-        cached_metrics = [
-            "spacy_model_load",
-            "entity_extractor_process_article_perf",
-            "deduplicator_is_duplicate_perf",
-            "categorizer_categorize_perf"
-        ]
-        
-        for metric in cached_metrics:
-            data = cache.get(f"processor_metrics:{metric}")
-            if data:
-                if isinstance(data, dict) and 'timestamp' in data:
-                    age = time.time() - data['timestamp']
-                    logger.info(f"Recent {metric}: {data} (age: {age:.0f}s)")
-    
-    except Exception as e:
-        logger.warning(f"Could not retrieve cached metrics: {e}")
     
     logger.info("=== End Memory Status ===")

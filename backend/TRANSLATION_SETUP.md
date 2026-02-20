@@ -4,6 +4,7 @@
 - **Engine**: Claude 3.5 Sonnet.
 - **Specialization**: Preserves F1 technical terms (e.g., DRS, MGU-K, Porpoising).
 - **Storage**: Multi-language `Translation` model linked to `Article`.
+- **Target Languages**: English, Traditional Chinese (zh-TW), Simplified Chinese (zh-CN), Spanish, Portuguese, etc.
 
 ## 2. Dynamic UI (Database-Driven)
 - **Categories**: Category names are now stored in `NewsCategoryTranslation` (No longer static YAML).

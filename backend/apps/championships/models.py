@@ -9,7 +9,7 @@ class Season(models.Model):
     """
     F1 Season - represents a single F1 championship year
     """
-    id = models.CharField(max_length=25, primary_key=True, default=generate_id, editable=False)
+    id = models.CharField(max_length=32, primary_key=True, default=generate_id, editable=False)
     year = models.IntegerField(unique=True, db_index=True)
     name = models.CharField(max_length=200, null=True, blank=True)
     total_races = models.IntegerField(default=23)
@@ -43,7 +43,7 @@ class PointsSystem(models.Model):
     """
     Track different points systems across F1 eras
     """
-    id = models.CharField(max_length=25, primary_key=True, default=generate_id, editable=False)
+    id = models.CharField(max_length=32, primary_key=True, default=generate_id, editable=False)
     name = models.CharField(max_length=100)
     valid_from_year = models.IntegerField(db_index=True)
     valid_until_year = models.IntegerField(null=True, blank=True)
@@ -77,7 +77,7 @@ class DriverStanding(models.Model):
     """
     Driver championship standings per season
     """
-    id = models.CharField(max_length=25, primary_key=True, default=generate_id, editable=False)
+    id = models.CharField(max_length=32, primary_key=True, default=generate_id, editable=False)
     driver = models.ForeignKey(
         'teams.Driver',
         on_delete=models.CASCADE,
@@ -113,7 +113,7 @@ class ConstructorStanding(models.Model):
     """
     Constructor championship standings per season
     """
-    id = models.CharField(max_length=25, primary_key=True, default=generate_id, editable=False)
+    id = models.CharField(max_length=32, primary_key=True, default=generate_id, editable=False)
     team = models.ForeignKey(
         'teams.Team',
         on_delete=models.CASCADE,

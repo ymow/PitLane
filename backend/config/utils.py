@@ -6,7 +6,7 @@ import uuid
 
 def generate_id():
     """
-    Generate a custom 25-character UUID for database IDs.
-    This is a consistent ID generation strategy used across all models.
+    Generate a standard 32-character UUID for database IDs.
+    This ensures global uniqueness across historical and social data scales.
     """
-    return uuid.uuid4().hex[:25]
+    return uuid.uuid4().hex

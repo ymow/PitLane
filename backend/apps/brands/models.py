@@ -9,7 +9,7 @@ class Manufacturer(models.Model):
     """
     Car manufacturers and constructors (Ferrari, Mercedes, McLaren, etc.)
     """
-    id = models.CharField(max_length=25, primary_key=True, default=generate_id, editable=False)
+    id = models.CharField(max_length=32, primary_key=True, default=generate_id, editable=False)
     name = models.CharField(max_length=100, unique=True)
     code = models.CharField(max_length=10, unique=True, db_index=True)
     country = models.CharField(max_length=100)
@@ -32,7 +32,7 @@ class EngineSupplier(models.Model):
     """
     Engine manufacturers (Mercedes HPP, Ferrari, Honda, Renault, etc.)
     """
-    id = models.CharField(max_length=25, primary_key=True, default=generate_id, editable=False)
+    id = models.CharField(max_length=32, primary_key=True, default=generate_id, editable=False)
     name = models.CharField(max_length=100)
     code = models.CharField(max_length=10, unique=True, db_index=True)
     manufacturer = models.ForeignKey(Manufacturer, null=True, blank=True, on_delete=models.SET_NULL)
@@ -54,7 +54,7 @@ class TireSupplier(models.Model):
     """
     Tire manufacturers (Pirelli, Bridgestone, Michelin - series-wide contracts)
     """
-    id = models.CharField(max_length=25, primary_key=True, default=generate_id, editable=False)
+    id = models.CharField(max_length=32, primary_key=True, default=generate_id, editable=False)
     name = models.CharField(max_length=100)
     country = models.CharField(max_length=100)
     logo_url = models.URLField(null=True, blank=True)
@@ -82,7 +82,7 @@ class ComponentSupplier(models.Model):
         ('SUSPENSION', 'Suspension'),
     ]
 
-    id = models.CharField(max_length=25, primary_key=True, default=generate_id, editable=False)
+    id = models.CharField(max_length=32, primary_key=True, default=generate_id, editable=False)
     name = models.CharField(max_length=100)
     component_type = models.CharField(max_length=50, choices=COMPONENT_TYPE_CHOICES, db_index=True)
     country = models.CharField(max_length=100)
@@ -103,7 +103,7 @@ class Sponsor(models.Model):
     """
     Commercial sponsors (title, team, and driver sponsors)
     """
-    id = models.CharField(max_length=25, primary_key=True, default=generate_id, editable=False)
+    id = models.CharField(max_length=32, primary_key=True, default=generate_id, editable=False)
     name = models.CharField(max_length=100)
     industry = models.CharField(max_length=100, null=True, blank=True)
     logo_url = models.URLField(null=True, blank=True)

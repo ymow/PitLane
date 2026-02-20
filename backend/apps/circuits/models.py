@@ -16,7 +16,7 @@ class Circuit(models.Model):
         ('SEMI_PERMANENT', 'Semi-Permanent Circuit'),
     ]
 
-    id = models.CharField(max_length=25, primary_key=True, default=generate_id, editable=False)
+    id = models.CharField(max_length=32, primary_key=True, default=generate_id, editable=False)
     code = models.CharField(max_length=10, unique=True, db_index=True)  # e.g., "MON", "SPA"
     name = models.CharField(max_length=200, db_index=True)
     full_name = models.CharField(max_length=300, null=True, blank=True)
@@ -64,7 +64,7 @@ class CircuitConfiguration(models.Model):
     Temporal circuit configuration - tracks layout changes and characteristics per season.
     Supports versioned circuit configs (different lap lengths, corner counts, DRS zones, etc.).
     """
-    id = models.CharField(max_length=25, primary_key=True, default=generate_id, editable=False)
+    id = models.CharField(max_length=32, primary_key=True, default=generate_id, editable=False)
     circuit = models.ForeignKey(
         Circuit,
         on_delete=models.CASCADE,
