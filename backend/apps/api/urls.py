@@ -5,7 +5,7 @@ from .views import (
     ArticleViewSet, DriverViewSet, TeamViewSet, I18nView, SearchView,
     F1StandingsAPIView, F1RaceScheduleAPIView, F1RaceResultsAPIView,
     F1DriversAPIView, F1ConstructorsAPIView, F1QualifyingAPIView,
-    F1LiveDataAPIView
+    F1LiveDataAPIView, LinearLoginView, LinearCallbackView
 )
 
 router = DefaultRouter()
@@ -26,4 +26,8 @@ urlpatterns = [
     path('f1/constructors/', F1ConstructorsAPIView.as_view(), name='f1-constructors'),
     path('f1/qualifying/', F1QualifyingAPIView.as_view(), name='f1-qualifying'),
     path('f1/live/', F1LiveDataAPIView.as_view(), name='f1-live'),
+    
+    # Linear OAuth
+    path('auth/linear/login/', LinearLoginView.as_view(), name='linear-login'),
+    path('auth/linear/callback/', LinearCallbackView.as_view(), name='linear-callback'),
 ]

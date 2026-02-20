@@ -2,6 +2,7 @@
 Django==5.0.13
 djangorestframework==3.14.0
 django-cors-headers==4.3.1
+django-extensions==3.2.3
 
 # Database
 psycopg2-binary==2.9.9
@@ -14,31 +15,22 @@ celery==5.3.6
 python-i18n==0.3.9
 PyYAML==6.0.1
 
-# AI
+# AI (僅保留非編譯型依賴)
 anthropic==0.18.1
+simhash==2.1.2
 
 # RSS Fetching
 feedparser==6.0.11
+beautifulsoup4==4.12.3
+requests==2.31.0
 
 # Utilities
 python-slugify==8.0.4
 python-dotenv==1.0.1
+bleach==6.1.0
 
 # Production Server
 gunicorn==21.2.0
 
 # Monitoring
 sentry-sdk==1.40.6
-
-# Development
-ipython==8.20.0
-beautifulsoup4==4.12.3
-bleach==6.1.0
-requests==2.31.0
-
-# Analysis
-fastf1==3.3.0
-pandas==2.2.0
-matplotlib==3.8.2
-seaborn==0.13.2
-Pillow

@@ -490,3 +490,47 @@ class F1LiveDataAPIView(APIView):
                 {'error': 'Failed to fetch live data'},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
+
+
+class LinearLoginView(APIView):
+    """
+    Step 1: Redirect the user to Linear's OAuth page.
+    """
+    def get(self, request):
+        import os
+        from django.shortcuts import redirect
+        client_id = os.getenv('LINEAR_CLIENT_ID')
+        if not client_id:
+            return Response({'error': 'LINEAR_CLIENT_ID not set'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        # Redirect URI - must match the one set in Linear dashboard
+        redirect_uri = "http://localhost:8000/api/v1/auth/linear/callback"
+        scope = "read write"
+        
+        auth_url = (
+            f"https://linear.app/oauth/authorize?"
+            f"client_id={client_id}&"
+            f"redirect_uri={redirect_uri}&"
+            f"response_type=code&"
+            f"scope={scope}"
+        )
+        return redirect(auth_url)
+
+
+class LinearCallbackView(APIView):
+    """
+    Step 2: Receive the authorization code from Linear and exchange for a token.
+    """
+    def get(self, request):
+        code = request.GET.get('code')
+        if not code:
+            return Response({'error': 'No authorization code provided'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # In a real app, you would exchange the code for a token here.
+        # Once we have the Client Secret, we can call https://api.linear.app/oauth/token
+        
+        return Response({
+            'message': 'Successfully received authorization code from Linear!',
+            'code': code,
+            'status': 'Ready for token exchange (Needs Client Secret)'
+        })
