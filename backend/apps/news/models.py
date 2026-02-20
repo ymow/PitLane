@@ -30,6 +30,28 @@ class NewsCategory(models.Model):
         return self.name
 
 
+class NewsCategoryTranslation(models.Model):
+    """
+    Translations for NewsCategory name and description.
+    """
+    id = models.CharField(max_length=25, primary_key=True, default=generate_id, editable=False)
+    category = models.ForeignKey(
+        NewsCategory,
+        on_delete=models.CASCADE,
+        related_name='translations'
+    )
+    lang = models.CharField(max_length=10, db_index=True)
+    name = models.CharField(max_length=100)
+    description = models.TextField(null=True, blank=True)
+
+    class Meta:
+        db_table = 'news_category_translations'
+        unique_together = [['category', 'lang']]
+
+    def __str__(self):
+        return f"{self.category.name} ({self.lang})"
+
+
 class Priority(models.TextChoices):
     """Article priority levels."""
     CRITICAL = 'CRITICAL', 'Critical'

@@ -1,6 +1,6 @@
 """API serializers."""
 from rest_framework import serializers
-from apps.news.models import Article, Translation, Source, Tag
+from apps.news.models import Article, Translation, Source, Tag, NewsCategory
 from apps.teams.models import Driver, Team
 
 
@@ -30,6 +30,21 @@ class TagSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tag
         fields = ['id', 'name', 'slug']
+
+
+class CategorySerializer(serializers.ModelSerializer):
+    """News category with translation support."""
+    display_name = serializers.SerializerMethodField()
+
+    class Meta:
+        model = NewsCategory
+        fields = ['id', 'name', 'slug', 'display_name', 'color', 'icon']
+
+    def get_display_name(self, obj):
+        """Get translated category name."""
+        lang = self.context.get('lang', 'en')
+        translation = obj.translations.filter(lang=lang).first()
+        return translation.name if translation else obj.name
 
 
 class ArticleChunkSerializer(serializers.Serializer):
@@ -100,19 +115,17 @@ class ArticleListSerializer(serializers.Serializer):
         return translation.summary if translation else None
 
     def get_category(self, obj):
-        """Get primary category name."""
+        """Get primary category details."""
         primary_category = obj.categories.filter(
             articlecategory__is_primary=True
-        ).first()
+        ).first() or obj.categories.first()
+        
         if primary_category:
-            return primary_category.name
-        # Fallback to first category
-        first_category = obj.categories.first()
-        return first_category.name if first_category else None
+            return CategorySerializer(primary_category, context=self.context).data
+        return None
 
     def get_drivers(self, obj):
         """Get drivers with minimal info."""
-        # Optimize: use prefetch_related in viewset
         relations = obj.articledriver_set.all()[:3]
         return [
             {
@@ -179,12 +192,11 @@ class ArticleDetailSerializer(serializers.Serializer):
         return translation.body if translation else obj.original_body
 
     def get_category(self, obj):
-        """Get primary category name."""
+        """Get primary category details."""
         primary_category = obj.categories.filter(
             articlecategory__is_primary=True
-        ).first()
+        ).first() or obj.categories.first()
+        
         if primary_category:
-            return primary_category.name
-        # Fallback to first category
-        first_category = obj.categories.first()
-        return first_category.name if first_category else None
+            return CategorySerializer(primary_category, context=self.context).data
+        return None

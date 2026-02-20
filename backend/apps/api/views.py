@@ -225,9 +225,6 @@ class I18nView(APIView):
             'nav.home', 'nav.news', 'nav.breaking', 'nav.drivers', 'nav.teams',
             'news.breaking', 'news.latest', 'news.read_more', 'news.published_at',
             'news.source', 'news.related_articles', 'news.no_results',
-            'categories.BREAKING', 'categories.NEWS', 'categories.RACE_REPORT',
-            'categories.QUALIFYING', 'categories.PRACTICE', 'categories.TECHNICAL',
-            'categories.TRANSFER', 'categories.OPINION',
             'filters.all', 'filters.by_driver', 'filters.by_team', 'filters.by_category',
             'common.loading', 'common.error', 'common.retry'
         ]

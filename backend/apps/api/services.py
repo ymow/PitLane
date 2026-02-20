@@ -49,41 +49,6 @@ class ErgastF1Service:
             logger.error(f"Jolpica API request failed: {e}")
             return None
 
-
-class RacingService:
-    """Service for internal racing data logic and OpenF1 integration."""
-    
-    @staticmethod
-    def get_session_info(year, round_number, session_type='RACE'):
-        """Retrieve local session info including OpenF1 keys."""
-        from apps.racing.models import Session
-        try:
-            return Session.objects.filter(
-                race__season__year=year,
-                race__round_number=round_number,
-                session_type=session_type
-            ).first()
-        except Exception as e:
-            logger.error(f"Error fetching local session: {e}")
-            return None
-
-    @staticmethod
-    def enrich_race_with_telemetry(race_data):
-        """Inject OpenF1 session keys into race data dictionaries."""
-        year = int(race_data['date'][:4])
-        round_num = race_data['round']
-        
-        session = RacingService.get_session_info(year, round_num)
-        if session:
-            race_data['openf1_session_key'] = session.openf1_session_key
-            race_data['status'] = session.status
-        return race_data
-
-
-# Singleton instances
-ergast_service = ErgastF1Service()
-racing_service = RacingService()
-    
     def get_current_standings(self):
         """Get current driver and constructor standings."""
         driver_standings = self._make_request(f"{self.CURRENT_SEASON}/driverStandings")
@@ -308,5 +273,39 @@ racing_service = RacingService()
         return results
 
 
-# Singleton instance
+class RacingService:
+    """Service for internal racing data logic and OpenF1 integration."""
+    
+    @staticmethod
+    def get_session_info(year, round_number, session_type='RACE'):
+        """Retrieve local session info including OpenF1 keys."""
+        from apps.racing.models import Session
+        try:
+            return Session.objects.filter(
+                race__season__year=year,
+                race__round_number=round_number,
+                session_type=session_type
+            ).first()
+        except Exception as e:
+            logger.error(f"Error fetching local session: {e}")
+            return None
+
+    @staticmethod
+    def enrich_race_with_telemetry(race_data):
+        """Inject OpenF1 session keys into race data dictionaries."""
+        try:
+            year = int(race_data['date'][:4])
+            round_num = race_data['round']
+            
+            session = RacingService.get_session_info(year, round_num)
+            if session:
+                race_data['openf1_session_key'] = session.openf1_session_key
+                race_data['status'] = session.status
+        except (ValueError, KeyError, TypeError):
+            pass
+        return race_data
+
+
+# Singleton instances
 ergast_service = ErgastF1Service()
+racing_service = RacingService()
