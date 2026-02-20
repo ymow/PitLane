@@ -9,10 +9,10 @@ logger = logging.getLogger(__name__)
 
 
 class ErgastF1Service:
-    """Service to interact with Ergast F1 API."""
+    """Service to interact with Ergast F1 API via Jolpica mirror."""
     
-    BASE_URL = "http://ergast.com/api/f1"
-    CURRENT_SEASON = "2024"  # Update this each year
+    BASE_URL = "http://api.jolpi.ca/ergast/f1"
+    CURRENT_SEASON = "2025"  # Updated for new season prep
     
     def __init__(self):
         self.session = requests.Session()
@@ -21,8 +21,8 @@ class ErgastF1Service:
         })
     
     def _make_request(self, endpoint, params=None):
-        """Make request to Ergast API with caching."""
-        cache_key = f"ergast:{endpoint}:{str(params) if params else 'no_params'}"
+        """Make request to Jolpica API with caching."""
+        cache_key = f"jolpica:{endpoint}:{str(params) if params else 'no_params'}"
         cached_result = cache.get(cache_key)
         
         if cached_result:
@@ -46,8 +46,43 @@ class ErgastF1Service:
             return data
             
         except requests.RequestException as e:
-            logger.error(f"Ergast API request failed: {e}")
+            logger.error(f"Jolpica API request failed: {e}")
             return None
+
+
+class RacingService:
+    """Service for internal racing data logic and OpenF1 integration."""
+    
+    @staticmethod
+    def get_session_info(year, round_number, session_type='RACE'):
+        """Retrieve local session info including OpenF1 keys."""
+        from apps.racing.models import Session
+        try:
+            return Session.objects.filter(
+                race__season__year=year,
+                race__round_number=round_number,
+                session_type=session_type
+            ).first()
+        except Exception as e:
+            logger.error(f"Error fetching local session: {e}")
+            return None
+
+    @staticmethod
+    def enrich_race_with_telemetry(race_data):
+        """Inject OpenF1 session keys into race data dictionaries."""
+        year = int(race_data['date'][:4])
+        round_num = race_data['round']
+        
+        session = RacingService.get_session_info(year, round_num)
+        if session:
+            race_data['openf1_session_key'] = session.openf1_session_key
+            race_data['status'] = session.status
+        return race_data
+
+
+# Singleton instances
+ergast_service = ErgastF1Service()
+racing_service = RacingService()
     
     def get_current_standings(self):
         """Get current driver and constructor standings."""

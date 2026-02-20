@@ -14,7 +14,7 @@ from .serializers import (
     ArticleListSerializer, ArticleDetailSerializer,
     DriverSerializer, TeamSerializer
 )
-from .services import ergast_service
+from .services import ergast_service, racing_service
 
 
 class ArticleViewSet(viewsets.ReadOnlyModelViewSet):
@@ -305,24 +305,10 @@ class F1RaceScheduleAPIView(APIView):
         try:
             schedule = ergast_service.get_race_schedule(year)
             
-            # Enrich with local session data
-            for race in schedule:
-                try:
-                    race_year = int(race['date'][:4])
-                    
-                    session = Session.objects.filter(
-                        race__season__year=race_year,
-                        race__round_number=race['round'],
-                        session_type='RACE'
-                    ).first()
-                    
-                    if session:
-                        race['openf1_session_key'] = session.openf1_session_key
-                        race['status'] = session.status
-                except Exception:
-                    pass
+            # Use service to enrich with local session data (OpenF1 keys)
+            enriched_schedule = [racing_service.enrich_race_with_telemetry(race) for race in schedule]
             
-            return Response({'races': schedule})
+            return Response({'races': enriched_schedule})
         except Exception as e:
             return Response(
                 {'error': 'Failed to fetch race schedule'},
@@ -450,27 +436,9 @@ class F1LiveDataAPIView(APIView):
                     next_race = race
                     break
             
-            # Enrich with OpenF1 Session Key
+            # Enrich with OpenF1 Session Key via service
             if next_race:
-                from apps.racing.models import Session
-                # Try to find the Race Session for this round
-                try:
-                    # Assuming current year
-                    current_year = datetime.now().year
-                    round_num = next_race.get('round')
-                    
-                    session = Session.objects.filter(
-                        race__season__year=current_year,
-                        race__round_number=round_num,
-                        session_type='RACE'
-                    ).first()
-                    
-                    if session:
-                        next_race['openf1_session_key'] = session.openf1_session_key
-                        next_race['status'] = session.status
-                except Exception as e:
-                    # Log error but don't break the API
-                    print(f"Error fetching local session: {e}")
+                next_race = racing_service.enrich_race_with_telemetry(next_race)
 
             # Get latest results (last completed race)
             latest_results = ergast_service.get_race_results()
