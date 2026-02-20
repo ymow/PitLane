@@ -21,6 +21,13 @@ Ensuring stable telemetry flow using open-source data streams (OpenF1).
 Updating the grid to reflect the 2026 Audi/Sauber transition and driver transfers.
 - **Issue**: [DON-7 / PL-003]
 
+### 2.4 News & Intelligence (Active)
+Real-time news aggregation from multiple sources with automated translation and entity extraction.
+- **RSS Pipeline**: Multi-source fetching with deduplication (SimHash).
+- **Translation**: Automated zh-TW translation fallback via CLI/LLM.
+- **Entity Extraction**: Hybrid approach using Regex fallback (in absence of spaCy) for robust F1 entity recognition.
+- **Frontend**: Dynamic article loading with fallback to zh-TW content.
+
 ## 3. Deferred Visions (Backlog)
 The following are high-value features postponed to Phase 2/3:
 - **F1 TV Pro SignalR Client**: High-fidelity official stream (Requires paid account).
