@@ -1,44 +1,31 @@
-# F1 Data Strategy: Hybrid Architecture (2025)
+# F1 Data Strategy: Omni-Graph Hybrid Engine
 
-To support the 2025 season with both historical accuracy and real-time engagement, PitLane employs a hybrid data strategy integrating three specialized sources.
+## 1. Overview
+PitLane synchronizes diverse data streams to create a digital twin of the F1 season. We prioritize reliability and low latency for Phase 1.
 
-## 1. Architecture Overview
+## 2. Data Sources
 
-| Layer | Source | Purpose | Key Data |
+| Tier | Provider | Frequency | Data Points |
 | :--- | :--- | :--- | :--- |
-| **Core / Truth** | **Jolpica (Ergast)** | Official Records & Schedule | Calendar, Results, Standings, Laps (Summary) |
-| **Live (Frontend)** | **OpenF1** | Real-time Fan Engagement | Live Speed, RPM, Gear, Throttle, Gaps |
-| **Analysis (Backend)** | **FastF1** | Deep Post-Race Insights | Telemetry Charts, Tyre Strategy, Pace Analysis |
+| **Historical** | **Jolpica (Ergast Mirror)** | Periodic | Standings, Results, Official Calendars. |
+| **Open Live** | **OpenF1** | 2s Polling | Real-time Speed, RPM, Gear, Throttle. |
+| **Deep Analysis** | **FastF1** | Post-Race | Lap-by-lap pace, Tyre degradation, Comparison charts. |
+| **Intelligence** | **Paddock Registry** | Continuous | Technical staff movements, Social signals. |
 
-## 2. Data Flow
+## 3. Implementation Logic
 
-### A. Core Pipeline (Jolpica)
-*   **Frequency**: Post-session (Static).
-*   **Mechanism**: `apps.fetcher.jolpica` fetches JSON -> `apps.processor.f1_normalizer` updates DB.
-*   **Models**: `Race`, `Session`, `RaceResult`, `DriverStanding`.
-*   **Trigger**: Management command or periodic Celery task.
+### A. The RacingService
+Located at `apps.api.services.RacingService`, this service centralizes:
+- OpenF1 Session Key management.
+- Post-race data enrichment for API views.
 
-### B. Live Pipeline (OpenF1)
-*   **Frequency**: Real-time (~4Hz).
-*   **Mechanism**: Direct Frontend-to-API connection (React Hook `useOpenF1`).
-*   **Integration**: The backend `Session` model stores an `openf1_session_key`. The frontend uses this key to poll `api.openf1.org` only when a session is active.
-*   **Storage**: Ephemeral (Frontend state only). No heavy database writes.
+### B. Automation Pipeline
+1. **Trigger**: Jolpica marks a race as `COMPLETED`.
+2. **Task**: Celery invokes `fastf1_service.generate_charts`.
+3. **Storage**: Charts saved to `media/telemetry_charts/` and linked to `RaceResult`.
 
-### C. Analysis Pipeline (FastF1)
-*   **Frequency**: Post-race (One-off).
-*   **Mechanism**: `apps.analysis.fastf1_service` downloads full session cache.
-*   **Output**: Generates static chart images (e.g., "Verstappen vs Hamilton Pace") and saves them to `RaceResult.telemetry_chart`.
-*   **Trigger**: Automatically triggered by `F1DataNormalizer` when Jolpica marks a race as "Completed".
-
-## 3. Implementation Status
-
-### ✅ Completed
-- [x] **Jolpica Client**: Fetcher and Normalizer implemented.
-- [x] **Hybrid Models**: `Session` updated with `openf1_session_key`; `RaceResult` updated with `telemetry_chart`.
-- [x] **FastF1 Service**: Comparison chart generation implemented (`backend/apps/analysis`).
-- [x] **Live Widget**: React component `LiveTelemetryWidget` connected to OpenF1.
-- [x] **Orchestration**: Automated analysis trigger after result sync.
-
-### 🔜 Future Work
-- [ ] **Predictive AI**: Use FastF1 historical data to train race strategy models.
-- [ ] **Enhanced Live**: WebSocket proxy for OpenF1 to reduce client-side polling.
+## 4. Current Roadmap
+- [x] Unify external API to Jolpica.
+- [x] Implement sub-second telemetry widget.
+- [ ] Seed 2026 Audi/Sauber transition data.
+- [ ] (Future) Drive VTuber broadcast signals from OpenF1 events.

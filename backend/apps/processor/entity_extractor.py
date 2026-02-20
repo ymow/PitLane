@@ -1,5 +1,4 @@
 import re
-import spacy
 from typing import List, Set, Dict
 from apps.teams.models import Driver, Team
 from apps.processor.monitoring import monitor_memory
@@ -10,19 +9,22 @@ logger = logging.getLogger(__name__)
 
 class F1EntityExtractor:
     """
-    Extract F1 driver and team mentions using Spacy NER + Database matching.
+    Extract F1 driver and team mentions using Spacy NER (Primary) 
+    or Regex (Fallback) + Database matching.
     """
 
     def __init__(self, nlp=None):
         """Initialize with Spacy model and load entities from database."""
         # Use shared NLP model if provided (for performance in Celery)
-        if nlp:
-            self.nlp = nlp
-        else:
+        self.nlp = nlp
+        
+        if not self.nlp:
             try:
+                import spacy
                 self.nlp = spacy.load("en_core_web_sm")
             except Exception as e:
-                logger.error(f"Failed to load Spacy model: {e}")
+                # If spacy is missing or model not found, we will use regex fallback
+                logger.warning(f"Spacy not available, using Regex fallback: {e}")
                 self.nlp = None
 
         self.drivers_by_name = {}
@@ -63,59 +65,59 @@ class F1EntityExtractor:
     @monitor_memory("entity_extractor")
     def process_article(self, title: str, body: str) -> dict:
         """
-        Process article using Spacy NER and filter against F1 database.
+        Process article using Spacy NER or Regex fallback.
         """
-        if not self.nlp:
-            return {'drivers': [], 'teams': []}
-
-        # Combine for NER
-        full_text = f"{title}. {body}"
-        doc = self.nlp(full_text)
-
         found_drivers = {} # driver_id -> {entity, score}
         found_teams = {}   # team_id -> {entity, score}
 
-        # 1. Iterate over entities found by Spacy
-        for ent in doc.ents:
-            ent_text_upper = ent.text.upper()
-            
-            # Case A: PERSON -> Check Drivers
-            if ent.label_ == "PERSON":
-                if ent_text_upper in self.drivers_by_name:
+        if self.nlp:
+            # --- PRIMARY: Spacy NER ---
+            full_text = f"{title}. {body}"
+            doc = self.nlp(full_text)
+
+            for ent in doc.ents:
+                ent_text_upper = ent.text.upper()
+                if ent.label_ == "PERSON" and ent_text_upper in self.drivers_by_name:
                     driver = self.drivers_by_name[ent_text_upper]
                     if driver.id not in found_drivers:
                         score = self._calculate_relevance(title, body, ent.text)
                         found_drivers[driver.id] = {'entity': driver, 'score': score}
-
-            # Case B: ORG -> Check Teams
-            elif ent.label_ == "ORG":
-                if ent_text_upper in self.teams_by_name:
+                elif ent.label_ == "ORG" and ent_text_upper in self.teams_by_name:
                     team = self.teams_by_name[ent_text_upper]
                     if team.id not in found_teams:
                         score = self._calculate_relevance(title, body, ent.text)
                         found_teams[team.id] = {'entity': team, 'score': score}
+        else:
+            # --- FALLBACK: Simple Keyword Match ---
+            # Search for each driver in title/body
+            for name, driver in self.drivers_by_name.items():
+                if driver.id in found_drivers: continue
+                score = self._calculate_relevance(title, body, name)
+                if score > 0:
+                    found_drivers[driver.id] = {'entity': driver, 'score': score}
+            
+            # Search for each team in title/body
+            for name, team in self.teams_by_name.items():
+                if team.id in found_teams: continue
+                score = self._calculate_relevance(title, body, name)
+                if score > 0:
+                    found_teams[team.id] = {'entity': team, 'score': score}
 
-        # 2. Finalize Driver Results
+        # Finalize and Sort Results
         driver_results = []
-        sorted_drivers = sorted(found_drivers.values(), key=lambda x: x['score'], reverse=True)
-        for i, item in enumerate(sorted_drivers):
+        for i, item in enumerate(sorted(found_drivers.values(), key=lambda x: x['score'], reverse=True)):
             driver_results.append({
                 'entity': item['entity'],
-                'is_primary': i == 0 or item['score'] >= 10, # Top result or in Title
+                'is_primary': i == 0 or item['score'] >= 10,
                 'score': item['score']
             })
 
-        # 3. Finalize Team Results
         team_results = []
-        sorted_teams = sorted(found_teams.values(), key=lambda x: x['score'], reverse=True)
-        for i, item in enumerate(sorted_teams):
+        for i, item in enumerate(sorted(found_teams.values(), key=lambda x: x['score'], reverse=True)):
             team_results.append({
                 'entity': item['entity'],
                 'is_primary': i == 0 or item['score'] >= 10,
                 'score': item['score']
             })
 
-        return {
-            'drivers': driver_results,
-            'teams': team_results
-        }
+        return {'drivers': driver_results, 'teams': team_results}

@@ -10,22 +10,24 @@ from apps.workers.tasks.translate import queue_translations_for_article
 from django.utils import timezone
 from datetime import timedelta
 import logging
-import spacy
 
 logger = logging.getLogger(__name__)
 
-# Load Spacy model once when the worker boots (Tech Tip 2)
-@monitor_spacy_model_load()
-def _load_spacy_model():
-    """Load Spacy model with memory monitoring."""
-    return spacy.load("en_core_web_sm")
+# Load Spacy model lazily
+_nlp = None
 
-try:
-    logger.info("Loading Spacy model (en_core_web_sm)...")
-    nlp = _load_spacy_model()
-except Exception as e:
-    logger.error(f"Failed to load Spacy model: {e}")
-    nlp = None
+def _get_nlp():
+    """Get or load Spacy model."""
+    global _nlp
+    if _nlp is None:
+        try:
+            import spacy
+            logger.info("Loading Spacy model (en_core_web_sm)...")
+            _nlp = spacy.load("en_core_web_sm")
+        except Exception as e:
+            logger.warning(f"Failed to load Spacy model: {e}")
+            _nlp = None
+    return _nlp
 
 
 @shared_task
@@ -73,7 +75,8 @@ def process_article(article_id: str):
         ]
         ArticleChunk.objects.bulk_create(chunks)
 
-        # 2. Extract Entities (Reuse global nlp object)
+        # 2. Extract Entities (Reuse NLP object)
+        nlp = _get_nlp()
         extractor = F1EntityExtractor(nlp=nlp)
         entities = extractor.process_article(
             title=article.original_title,
@@ -133,8 +136,9 @@ def process_article(article_id: str):
         )
 
         # 4. Translation Policy (Cost Optimization)
-        # Only translate if high quality or high priority
-        should_translate = score >= 50.0 or article.priority in ['HIGH', 'CRITICAL']
+        # Only translate if AI features are enabled AND (high quality or high priority)
+        from django.conf import settings
+        should_translate = settings.ENABLE_AI_FEATURES and (score >= 50.0 or article.priority in ['HIGH', 'CRITICAL'])
         
         if should_translate:
             try:
@@ -150,7 +154,6 @@ def process_article(article_id: str):
                         if lang != article_obj.original_lang:
                             try:
                                 # Call the task function directly
-                                # Note: self.retry inside translate_article might fail if not mocked
                                 translate_article(article_id, lang)
                             except Exception as te:
                                 logger.error(f"Sync translation failed for {lang}: {te}")
@@ -178,9 +181,6 @@ def warm_cache():
             translations__lang=lang,
             translations__status='PUBLISHED'
         ).distinct()[:5]
-
-        # This will populate cache when accessed
-        # Implementation depends on cache strategy
 
     logger.info("Cache warmed successfully")
 
