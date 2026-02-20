@@ -22,7 +22,7 @@ class ArticleViewSet(viewsets.ReadOnlyModelViewSet):
     lookup_field = 'slug'
 
     def get_queryset(self):
-        lang = self.request.query_params.get('lang', 'en')
+        lang = self.request.query_params.get('lang', 'zh-TW')
 
         queryset = Article.objects.filter(
             translations__lang=lang,
@@ -30,6 +30,14 @@ class ArticleViewSet(viewsets.ReadOnlyModelViewSet):
         ).select_related('source').prefetch_related(
             'drivers', 'teams', 'translations', 'tags'
         ).distinct()
+
+        # Fallback to any published translation if specific lang not found
+        if not queryset.exists() and lang != 'zh-TW':
+             queryset = Article.objects.filter(
+                translations__status='PUBLISHED'
+            ).select_related('source').prefetch_related(
+                'drivers', 'teams', 'translations', 'tags'
+            ).distinct()
 
         # Filters
         category = self.request.query_params.get('category')

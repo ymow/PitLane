@@ -47,7 +47,7 @@ export function ArticleCard({ article, variant = 'medium', imageClassName }: Art
                         <div className="pt-2">
                             <div className="text-gray-100">
                                 <div className="inline-block h-3 border-l-2 border-red-600 mr-2"></div>
-                                {article.category}
+                                {article.category.display_name || article.category.name}
                             </div>
                         </div>
                     )}
@@ -82,7 +82,7 @@ export function ArticleCard({ article, variant = 'medium', imageClassName }: Art
                         <div className="pt-2">
                             <div className="text-gray-100">
                                 <div className="inline-block h-3 border-l-2 border-red-600 mr-2"></div>
-                                {article.category}
+                                {article.category.display_name || article.category.name}
                             </div>
                         </div>
                     )}
@@ -112,10 +112,10 @@ export function ArticleCard({ article, variant = 'medium', imageClassName }: Art
                         </p>
                     )}
                     {article.category && (
-                        <a className="text-gray-500" href="#">
+                        <div className="text-gray-500">
                             <span className="inline-block h-3 border-l-2 border-red-600 mr-2"></span>
-                            {article.category}
-                        </a>
+                            {article.category.display_name || article.category.name}
+                        </div>
                     )}
                 </div>
             </div>
@@ -140,7 +140,7 @@ export function ArticleCard({ article, variant = 'medium', imageClassName }: Art
                     {article.category && (
                         <span className="text-xs text-gray-500">
                             <span className="inline-block h-2 border-l-2 border-red-600 mr-1"></span>
-                            {article.category}
+                            {article.category.display_name || article.category.name}
                         </span>
                     )}
                 </div>

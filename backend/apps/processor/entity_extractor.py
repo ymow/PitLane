@@ -21,10 +21,11 @@ class F1EntityExtractor:
         if not self.nlp:
             try:
                 import spacy
+                # Try to load if available, but don't crash if not
                 self.nlp = spacy.load("en_core_web_sm")
-            except Exception as e:
+            except (ImportError, Exception):
                 # If spacy is missing or model not found, we will use regex fallback
-                logger.warning(f"Spacy not available, using Regex fallback: {e}")
+                logger.warning("Spacy not available, using Regex fallback for entity extraction")
                 self.nlp = None
 
         self.drivers_by_name = {}
@@ -36,20 +37,30 @@ class F1EntityExtractor:
         # Load drivers
         for driver in Driver.objects.all():
             # Map various name forms (Uppercase for case-insensitive match)
-            self.drivers_by_name[driver.last_name.upper()] = driver
-            self.drivers_by_name[driver.full_name.upper()] = driver
-            self.drivers_by_name[driver.code.upper()] = driver
+            if driver.last_name:
+                self.drivers_by_name[driver.last_name.upper()] = driver
+            if driver.full_name:
+                self.drivers_by_name[driver.full_name.upper()] = driver
+            if driver.code:
+                self.drivers_by_name[driver.code.upper()] = driver
 
         # Load teams
         for team in Team.objects.all():
-            self.teams_by_name[team.base_name.upper()] = team
-            self.teams_by_name[team.code.upper()] = team
+            if team.base_name:
+                self.teams_by_name[team.base_name.upper()] = team
+            if team.full_name:
+                self.teams_by_name[team.full_name.upper()] = team
+            if team.code:
+                self.teams_by_name[team.code.upper()] = team
 
         logger.info(f"Loaded {len(set(self.drivers_by_name.values()))} drivers and {len(set(self.teams_by_name.values()))} teams")
 
     def _calculate_relevance(self, title: str, body: str, entity_name: str) -> int:
         """Score relevance based on frequency and position."""
+        if not entity_name:
+            return 0
         score = 0
+        # Use word boundaries to avoid partial matches
         pattern = rf'\b{re.escape(entity_name)}\b'
         
         # Title mentions = 10 pts

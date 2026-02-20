@@ -103,7 +103,7 @@ export default function Page() {
                                                         <div className="pt-1">
                                                             <div className="text-gray-100">
                                                                 <div className="inline-block h-3 border-l-2 border-red-600 mr-2"></div>
-                                                                {article.category}
+                                                                {article.category.display_name || article.category.name}
                                                             </div>
                                                         </div>
                                                     )}
@@ -169,7 +169,7 @@ export default function Page() {
                             {latestArticles.length > 0 && (
                                 <div className="text-center mt-6">
                                     <a
-                                        href="/news"
+                                        href="/"
                                         className="inline-block bg-black text-white px-8 py-3 hover:bg-gray-900 transition-colors font-bold uppercase text-sm"
                                     >
                                         View More Articles

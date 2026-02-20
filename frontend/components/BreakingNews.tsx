@@ -2,7 +2,7 @@ import React from 'react';
 import { useBreakingNews } from '../lib/hooks';
 
 export function BreakingNews() {
-  const { data, loading, error } = useBreakingNews('en', 5);
+  const { data, loading, error } = useBreakingNews(5, 'zh-TW');
 
   if (loading) {
     return (
@@ -53,9 +53,11 @@ export function BreakingNews() {
               </h4>
               <div className="flex items-center justify-between text-xs text-gray-500">
                 <span className="flex items-center space-x-2">
-                  <span className="bg-red-100 text-red-700 px-2 py-1 rounded-full font-medium">
-                    {article.category}
-                  </span>
+                  {article.category && (
+                    <span className="bg-red-100 text-red-700 px-2 py-1 rounded-full font-medium">
+                      {article.category.display_name || article.category.name}
+                    </span>
+                  )}
                   {article.priority === 'CRITICAL' && (
                     <span className="bg-red-600 text-white px-2 py-1 rounded-full font-bold">
                       🚨 URGENT
@@ -78,7 +80,7 @@ export function BreakingNews() {
       
       <div className="mt-4 pt-4 border-t">
         <a 
-          href="/news" 
+          href="/" 
           className="text-red-600 hover:text-red-800 text-sm font-medium flex items-center justify-center"
         >
           View All News →
