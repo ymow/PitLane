@@ -107,11 +107,18 @@ This is a **phased migration** — the Phase 1 models (`Driver`, `Team`, etc.) r
 
 ## 4. Relationship to PL-010 (Paddock Social Registry)
 
-The `SocialHandle` model proposed in PL-010 links to `entity_id`.
-With the universal `Entity` model, `SocialHandle.entity` can point to any entity type
-(Driver, Staff, Team) without per-type FK columns.
+**Phase 1 (current):** PL-010 uses per-type nullable FKs (`driver → Driver`, `team → Team`)
+plus a free-text `staff_name` field for personnel not yet in the DB. This avoids a
+dependency on PL-018 and allows PL-010 to ship independently.
+
+**Phase 2 (this spec):** Once the universal `Entity` model exists, `SocialHandle` gains an
+`entity → Entity` FK and the per-type FKs are deprecated. The migration path:
+1. `seed_entities` populates `Entity` rows from existing `Driver`/`Team` records
+2. A data migration backfills `SocialHandle.entity` from `SocialHandle.driver`/`SocialHandle.team`
+3. Per-type FK columns are nulled out and eventually dropped
 
 ```
+Phase 2 target:
 SocialHandle.entity → Entity(type=STAFF, name="James Allison", metadata={"role": "CTO"})
 SocialHandle.entity → Entity(type=DRIVER, name="Lewis Hamilton")
 ```
