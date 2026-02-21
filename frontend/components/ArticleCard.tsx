@@ -21,7 +21,7 @@ export function ArticleCard({ article, variant = 'medium', imageClassName }: Art
     const defaultImage = "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=600&fit=crop";
     const imageUrl = article.image_url || defaultImage;
 
-    // Featured - Full width with gradient overlay
+    // Featured — full width with gradient overlay
     if (variant === 'featured') {
         return (
             <div className="relative hover-img max-h-98 overflow-hidden">
@@ -34,21 +34,21 @@ export function ArticleCard({ article, variant = 'medium', imageClassName }: Art
                 </a>
                 <div className="absolute px-5 pt-8 pb-5 bottom-0 w-full bg-gradient-cover">
                     <a href={`/article/${article.slug}`}>
-                        <h2 className="text-3xl font-bold capitalize text-white mb-3">
+                        <h2 className="font-display text-3xl text-white mb-3 leading-snug hover:text-f1-red-light transition-colors">
                             {article.title}
                         </h2>
                     </a>
                     {article.excerpt && (
-                        <p className="text-gray-100 hidden sm:inline-block">
+                        <p className="text-gray-200 hidden sm:inline-block text-sm leading-relaxed">
                             {article.excerpt}
                         </p>
                     )}
                     {article.category && (
                         <div className="pt-2">
-                            <div className="text-gray-100">
-                                <div className="inline-block h-3 border-l-2 border-red-600 mr-2"></div>
+                            <span className="inline-flex items-center gap-1.5 text-sm text-gray-200">
+                                <span className="inline-block h-3 border-l-2 border-f1-red"></span>
                                 {article.category.display_name || article.category.name}
-                            </div>
+                            </span>
                         </div>
                     )}
                 </div>
@@ -56,7 +56,7 @@ export function ArticleCard({ article, variant = 'medium', imageClassName }: Art
         );
     }
 
-    // Large - Similar to featured but slightly smaller
+    // Large — similar to featured but slightly smaller
     if (variant === 'large') {
         return (
             <div className="relative hover-img max-h-98 overflow-hidden rounded-lg">
@@ -69,21 +69,21 @@ export function ArticleCard({ article, variant = 'medium', imageClassName }: Art
                 </a>
                 <div className="absolute px-5 pt-8 pb-5 bottom-0 w-full bg-gradient-cover">
                     <a href={`/article/${article.slug}`}>
-                        <h2 className="text-2xl font-bold capitalize text-white mb-3">
+                        <h2 className="font-display text-2xl text-white mb-3 leading-snug hover:text-f1-red-light transition-colors">
                             {article.title}
                         </h2>
                     </a>
                     {article.excerpt && (
-                        <p className="text-gray-100 hidden sm:inline-block text-sm">
+                        <p className="text-gray-200 hidden sm:inline-block text-sm leading-relaxed">
                             {article.excerpt}
                         </p>
                     )}
                     {article.category && (
                         <div className="pt-2">
-                            <div className="text-gray-100">
-                                <div className="inline-block h-3 border-l-2 border-red-600 mr-2"></div>
+                            <span className="inline-flex items-center gap-1.5 text-sm text-gray-200">
+                                <span className="inline-block h-3 border-l-2 border-f1-red"></span>
                                 {article.category.display_name || article.category.name}
-                            </div>
+                            </span>
                         </div>
                     )}
                 </div>
@@ -91,7 +91,7 @@ export function ArticleCard({ article, variant = 'medium', imageClassName }: Art
         );
     }
 
-    // Medium - Horizontal layout with image on top (responsive to side-by-side)
+    // Medium — horizontal layout
     if (variant === 'medium') {
         return (
             <div className="flex flex-row sm:block hover-img">
@@ -103,26 +103,26 @@ export function ArticleCard({ article, variant = 'medium', imageClassName }: Art
                     />
                 </a>
                 <div className="py-0 sm:py-3 pl-3 sm:pl-0">
-                    <h3 className="text-lg font-bold leading-tight mb-2">
+                    <h3 className="font-display text-lg leading-snug mb-2 hover:text-f1-red transition-colors">
                         <a href={`/article/${article.slug}`}>{article.title}</a>
                     </h3>
                     {article.excerpt && (
-                        <p className="hidden md:block text-gray-600 leading-tight mb-1">
+                        <p className="hidden md:block text-gray-500 text-sm leading-relaxed mb-1">
                             {article.excerpt}
                         </p>
                     )}
                     {article.category && (
-                        <div className="text-gray-500">
-                            <span className="inline-block h-3 border-l-2 border-red-600 mr-2"></span>
+                        <span className="inline-flex items-center gap-1.5 text-sm text-gray-500">
+                            <span className="inline-block h-3 border-l-2 border-f1-red"></span>
                             {article.category.display_name || article.category.name}
-                        </div>
+                        </span>
                     )}
                 </div>
             </div>
         );
     }
 
-    // Small - Compact horizontal layout
+    // Small — compact horizontal
     if (variant === 'small') {
         return (
             <div className="flex flex-row items-start hover-img">
@@ -134,12 +134,12 @@ export function ArticleCard({ article, variant = 'medium', imageClassName }: Art
                     />
                 </a>
                 <div className="flex-1">
-                    <h4 className="text-base font-bold leading-tight mb-1">
+                    <h4 className="font-display text-base leading-snug mb-1 hover:text-f1-red transition-colors">
                         <a href={`/article/${article.slug}`}>{article.title}</a>
                     </h4>
                     {article.category && (
-                        <span className="text-xs text-gray-500">
-                            <span className="inline-block h-2 border-l-2 border-red-600 mr-1"></span>
+                        <span className="inline-flex items-center gap-1 text-xs text-gray-500">
+                            <span className="inline-block h-2 border-l-2 border-f1-red"></span>
                             {article.category.display_name || article.category.name}
                         </span>
                     )}
