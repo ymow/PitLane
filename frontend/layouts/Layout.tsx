@@ -56,7 +56,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 <nav className="bg-black">
                     <div className="xl:container mx-auto px-3 sm:px-4 xl:px-2">
                         <div className="flex justify-between">
-                            <div className="mx-w-10 text-2xl font-bold capitalize text-white flex items-center">
+                            <div className="mx-w-10 text-2xl font-display text-white flex items-center">
                                 <a href="/">PitLane</a>
                             </div>
 
@@ -158,7 +158,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                                     <li key={item.path} className="relative">
                                         <a
                                             href={item.path}
-                                            className={`block py-2 px-5 border-b border-gray-100 hover:bg-gray-50 ${isActive(item.path) ? 'text-red-600 font-bold' : ''}`}
+                                            className={`block py-2 px-5 border-b border-gray-100 hover:bg-gray-50 ${isActive(item.path) ? 'text-f1-red font-bold' : ''}`}
                                         >
                                             {item.label}
                                         </a>
@@ -169,7 +169,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                     </div>
                     {/* Copyright */}
                     <div className="py-4 px-6 text-sm mt-6 text-center">
-                        <p>Copyright <a href="/" className="text-red-600">PitLane</a> - All rights reserved</p>
+                        <p>Copyright <a href="/" className="text-f1-red">PitLane</a> - All rights reserved</p>
                     </div>
                 </nav>
             </div>
@@ -188,7 +188,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                             {/* Brand Section */}
                             <div className="flex-shrink max-w-full w-full lg:w-2/5 px-3 lg:pr-16">
                                 <div className="flex items-center mb-2">
-                                    <span className="text-3xl leading-normal mb-2 font-bold text-gray-100 mt-2">PitLane</span>
+                                    <span className="text-3xl leading-normal mb-2 font-display text-gray-100 mt-2">PitLane</span>
                                 </div>
                                 <p>Your ultimate source for Formula 1 news, analysis, and insights. Stay updated with the latest from the world of F1 racing.</p>
                                 {/* Social Media Icons */}

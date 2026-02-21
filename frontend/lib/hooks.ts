@@ -150,6 +150,28 @@ export function useF1Standings() {
   return { data, loading, error };
 }
 
+export function useCategories(lang = "zh-TW") {
+  const [data, setData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<any>(null);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await axios.get(`${API_BASE}/categories/`, { params: { lang } });
+        setData(response.data);
+      } catch (err) {
+        setError(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchCategories();
+  }, [lang]);
+
+  return { data, loading, error };
+}
+
 export function useArticle(slug: string, lang = "zh-TW") {
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);

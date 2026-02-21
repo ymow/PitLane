@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useArticles, useF1LiveData, useLiveRaceSession } from '../../lib/hooks';
 import { LiveTicker } from '../../components/LiveTicker';
 import { LiveTelemetryWidget } from '../../components/LiveTelemetryWidget';
@@ -6,9 +6,13 @@ import { StandingsWidget } from '../../components/StandingsWidget';
 import { BreakingNews } from '../../components/BreakingNews';
 import { ArticleCard } from '../../components/ArticleCard';
 import { Sidebar } from '../../components/Sidebar';
+import { CategoryPills } from '../../components/CategoryPills';
 
 export default function Page() {
-    const { data: articles, loading: articlesLoading } = useArticles();
+    const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+    const { data: articles, loading: articlesLoading } = useArticles(
+        selectedCategory ? { category: selectedCategory } : {}
+    );
     const { data: liveData } = useF1LiveData();
     const { isLive, sessionType } = useLiveRaceSession();
 
@@ -30,7 +34,7 @@ export default function Page() {
 
             {/* Live Race Session Banner */}
             {isLive && (
-                <div className="bg-gradient-to-r from-red-600 to-red-800 text-white py-4">
+                <div className="bg-gradient-to-r from-f1-red to-f1-red-dark text-white py-4">
                     <div className="xl:container mx-auto px-3 sm:px-4 xl:px-2">
                         <div className="text-center">
                             <h2 className="text-2xl font-bold mb-2 flex items-center justify-center">
@@ -95,14 +99,14 @@ export default function Page() {
                                                 </a>
                                                 <div className="absolute px-4 pt-7 pb-4 bottom-0 w-full bg-gradient-cover">
                                                     <a href={`/article/${article.slug}`}>
-                                                        <h2 className="text-lg font-bold capitalize leading-tight text-white mb-1">
+                                                        <h2 className="font-display text-lg leading-tight text-white mb-1">
                                                             {article.title}
                                                         </h2>
                                                     </a>
                                                     {article.category && (
                                                         <div className="pt-1">
                                                             <div className="text-gray-100">
-                                                                <div className="inline-block h-3 border-l-2 border-red-600 mr-2"></div>
+                                                                <div className="inline-block h-3 border-l-2 border-f1-red mr-2"></div>
                                                                 {article.category.display_name || article.category.name}
                                                             </div>
                                                         </div>
@@ -134,11 +138,12 @@ export default function Page() {
                     <div className="flex flex-row flex-wrap">
                         {/* Left - Latest News */}
                         <div className="flex-shrink max-w-full w-full lg:w-2/3 overflow-hidden">
-                            <div className="w-full py-3">
-                                <h2 className="text-gray-800 text-2xl font-bold">
-                                    <span className="inline-block h-5 border-l-3 border-red-600 mr-2"></span>
+                            <div className="w-full pt-3 pb-2">
+                                <h2 className="font-display text-gray-800 text-2xl mb-3">
+                                    <span className="inline-block h-5 border-l-3 border-f1-red mr-2"></span>
                                     Latest News
                                 </h2>
+                                <CategoryPills selected={selectedCategory} onSelect={setSelectedCategory} />
                             </div>
 
                             <div className="flex flex-row flex-wrap -mx-3">
@@ -214,7 +219,7 @@ export default function Page() {
                                 </div>
                                 <a
                                     href="/races"
-                                    className="inline-block bg-red-600 hover:bg-red-700 text-white px-8 py-3 rounded-lg font-semibold transition-colors uppercase text-sm"
+                                    className="inline-block bg-f1-red hover:bg-f1-red-dark text-white px-8 py-3 rounded-lg font-semibold transition-colors uppercase text-sm"
                                 >
                                     View Full Schedule
                                 </a>
