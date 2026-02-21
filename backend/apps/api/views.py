@@ -11,12 +11,12 @@ import secrets
 
 logger = logging.getLogger(__name__)
 
-from apps.news.models import Article, Translation
+from apps.news.models import Article, Translation, NewsCategory
 from apps.teams.models import Driver, Team
 from apps.racing.models import Race, Session, RaceResult
 from .serializers import (
     ArticleListSerializer, ArticleDetailSerializer,
-    DriverSerializer, TeamSerializer
+    DriverSerializer, TeamSerializer, CategorySerializer
 )
 from .services import ergast_service, racing_service
 
@@ -212,6 +212,18 @@ class TeamViewSet(viewsets.ReadOnlyModelViewSet):
             articles, many=True, context={'lang': lang}
         )
         return Response({'items': serializer.data})
+
+
+class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
+    """ViewSet for NewsCategory listing."""
+    queryset = NewsCategory.objects.prefetch_related('translations').filter(is_active=True)
+    serializer_class = CategorySerializer
+    lookup_field = 'slug'
+
+    def get_serializer_context(self):
+        ctx = super().get_serializer_context()
+        ctx['lang'] = self.request.query_params.get('lang', 'en')
+        return ctx
 
 
 class I18nView(APIView):
