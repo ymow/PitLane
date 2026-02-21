@@ -1,188 +1,281 @@
 @import "tailwindcss";
 
+/* ============================================================
+   DESIGN TOKENS — Tailwind v4 @theme
+   All custom tokens are auto-generated as Tailwind utilities.
+   e.g. --color-f1-red → bg-f1-red, text-f1-red, border-f1-red
+   ============================================================ */
+
+@theme {
+  /* --- Typography --- */
+  --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  --font-display: 'DM Serif Display', Georgia, serif;
+
+  /* --- F1 Brand Colors --- */
+  --color-f1-red:       #e11d48;
+  --color-f1-red-dark:  #be123c;
+  --color-f1-red-light: #fb7185;
+  --color-f1-black:     #111111;
+  --color-f1-white:     #f9f9f9;
+
+  /* --- Team Colors --- */
+  --color-team-redbull:     #3671C6;
+  --color-team-ferrari:     #E8002D;
+  --color-team-mercedes:    #27F4D2;
+  --color-team-mclaren:     #FF8000;
+  --color-team-astonmartin: #229971;
+  --color-team-alpine:      #FF87BC;
+  --color-team-williams:    #64C4FF;
+  --color-team-rb:          #6692FF;
+  --color-team-sauber:      #52E252;
+  --color-team-haas:        #B6BABD;
+
+  /* --- Surface / Semantic UI Colors --- */
+  --color-surface:        #ffffff;
+  --color-surface-muted:  #f8fafc;
+  --color-surface-subtle: #f1f5f9;
+  --color-border:         #e2e8f0;
+  --color-border-muted:   #f1f5f9;
+
+  /* --- Dark Mode Surfaces (used via dark: variant) --- */
+  --color-dark-surface:        #0f172a;
+  --color-dark-surface-muted:  #1e293b;
+  --color-dark-surface-subtle: #334155;
+  --color-dark-border:         #334155;
+
+  /* --- Extended Spacing (8px grid) --- */
+  --spacing-18: 4.5rem;
+  --spacing-22: 5.5rem;
+  --spacing-26: 6.5rem;
+  --spacing-30: 7.5rem;
+
+  /* --- Max widths --- */
+  --width-content: 1200px;
+}
+
+/* ============================================================
+   BASE STYLES
+   ============================================================ */
+
 :root {
-    isolation: isolate;
+  isolation: isolate;
 }
 
 body {
-    position: relative;
-    @apply bg-gray-50 text-gray-700;
-    font-family: 'Roboto', sans-serif;
+  position: relative;
+  @apply bg-surface-muted text-gray-700;
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-/* TailNews Utility Classes */
+/* Display/headline font helper */
+.font-display {
+  font-family: var(--font-display);
+}
+
+/* Article body typography */
+.prose-f1 {
+  font-size: 1.0625rem;
+  line-height: 1.75;
+  color: #1e293b;
+}
+
+.prose-f1 h2,
+.prose-f1 h3 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  margin-top: 2rem;
+  margin-bottom: 0.75rem;
+}
+
+.prose-f1 p {
+  margin-bottom: 1.25rem;
+}
+
+/* ============================================================
+   LAYOUT UTILITIES
+   ============================================================ */
+
 .border-l-3 {
-    border-left-width: 3px;
+  border-left-width: 3px;
 }
 
 .max-h-98 {
-    max-height: 24.3rem;
+  max-height: 24.3rem;
 }
 
-/* Post Number Widget (Popular Posts) */
+/* ============================================================
+   POST NUMBER WIDGET (Popular Posts)
+   ============================================================ */
+
 .post-number {
-    counter-reset: my-counter;
+  counter-reset: my-counter;
 }
 
 .post-number li a::before {
-    font-size: 2rem;
-    counter-increment: my-counter;
-    content: counter(my-counter);
-    color: #ced4da !important;
-    width: 3rem;
-    margin-right: 0.5rem;
+  font-size: 2rem;
+  counter-increment: my-counter;
+  content: counter(my-counter);
+  color: #ced4da !important;
+  width: 3rem;
+  margin-right: 0.5rem;
 }
 
-/* Navbar Styles */
+/* ============================================================
+   NAVBAR
+   ============================================================ */
+
 .navbar > li.active > a,
 .navbar > li:hover > a {
-    border-color: #ce2626;
+  border-color: var(--color-f1-red);
 }
 
-/* Dropdown Menu Styles */
+/* ============================================================
+   DROPDOWN MENU
+   ============================================================ */
+
 .dropdown-menu {
-    display: none;
+  display: none;
 }
 
 .dropdown-menu.show {
-    display: block;
+  display: block;
 }
 
 .search-dropdown > .dropdown-menu.show {
-    display: block;
+  display: block;
 }
 
 .search-dropdown.show .open,
 .search-dropdown .close {
-    display: none;
+  display: none;
 }
 
 .search-dropdown.show .close {
-    display: block;
+  display: block;
 }
 
 @media (min-width: 1024px) {
-    .navbar .dropdown-menu.show {
-        display: none;
-    }
-    .navbar .dropdown:hover > .dropdown-menu,
-    .navbar .dropdown:hover > .dropdown-menu.show {
-        display: block;
-    }
-    .navbar .dropdown-menu > li:hover > .dropdown-menu,
-    .navbar .dropdown-menu > li:hover > .dropdown-menu.show {
-        display: block;
-    }
+  .navbar .dropdown-menu.show {
+    display: none;
+  }
+  .navbar .dropdown:hover > .dropdown-menu,
+  .navbar .dropdown:hover > .dropdown-menu.show {
+    display: block;
+  }
+  .navbar .dropdown-menu > li:hover > .dropdown-menu,
+  .navbar .dropdown-menu > li:hover > .dropdown-menu.show {
+    display: block;
+  }
 }
 
-/* Dropdown Caret */
+/* Dropdown caret */
 .dropdown > a:after,
 .subdropdown > a:after {
-    content: "";
-    display: inline-block;
-    width: 0.8rem;
-    height: 0.8rem;
-    background-repeat: no-repeat;
-    background-size: 0.8rem 0.8rem;
-    vertical-align: middle;
-    margin-left: 0.4rem;
-    margin-top: 0.2rem;
-    float: right;
+  content: "";
+  display: inline-block;
+  width: 0.8rem;
+  height: 0.8rem;
+  background-repeat: no-repeat;
+  background-size: 0.8rem 0.8rem;
+  vertical-align: middle;
+  margin-left: 0.4rem;
+  margin-top: 0.2rem;
+  float: right;
 }
 
 .dropdown > a:after {
-    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3e%3cpolyline points='112 184 256 328 400 184' fill='none' stroke='%23555555' stroke-linecap='round' stroke-linejoin='round' stroke-width='48px'/%3e%3c/svg%3e");
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3e%3cpolyline points='112 184 256 328 400 184' fill='none' stroke='%23555555' stroke-linecap='round' stroke-linejoin='round' stroke-width='48px'/%3e%3c/svg%3e");
 }
 
 .navbar .dropdown > a:after {
-    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3e%3cpolyline points='112 184 256 328 400 184' fill='none' stroke='%23f9f9f9' stroke-linecap='round' stroke-linejoin='round' stroke-width='48px'/%3e%3c/svg%3e");
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3e%3cpolyline points='112 184 256 328 400 184' fill='none' stroke='%23f9f9f9' stroke-linecap='round' stroke-linejoin='round' stroke-width='48px'/%3e%3c/svg%3e");
 }
 
 .subdropdown > a:after {
-    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3e%3cpolyline points='112 184 256 328 400 184' fill='none' stroke='%23555555' stroke-linecap='round' stroke-linejoin='round' stroke-width='48px'/%3e%3c/svg%3e");
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3e%3cpolyline points='112 184 256 328 400 184' fill='none' stroke='%23555555' stroke-linecap='round' stroke-linejoin='round' stroke-width='48px'/%3e%3c/svg%3e");
 }
 
 .navbar .subdropdown > a:after {
-    transform: rotate(-90deg);
+  transform: rotate(-90deg);
 }
 
-/* Side Menu Styles */
+/* ============================================================
+   SIDE MENU
+   ============================================================ */
+
 .side-area,
 .side-area .back-menu {
-    visibility: hidden;
+  visibility: hidden;
 }
 
 .side-area.show,
 .side-area.show .back-menu {
-    visibility: visible;
+  visibility: visible;
 }
 
 .side-menu {
-    right: -16rem;
-    transition: all 0.5s ease;
+  right: -16rem;
+  transition: all 0.5s ease;
 }
 
 .side-menu.show {
-    right: 0;
+  right: 0;
 }
 
-/* Gradient Cover for Images */
+/* ============================================================
+   IMAGE UTILITIES
+   ============================================================ */
+
 .bg-gradient-cover {
-    background-color: transparent;
-    background-image: linear-gradient(transparent, rgba(0, 0, 0, 0.92));
-    background-position-y: -1px;
+  background-color: transparent;
+  background-image: linear-gradient(transparent, rgba(0, 0, 0, 0.92));
+  background-position-y: -1px;
 }
 
-/* Box Layout Styles */
+.hover-img:hover img {
+  filter: brightness(103%) contrast(103%);
+  opacity: 0.99;
+}
+
+/* ============================================================
+   BOX LAYOUT
+   ============================================================ */
+
 .box-one > article:nth-child(1) {
-    padding-top: 0;
-    padding-bottom: 0.125rem;
-    padding-right: 0.125rem;
+  padding-top: 0;
+  padding-bottom: 0.125rem;
+  padding-right: 0.125rem;
 }
 
 .box-one > article:nth-child(2) {
-    padding-top: 0;
-    padding-bottom: 0.125rem;
-    padding-left: 0.125rem;
+  padding-top: 0;
+  padding-bottom: 0.125rem;
+  padding-left: 0.125rem;
 }
 
 .box-one > article:nth-child(3) {
-    padding-top: 0.125rem;
-    padding-bottom: 0.125rem;
-    padding-right: 0.125rem;
+  padding-top: 0.125rem;
+  padding-bottom: 0.125rem;
+  padding-right: 0.125rem;
 }
 
 .box-one > article:nth-child(4) {
-    padding-top: 0.125rem;
-    padding-bottom: 0.125rem;
-    padding-left: 0.125rem;
+  padding-top: 0.125rem;
+  padding-bottom: 0.125rem;
+  padding-left: 0.125rem;
 }
 
-/* Hover Image Effect */
-.hover-img:hover img {
-    filter: brightness(103%) contrast(103%);
-    opacity: 0.99;
-}
+/* ============================================================
+   RESPONSIVE TYPOGRAPHY
+   ============================================================ */
 
-/* F1-themed color scheme */
-.bg-f1-red {
-    background-color: #e11d48;
-}
-
-.text-f1-red {
-    color: #e11d48;
-}
-
-.border-f1-red {
-    border-color: #e11d48;
-}
-
-/* Responsive typography */
 @media (max-width: 640px) {
-    .text-3xl {
-        @apply text-2xl;
-    }
-    .text-lg {
-        @apply text-base;
-    }
+  .text-3xl {
+    @apply text-2xl;
+  }
+  .text-lg {
+    @apply text-base;
+  }
 }
