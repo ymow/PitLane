@@ -112,14 +112,14 @@ class ArticleListSerializer(serializers.Serializer):
         """Get translated summary."""
         lang = self.context.get('lang', 'en')
         translation = obj.translations.filter(lang=lang, status='PUBLISHED').first()
-        return translation.summary if translation else None
+        return translation.summary if translation else obj.original_summary
 
     def get_category(self, obj):
         """Get primary category details."""
         primary_category = obj.categories.filter(
             articlecategory__is_primary=True
         ).first() or obj.categories.first()
-        
+
         if primary_category:
             return CategorySerializer(primary_category, context=self.context).data
         return None
@@ -183,7 +183,7 @@ class ArticleDetailSerializer(serializers.Serializer):
         """Get translated summary."""
         lang = self.context.get('lang', 'en')
         translation = obj.translations.filter(lang=lang, status='PUBLISHED').first()
-        return translation.summary if translation else None
+        return translation.summary if translation else obj.original_summary
 
     def get_body(self, obj):
         """Get translated body."""

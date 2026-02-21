@@ -21,8 +21,8 @@ class Command(BaseCommand):
         
         # 1. Fetch the Issue and available States first to find the ID
         query_info = """
-        query {
-          issue(id: "%s") {
+        query IssueInfo($id: String!) {
+          issue(id: $id) {
             id
             team {
               states {
@@ -32,14 +32,18 @@ class Command(BaseCommand):
             }
           }
         }
-        """ % issue_id
+        """
 
         headers = {
             "Content-Type": "application/json",
             "Authorization": f"Bearer {token}" if not token.startswith("lin_api_") else token
         }
 
-        response = requests.post("https://api.linear.app/graphql", json={"query": query_info}, headers=headers)
+        response = requests.post(
+            "https://api.linear.app/graphql",
+            json={"query": query_info, "variables": {"id": issue_id}},
+            headers=headers,
+        )
         if response.status_code != 200:
             self.stdout.write(self.style.ERROR(f"Error: {response.text}"))
             return
