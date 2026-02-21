@@ -26,8 +26,10 @@ class Command(BaseCommand):
             id
             team {
               states {
-                id
-                name
+                nodes {
+                  id
+                  name
+                }
               }
             }
           }
@@ -55,14 +57,15 @@ class Command(BaseCommand):
             return
 
         target_state_id = None
+        states = issue_data['team']['states']['nodes']
         if options['status']:
-            for state in issue_data['team']['states']:
+            for state in states:
                 if state['name'].lower() == options['status'].lower():
                     target_state_id = state['id']
                     break
-            
+
             if not target_state_id:
-                available = ", ".join([s['name'] for s in issue_data['team']['states']])
+                available = ", ".join([s['name'] for s in states])
                 self.stdout.write(self.style.ERROR(f"Status '{options['status']}' not found. Available: {available}"))
                 return
 
