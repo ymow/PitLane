@@ -169,6 +169,7 @@ CACHES = {
 # Anthropic API Key
 ANTHROPIC_API_KEY = os.getenv('ANTHROPIC_API_KEY', '')
 ENABLE_AI_FEATURES = os.getenv('ENABLE_AI_FEATURES', 'False') == 'True'
+CLAUDE_MODEL = os.getenv('CLAUDE_MODEL', 'claude-sonnet-4-5')
 
 # python-i18n Configuration
 I18N_LOAD_PATH = [str(BASE_DIR / 'locales')]

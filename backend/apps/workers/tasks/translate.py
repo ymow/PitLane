@@ -59,7 +59,7 @@ def translate_article(self, article_id: str, target_lang: str):
             title=article.original_title,
             slug=article.original_slug,
             body=article.original_body,
-            summary=None,
+            summary=article.original_summary,
             status='PUBLISHED',
             confidence=1.0,
             translated_at=timezone.now(),

@@ -91,7 +91,7 @@ def fetch_single_source(self, source_slug: str):
                 try:
                     process_article.delay(article.id)
                 except Exception as e:
-                    logger.info(f"Queue unavailable, processing article {article.id} synchronously: {e}")
+                    logger.warning(f"Queue unavailable, processing article {article.id} synchronously: {e}")
                     from apps.workers.tasks.process import process_article as process_sync
                     process_sync(article.id)
                 new_count += 1

@@ -1,6 +1,7 @@
 """Claude AI translation service for F1 content."""
 import anthropic
 import json
+import os
 from dataclasses import dataclass
 from typing import Optional
 import logging
@@ -23,7 +24,7 @@ class ClaudeTranslator:
     Preserves technical terms and driver/team names.
     """
 
-    MODEL = "claude-sonnet-4-20250514"
+    MODEL = os.getenv("CLAUDE_MODEL", "claude-sonnet-4-5")
 
     # Terms to preserve unchanged across all languages
     PRESERVE_TERMS = {
@@ -175,8 +176,8 @@ IMPORTANT: Output ONLY valid JSON. No additional text."""
         data = json.loads(text.strip())
 
         return TranslationResult(
-            title=data["title"],
-            body=data["body"],
-            summary=data["summary"],
-            confidence=float(data["confidence"])
+            title=data.get("title") or "",
+            body=data.get("body") or "",
+            summary=data.get("summary") or "",
+            confidence=float(data.get("confidence", 0.7))
         )

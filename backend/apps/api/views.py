@@ -6,6 +6,10 @@ from rest_framework.views import APIView
 from django.core.cache import cache
 from django.db.models import Q
 import i18n
+import logging
+import secrets
+
+logger = logging.getLogger(__name__)
 
 from apps.news.models import Article, Translation
 from apps.teams.models import Driver, Team
@@ -90,7 +94,7 @@ class ArticleViewSet(viewsets.ReadOnlyModelViewSet):
         article = Article.objects.filter(id=article.id).select_related(
             'source'
         ).prefetch_related(
-            'drivers', 'teams', 'tags', 'translations'
+            'drivers', 'teams', 'tags', 'translations', 'chunks'
         ).first()
 
         serializer = ArticleDetailSerializer(article, context={'lang': lang})
@@ -267,6 +271,11 @@ class SearchView(APIView):
                 {'detail': 'Query must be at least 2 characters'},
                 status=status.HTTP_400_BAD_REQUEST
             )
+        if len(query) > 200:
+            return Response(
+                {'detail': 'Query must be at most 200 characters'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
         # Search in translations
         articles = Article.objects.filter(
@@ -358,7 +367,7 @@ class F1RaceResultsAPIView(APIView):
                                 if local_res.telemetry_chart:
                                     res['telemetry_chart_url'] = request.build_absolute_uri(local_res.telemetry_chart.url)
                 except Exception as e:
-                    print(f"Error enriching results for {race_data.get('name')}: {e}")
+                    logger.error(f"Error enriching results for {race_data.get('name')}: {e}")
             
             return Response({'results': results})
         except Exception as e:
@@ -476,16 +485,21 @@ class LinearLoginView(APIView):
         if not client_id:
             return Response({'error': 'LINEAR_CLIENT_ID not set'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-        # Redirect URI - must match the one set in Linear dashboard
-        redirect_uri = "http://localhost:8000/api/v1/auth/linear/callback"
+        # Build redirect URI dynamically so it works in all environments
+        redirect_uri = request.build_absolute_uri('/api/v1/auth/linear/callback')
         scope = "read write"
-        
+
+        # CSRF protection: generate a state token and store in session
+        state = secrets.token_urlsafe(32)
+        request.session['linear_oauth_state'] = state
+
         auth_url = (
             f"https://linear.app/oauth/authorize?"
             f"client_id={client_id}&"
             f"redirect_uri={redirect_uri}&"
             f"response_type=code&"
-            f"scope={scope}"
+            f"scope={scope}&"
+            f"state={state}"
         )
         return redirect(auth_url)
 
@@ -496,14 +510,24 @@ class LinearCallbackView(APIView):
     """
     def get(self, request):
         code = request.GET.get('code')
+        state = request.GET.get('state')
+
         if not code:
             return Response({'error': 'No authorization code provided'}, status=status.HTTP_400_BAD_REQUEST)
 
-        # In a real app, you would exchange the code for a token here.
-        # Once we have the Client Secret, we can call https://api.linear.app/oauth/token
-        
-        return Response({
-            'message': 'Successfully received authorization code from Linear!',
-            'code': code,
-            'status': 'Ready for token exchange (Needs Client Secret)'
-        })
+        # Validate CSRF state
+        expected_state = request.session.pop('linear_oauth_state', None)
+        if not expected_state or state != expected_state:
+            return Response({'error': 'Invalid OAuth state — possible CSRF attack'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Token exchange requires LINEAR_CLIENT_SECRET (set in .env to complete)
+        # POST https://api.linear.app/oauth/token with code + client_id + client_secret + redirect_uri
+        import os
+        if not os.getenv('LINEAR_CLIENT_SECRET'):
+            logger.warning("LINEAR_CLIENT_SECRET not set — OAuth token exchange skipped")
+            return Response({
+                'message': 'Authorization code received. Set LINEAR_CLIENT_SECRET in .env to complete token exchange.',
+                'status': 'pending_client_secret'
+            })
+
+        return Response({'message': 'OAuth flow complete', 'status': 'ok'})

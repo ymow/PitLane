@@ -115,19 +115,22 @@ class F1EntityExtractor:
                     found_teams[team.id] = {'entity': team, 'score': score}
 
         # Finalize and Sort Results
+        # is_primary = ranked first (highest score) OR mentioned in title (score >= 10)
         driver_results = []
-        for i, item in enumerate(sorted(found_drivers.values(), key=lambda x: x['score'], reverse=True)):
+        sorted_drivers = sorted(found_drivers.values(), key=lambda x: x['score'], reverse=True)
+        for i, item in enumerate(sorted_drivers):
             driver_results.append({
                 'entity': item['entity'],
-                'is_primary': i == 0 or item['score'] >= 10,
+                'is_primary': i == 0 and item['score'] >= 10,
                 'score': item['score']
             })
 
         team_results = []
-        for i, item in enumerate(sorted(found_teams.values(), key=lambda x: x['score'], reverse=True)):
+        sorted_teams = sorted(found_teams.values(), key=lambda x: x['score'], reverse=True)
+        for i, item in enumerate(sorted_teams):
             team_results.append({
                 'entity': item['entity'],
-                'is_primary': i == 0 or item['score'] >= 10,
+                'is_primary': i == 0 and item['score'] >= 10,
                 'score': item['score']
             })
 

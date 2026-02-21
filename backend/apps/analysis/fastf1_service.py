@@ -76,8 +76,8 @@ def generate_driver_pace_chart(session_f1, driver_code, winner_code):
         # Plot Driver
         try:
             driver_color = fastf1.plotting.get_driver_color(driver_code, session=session_f1)
-        except:
-            driver_color = "red" # Fallback
+        except Exception:
+            driver_color = "red"  # Fallback
             
         sns.scatterplot(data=driver_laps, x="LapNumber", y="LapTime", 
                         ax=ax, color=driver_color, label=driver_code)
@@ -139,22 +139,91 @@ def sync_session_data(session_id):
     PitStop.objects.filter(session=session_obj).delete()
     TyreStint.objects.filter(session=session_obj).delete()
     
-    # Pit Stops
+    # Pit Stops & Tyre Stints
     if 'PitInTime' in f1_session.laps.columns and 'PitOutTime' in f1_session.laps.columns:
-        # FastF1 stores pit stops implicitly in laps or explicitly?
-        # f1_session.laps has 'PitInTime', 'PitOutTime'
-        # We can iterate laps where PitInTime is not NaT
-        pit_laps = f1_session.laps.pick_pit_stops() # This might not be standard API, let's check docs logic
-        # Actually f1_session.laps where isnan(PitInTime) is False
-        pass
-    
-    # Let's use a simpler approach for the prototype: Generate Charts first (High Value)
+        try:
+            pit_laps = f1_session.laps[f1_session.laps['PitInTime'].notna()]
+            stop_counters = {}  # driver_code -> stop number
+
+            pit_stops_to_create = []
+            for _, lap in pit_laps.iterrows():
+                driver_code = lap.get('Driver')
+                if not driver_code:
+                    continue
+                try:
+                    driver_obj = Driver.objects.get(code=driver_code)
+                except Driver.DoesNotExist:
+                    continue
+
+                stop_counters[driver_code] = stop_counters.get(driver_code, 0) + 1
+                pit_in = lap['PitInTime']
+                pit_out = lap['PitOutTime']
+
+                # Duration in ms
+                duration_ms = 0
+                if pd.notna(pit_in) and pd.notna(pit_out):
+                    duration_ms = int((pit_out - pit_in).total_seconds() * 1000)
+                duration_str = f"{duration_ms / 1000:.1f}s"
+
+                pit_stops_to_create.append(PitStop(
+                    session=session_obj,
+                    driver=driver_obj,
+                    lap_number=int(lap.get('LapNumber', 0)),
+                    pit_time=session_obj.scheduled_start,  # approximate
+                    pit_duration=duration_str,
+                    pit_duration_ms=duration_ms,
+                    stop_number=stop_counters[driver_code],
+                    tire_removed=str(lap.get('Compound', '')),
+                    tire_age_removed=int(lap['TyreLife']) if pd.notna(lap.get('TyreLife')) else None,
+                ))
+
+            PitStop.objects.bulk_create(pit_stops_to_create, ignore_conflicts=True)
+            logger.info(f"Synced {len(pit_stops_to_create)} pit stops")
+
+        except Exception as e:
+            logger.error(f"Failed to sync pit stops: {e}")
+
+    # Tyre Stints
+    if 'Stint' in f1_session.laps.columns and 'Compound' in f1_session.laps.columns:
+        try:
+            stint_groups = f1_session.laps.groupby(['Driver', 'Stint'])
+            stints_to_create = []
+            for (driver_code, stint_num), stint_laps in stint_groups:
+                try:
+                    driver_obj = Driver.objects.get(code=driver_code)
+                except Driver.DoesNotExist:
+                    continue
+
+                compound = str(stint_laps['Compound'].iloc[0]) if 'Compound' in stint_laps.columns else 'UNKNOWN'
+                start_lap = int(stint_laps['LapNumber'].min())
+                end_lap = int(stint_laps['LapNumber'].max())
+                tyre_age = int(stint_laps['TyreLife'].iloc[0]) if pd.notna(stint_laps.get('TyreLife', pd.Series([None])).iloc[0]) else 0
+
+                stints_to_create.append(TyreStint(
+                    session=session_obj,
+                    driver=driver_obj,
+                    stint_number=int(stint_num),
+                    compound=compound.upper()[:20],
+                    tire_age_at_start=tyre_age,
+                    start_lap=start_lap,
+                    end_lap=end_lap,
+                    total_laps=end_lap - start_lap + 1,
+                ))
+
+            TyreStint.objects.bulk_create(stints_to_create, ignore_conflicts=True)
+            logger.info(f"Synced {len(stints_to_create)} tyre stints")
+
+        except Exception as e:
+            logger.error(f"Failed to sync tyre stints: {e}")
+
+    # Generate Charts (High Value)
     
     # Identify Winner (for comparison)
     try:
         winner_result = RaceResult.objects.filter(session=session_obj, classified_position=1).first()
         winner_code = winner_result.driver.code if winner_result else None
-    except:
+    except Exception as e:
+        logger.warning(f"Could not determine winner from DB: {e}")
         winner_code = None
         
     if not winner_code:

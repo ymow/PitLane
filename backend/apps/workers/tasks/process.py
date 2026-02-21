@@ -144,7 +144,7 @@ def process_article(article_id: str):
             try:
                 queue_translations_for_article.delay(article_id)
             except Exception as e:
-                logger.info(f"Queue unavailable, attempting synchronous translation for {article_id}: {e}")
+                logger.warning(f"Queue unavailable, attempting synchronous translation for {article_id}: {e}")
                 # Fallback: Synchronous translation loop
                 from apps.workers.tasks.translate import translate_article, TARGET_LANGUAGES
                 

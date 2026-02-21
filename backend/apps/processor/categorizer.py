@@ -91,11 +91,11 @@ class ArticleCategorizer:
                     except Category.DoesNotExist:
                         continue
 
-        # Default fallback
+        # Default fallback: 'news' category, then first active category
         try:
             return Category.objects.get(slug='news')
         except Category.DoesNotExist:
-            return None
+            return Category.objects.filter(is_active=True).order_by('display_order').first()
 
     def prioritize(self, title: str, body: str) -> str:
         """Determine article priority (Universal)."""

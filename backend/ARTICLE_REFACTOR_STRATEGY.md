@@ -1,5 +1,8 @@
 # PitLane Article Architecture Refactoring Strategy
 
+**Status:** ✅ Phase 1 Complete | ✅ Phase 2 Complete | ✅ Phase 3 Complete
+**Last Updated:** 2026-02-21
+
 ## 1. Overview
 This document outlines the strategy to refactor the `Article` architecture to support **Content Chunking**, **GEO (Generative Engine Optimization)**, and **SEO**. The goal is to move from a "blob-based" storage model to a structured, semantic model that powers AI features and search visibility.
 
@@ -47,16 +50,17 @@ The current simple `.add()` logic will be replaced with a sophisticated 3-step p
 
 ## 3. Implementation Steps
 
-### Phase 1: Logic Upgrade (Backend)
+### Phase 1: Logic Upgrade (Backend) ✅
 1.  **Refactor `F1EntityExtractor`**: Return rich objects `(Entity, score)` instead of flat lists.
 2.  **Update `process_article`**: Implement `bulk_create` for associations.
 
-### Phase 2: Model Update
-1.  Create `ArticleChunk` model.
-2.  Implement HTML splitter utility.
+### Phase 2: Model Update ✅
+1.  Create `ArticleChunk` model. (`apps/news/models.py`, migration `0002_articlechunk`)
+2.  Implement HTML splitter utility. (`apps/processor/chunker.py`)
 
-### Phase 3: API Exposure
+### Phase 3: API Exposure ✅
 1.  Update `ArticleDetailSerializer` to include `chunks` and rich entity relationships.
+2.  Add `'chunks'` to `prefetch_related` in `ArticleViewSet.retrieve()`. (Fixed 2026-02-21)
 
 ## 4. Future Proofing
 This architecture prepares PitLane for:
