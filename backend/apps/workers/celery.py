@@ -29,7 +29,7 @@ app.conf.beat_schedule = {
     'fetch-high-priority': {
         'task': 'apps.workers.tasks.fetch.fetch_sources_by_priority',
         'schedule': crontab(minute='*/5'),
-        'args': (['motorsport', 'the-race', 'autosport'],),
+        'args': (['fia-press', 'motorsport', 'the-race', 'autosport'],),
     },
 
     # Medium priority: every 15 minutes

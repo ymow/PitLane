@@ -1,6 +1,15 @@
 """RSS source configurations."""
 
 SOURCES = {
+    # --- OFFICIAL / GOVERNING BODY ---
+    "fia-press": {
+        "name": "FIA Press Release",
+        "feed_url": "https://www.fia.com/rss/press-release",
+        "lang": "en",
+        "priority": 98,
+        "fetch_interval": 300,
+    },
+
     # --- GLOBAL / ENGLISH (Tier 1) ---
     "motorsport": {
         "name": "Motorsport.com",
