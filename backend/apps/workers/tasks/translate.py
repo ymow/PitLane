@@ -11,7 +11,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 # Target languages for translation
-TARGET_LANGUAGES = ['en', 'zh-TW', 'es', 'pt-BR']
+TARGET_LANGUAGES = ['en', 'zh-TW', 'zh-CN', 'es', 'pt-BR', 'it', 'nl', 'de', 'ja', 'fr']
 
 
 def get_translator():
@@ -52,7 +52,7 @@ def translate_article(self, article_id: str, target_lang: str):
 
     # Skip if same as original
     if article.original_lang == target_lang:
-        # Create "translation" from original
+        # Create "translation" from original content
         Translation.objects.create(
             article=article,
             lang=target_lang,
@@ -61,8 +61,10 @@ def translate_article(self, article_id: str, target_lang: str):
             body=article.original_body,
             summary=article.original_summary,
             status='PUBLISHED',
-            confidence=1.0,
+            confidence_score=1.0,
+            translator='original',
             translated_at=timezone.now(),
+            published_at=timezone.now(),
         )
         return
 
@@ -88,8 +90,10 @@ def translate_article(self, article_id: str, target_lang: str):
             body=result.body,
             summary=result.summary,
             status=status,
-            confidence=result.confidence,
+            confidence_score=result.confidence,
+            translator=f'Claude ({ClaudeTranslator.MODEL})',
             translated_at=timezone.now(),
+            published_at=timezone.now() if status == 'PUBLISHED' else None,
         )
 
         # Invalidate cache

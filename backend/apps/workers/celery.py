@@ -39,11 +39,33 @@ app.conf.beat_schedule = {
         'args': (['racefans', 'f1i', 'planetf1'],),
     },
 
-    # Low priority: every 30 minutes
+    # Low priority (EN): every 30 minutes
     'fetch-low-priority': {
         'task': 'apps.workers.tasks.fetch.fetch_sources_by_priority',
         'schedule': crontab(minute='*/30'),
         'args': (['formel1-de', 'motorsport-it'],),
+    },
+
+    # Chinese markets: every 30 minutes
+    'fetch-chinese': {
+        'task': 'apps.workers.tasks.fetch.fetch_sources_by_priority',
+        'schedule': crontab(minute='*/30'),
+        'args': (['sportsv-f1', 'motorsport-cn'],),
+    },
+
+    # European/Japanese markets: every 30 minutes
+    'fetch-international': {
+        'task': 'apps.workers.tasks.fetch.fetch_sources_by_priority',
+        'schedule': crontab(minute='*/30'),
+        'args': ([
+            'motorsport-total',                      # de
+            'f1grandprix-it',                        # it
+            'motorsport-es', 'f1latam',              # es
+            'motorsport-br', 'autoracing',           # pt-BR
+            'headliner-nl', 'motorsport-nl',         # nl
+            'motorsport-fr', 'f1only',               # fr
+            'motorsport-jp',                         # ja
+        ],),
     },
 
     # Cache warmup: every hour

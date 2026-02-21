@@ -42,11 +42,11 @@ def process_article(article_id: str):
     try:
         # 0. Sanitize & Quality Score (ETL Transform)
         sanitizer = ArticleSanitizer()
-        
+
         # Clean the body
         cleaned_body = sanitizer.sanitize(article.original_body)
         article.original_body = cleaned_body
-        
+
         # Calculate quality score
         score = sanitizer.score_quality(
             title=article.original_title,
@@ -54,7 +54,7 @@ def process_article(article_id: str):
             has_image=bool(article.featured_image_url)
         )
         article.quality_score = score
-        article.save()
+        # Note: save() deferred — merged with priority save below
 
         # 1. Content Chunking (using cleaned body)
         chunker = HTMLChunker()
@@ -128,7 +128,8 @@ def process_article(article_id: str):
             title=article.original_title,
             body=cleaned_body
         )
-        article.save()
+        # Single save for all field changes (quality_score, original_body, priority)
+        article.save(update_fields=['original_body', 'quality_score', 'priority'])
 
         logger.info(
             f"Processed {article_id}: Score={score}, Cat={category.name if category else 'None'}, "
@@ -170,17 +171,20 @@ def process_article(article_id: str):
 def warm_cache():
     """Pre-warm Redis cache with hot content."""
     from django.core.cache import cache
-    from apps.news.models import Article, Translation
+    from apps.news.models import Article
+    from apps.api.serializers import ArticleListSerializer
 
-    languages = ['en', 'zh-TW', 'es', 'pt-BR']
+    languages = ['en', 'zh-TW', 'zh-CN', 'es', 'pt-BR', 'it', 'nl', 'de', 'ja', 'fr']
 
     for lang in languages:
-        # Warm breaking news
         breaking = Article.objects.filter(
             priority__in=['CRITICAL', 'HIGH'],
             translations__lang=lang,
             translations__status='PUBLISHED'
-        ).distinct()[:5]
+        ).prefetch_related('translations', 'source', 'categories').distinct()[:5]
+
+        serializer = ArticleListSerializer(breaking, many=True, context={'lang': lang})
+        cache.set(f'breaking:{lang}', serializer.data, timeout=3600)
 
     logger.info("Cache warmed successfully")
 
