@@ -27,7 +27,7 @@ SOURCES = {
     },
     "the-race": {
         "name": "The Race",
-        "feed_url": "https://www.the-race.com/formula-1/feed/",
+        "feed_url": "https://www.the-race.com/rss/",
         "lang": "en",
         "priority": 95,
         "fetch_interval": 300,
@@ -52,6 +52,7 @@ SOURCES = {
         "lang": "en",
         "priority": 70,
         "fetch_interval": 900,
+        "is_active": False,  # RSS feed removed by publisher (DON-34)
     },
 
     # --- CHINESE MARKETS (Tier 1) ---
@@ -62,6 +63,7 @@ SOURCES = {
         "lang": "zh-TW",
         "priority": 90,
         "fetch_interval": 1800,
+        "is_active": False,  # Feed URL dead — needs new endpoint (DON-34)
     },
     # Simplified Chinese (China)
     "motorsport-cn": {
@@ -83,7 +85,7 @@ SOURCES = {
     },
     "motorsport-total": {
         "name": "Motorsport-Total",
-        "feed_url": "https://www.motorsport-total.com/rss/formel-1",
+        "feed_url": "https://www.motorsport-total.com/rss/rss_formel-1.xml",
         "lang": "de",
         "priority": 80,
         "fetch_interval": 1800,
@@ -99,7 +101,7 @@ SOURCES = {
     },
     "f1grandprix-it": {
         "name": "F1GrandPrix.it",
-        "feed_url": "https://www.f1grandprix.it/feed/",
+        "feed_url": "https://f1grandprix.motorionline.com/feed/",
         "lang": "it",
         "priority": 80,
         "fetch_interval": 1800,
@@ -140,7 +142,7 @@ SOURCES = {
     # Dutch
     "headliner-nl": {
         "name": "Headliner.nl",
-        "feed_url": "https://www.headliner.nl/rss/formule-1",
+        "feed_url": "https://rssfeeds.headliner.nl/rssfeeds/formule1/feed.xml",
         "lang": "nl",
         "priority": 85,
         "fetch_interval": 1800,

@@ -27,7 +27,7 @@ class Command(BaseCommand):
                     'lang': config['lang'],
                     'priority': config['priority'],
                     'fetch_interval': config['fetch_interval'],
-                    'is_active': True
+                    'is_active': config.get('is_active', True),
                 }
             )
 
