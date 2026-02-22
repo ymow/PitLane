@@ -44,7 +44,7 @@ Traditional news platforms report *what* happened. PitLane answers *why* — by 
 | NER | spaCy · SimHash |
 | Live Data | OpenF1 (real-time) · Jolpica · FastF1 (analysis) |
 | Vector DB | pgvector (Phase 3) |
-| Dev Workflow | Spec-driven · Linear.app · Superpowers methodology |
+| Dev Workflow | Spec-driven · Linear.app |
 
 ---
 
@@ -57,21 +57,128 @@ Traditional news platforms report *what* happened. PitLane answers *why* — by 
 | **Phase 3** | Intelligence — social ingestion, historical RAG, live race state machine | ⚪ Planned |
 | **Phase 4** | Template & Expand — YAML domain config, skill interface, second domain pilot | ⚪ Planned |
 
-See [SPEC.md](./SPEC.md) for the full issue backlog (22 issues) and technical architecture.
+See [SPEC.md](./SPEC.md) for the full issue backlog and technical architecture.
 
 ---
 
 ## Quick Start
 
-```bash
-# Backend
-pip install -r backend/requirements.txt
-cd backend && python manage.py migrate
-python manage.py runserver
+### 1. Backend
 
-# Frontend
-cd frontend && npm install && npm run dev
+```bash
+cd backend
+pip install -r requirements.txt
+python manage.py migrate
+python manage.py runserver
 ```
+
+### 2. Frontend
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+---
+
+## Database Seeding (2026 Season)
+
+Run these commands in order to fully populate a fresh database with the 2026 F1 season data.
+
+### Step 1 — Base data (teams, drivers, news categories, RSS sources)
+
+```bash
+cd backend
+python manage.py seed_data
+```
+
+Creates 10 teams, 20 drivers, 8 news categories, and all RSS feed sources.
+
+### Step 2 — 2026 grid sync (Audi rebrand + RACE contracts)
+
+```bash
+python manage.py seed_2026_grid
+```
+
+- Renames the Kick Sauber entry → **Audi F1 Team** (code `AUD`, color `#BB0000`)
+- Creates 20 `DriverContract(role=RACE)` rows linking each driver to their 2026 team
+
+The 2026 driver lineup:
+
+| Team | Drivers |
+|---|---|
+| Red Bull Racing | Max Verstappen, Liam Lawson |
+| Scuderia Ferrari | Charles Leclerc, Lewis Hamilton |
+| McLaren F1 Team | Lando Norris, Oscar Piastri |
+| Mercedes-AMG Petronas | George Russell, Andrea Kimi Antonelli |
+| Aston Martin Aramco | Fernando Alonso, Lance Stroll |
+| Alpine F1 Team | Pierre Gasly, Jack Doohan |
+| Williams Racing | Alexander Albon, Carlos Sainz |
+| Racing Bulls | Yuki Tsunoda, Isack Hadjar |
+| MoneyGram Haas F1 Team | Oliver Bearman, Esteban Ocon |
+| Audi F1 Team | Nico Hülkenberg, Gabriel Bortoleto |
+
+This command is **idempotent** — safe to run multiple times.
+
+### Step 3 — Paddock staff contracts (Team Principals, engineers, etc.)
+
+```bash
+python manage.py seed_staff_contracts \
+  --file data/staff_contracts_2026.json \
+  --season 2026
+```
+
+Creates 37 staff contract entries: 10 Team Principals, 10 Technical Directors, 14 Race Engineers, and other paddock roles.
+
+> **Note:** Must run Step 2 first. The staff data references team code `AUD`, which is created by the Audi rebrand in Step 2.
+
+### Step 4 — 2026 race calendar (24 races)
+
+```bash
+python manage.py seed_2026_schedule
+```
+
+Populates the full 2026 race calendar with circuit data.
+
+### Step 5 — Paddock social handles (optional)
+
+```bash
+python manage.py seed_social_handles \
+  --file data/paddock_handles_2026.json
+```
+
+Seeds 2000+ social media handles for drivers, team principals, and paddock staff across X/Twitter, Instagram, and TikTok.
+
+### Full reset (all steps at once)
+
+```bash
+cd backend
+python manage.py seed_data && \
+python manage.py seed_2026_grid && \
+python manage.py seed_staff_contracts --file data/staff_contracts_2026.json --season 2026 && \
+python manage.py seed_2026_schedule && \
+python manage.py seed_social_handles --file data/paddock_handles_2026.json
+```
+
+---
+
+## API Overview
+
+Base URL: `http://localhost:8000/api/v1/`
+
+| Endpoint | Description |
+|---|---|
+| `GET /teams/` | All 10 teams with color and logo |
+| `GET /drivers/` | All 20 drivers |
+| `GET /contracts/?role=RACE&is_active=true` | 2026 race grid with team colors |
+| `GET /contracts/?role=TEAM_PRINCIPAL&is_active=true` | All team principals |
+| `GET /social-handles/` | Paddock social registry |
+| `GET /articles/` | News articles (supports `?lang=zh-TW`) |
+| `GET /f1/standings/` | Championship standings |
+| `GET /f1/schedule/` | Race calendar |
+
+Write endpoints (`POST`, `PATCH`, `DELETE`) require admin authentication.
 
 ---
 
