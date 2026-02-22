@@ -36,7 +36,7 @@ app.conf.beat_schedule = {
     'fetch-medium-priority': {
         'task': 'apps.workers.tasks.fetch.fetch_sources_by_priority',
         'schedule': crontab(minute='*/15'),
-        'args': (['racefans', 'f1i'],),  # planetf1 removed — RSS feed discontinued
+        'args': (['racefans', 'f1i'],),
     },
 
     # Low priority (EN): every 30 minutes
@@ -50,7 +50,7 @@ app.conf.beat_schedule = {
     'fetch-chinese': {
         'task': 'apps.workers.tasks.fetch.fetch_sources_by_priority',
         'schedule': crontab(minute='*/30'),
-        'args': (['motorsport-cn'],),  # sportsv-f1 removed — feed URL dead (DON-34)
+        'args': (['motorsport-cn'],),
     },
 
     # European/Japanese markets: every 30 minutes

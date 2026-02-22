@@ -46,25 +46,8 @@ SOURCES = {
         "priority": 75,
         "fetch_interval": 900,
     },
-    "planetf1": {
-        "name": "PlanetF1",
-        "feed_url": "https://www.planetf1.com/feed/",
-        "lang": "en",
-        "priority": 70,
-        "fetch_interval": 900,
-        "is_active": False,  # RSS feed removed by publisher (DON-34)
-    },
 
     # --- CHINESE MARKETS (Tier 1) ---
-    # Traditional Chinese (Taiwan)
-    "sportsv-f1": {
-        "name": "Sports Vision F1",
-        "feed_url": "https://www.sportsv.net/feed/category/auto/f1",
-        "lang": "zh-TW",
-        "priority": 90,
-        "fetch_interval": 1800,
-        "is_active": False,  # Feed URL dead — needs new endpoint (DON-34)
-    },
     # Simplified Chinese (China)
     "motorsport-cn": {
         "name": "Motorsport.com China",
