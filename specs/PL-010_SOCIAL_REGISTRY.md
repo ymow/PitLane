@@ -129,8 +129,25 @@ This is wired in Phase 2 — Phase 1 only seeds the data.
 
 ---
 
-## 8. Out of Scope (Phase 1)
+## 8. Model Responsibility Boundary (Phase 1)
+
+Two models now cover paddock personnel. Their responsibilities are distinct:
+
+| Concern | Model | Field |
+|---|---|---|
+| Social presence (handle, URL, followers) | `SocialHandle` | `handle`, `url`, `follower_count` |
+| Organisational role & contract | `DriverContract` | `role`, `team`, `season`, `valid_from` |
+| Staff identity (no DB record) | `SocialHandle` | `staff_name` + `team` FK |
+
+**Rule:** A staff member appears in `SocialHandle` (social presence) and optionally in `DriverContract` (organisational role). There is **no FK between the two in Phase 1**. They are linked only by `staff_name` / `team`. Phase 2 (PL-018) unifies both under a universal `Entity` model, at which point `SocialHandle.staff_name` and `DriverContract.person_name` both migrate to `Entity.name`.
+
+Do **not** create a `DriverContract` row purely for the sake of recording a social handle, and do **not** add a `SocialHandle` row purely to record a role. Each model owns its own domain.
+
+---
+
+## 9. Out of Scope (Phase 1)
 
 - Active content scraping / social feed ingestion
 - Sentiment analysis on posts
 - Automatic handle discovery
+- Follower count auto-refresh (deferred to Phase 2 Celery task)
