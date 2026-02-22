@@ -3,7 +3,7 @@ import os
 from celery import Celery
 from celery.schedules import crontab
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings.production')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings.development')
 
 app = Celery('pitlane')
 app.config_from_object('django.conf:settings', namespace='CELERY')
@@ -36,7 +36,7 @@ app.conf.beat_schedule = {
     'fetch-medium-priority': {
         'task': 'apps.workers.tasks.fetch.fetch_sources_by_priority',
         'schedule': crontab(minute='*/15'),
-        'args': (['racefans', 'f1i', 'planetf1'],),
+        'args': (['racefans', 'f1i'],),  # planetf1 removed — RSS feed discontinued
     },
 
     # Low priority (EN): every 30 minutes
@@ -50,7 +50,7 @@ app.conf.beat_schedule = {
     'fetch-chinese': {
         'task': 'apps.workers.tasks.fetch.fetch_sources_by_priority',
         'schedule': crontab(minute='*/30'),
-        'args': (['sportsv-f1', 'motorsport-cn'],),
+        'args': (['motorsport-cn'],),  # sportsv-f1 removed — feed URL dead (DON-34)
     },
 
     # European/Japanese markets: every 30 minutes

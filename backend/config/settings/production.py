@@ -1,7 +1,12 @@
 """Production settings."""
 from .base import *
-import sentry_sdk
-from sentry_sdk.integrations.django import DjangoIntegration
+
+try:
+    import sentry_sdk
+    from sentry_sdk.integrations.django import DjangoIntegration
+    _sentry_available = True
+except ImportError:
+    _sentry_available = False
 
 DEBUG = False
 
@@ -16,7 +21,7 @@ X_FRAME_OPTIONS = 'DENY'
 
 # Sentry
 SENTRY_DSN = os.getenv('SENTRY_DSN', '')
-if SENTRY_DSN:
+if SENTRY_DSN and _sentry_available:
     sentry_sdk.init(
         dsn=SENTRY_DSN,
         integrations=[DjangoIntegration()],
