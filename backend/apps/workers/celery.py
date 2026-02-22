@@ -46,13 +46,6 @@ app.conf.beat_schedule = {
         'args': (['formel1-de', 'motorsport-it'],),
     },
 
-    # Chinese markets: every 30 minutes
-    'fetch-chinese': {
-        'task': 'apps.workers.tasks.fetch.fetch_sources_by_priority',
-        'schedule': crontab(minute='*/30'),
-        'args': (['motorsport-cn'],),
-    },
-
     # European/Japanese markets: every 30 minutes
     'fetch-international': {
         'task': 'apps.workers.tasks.fetch.fetch_sources_by_priority',

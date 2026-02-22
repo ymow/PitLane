@@ -55,6 +55,7 @@ SOURCES = {
         "lang": "zh-CN",
         "priority": 90,
         "fetch_interval": 1800,
+        "is_active": False,  # Feed stopped updating after 2026-01-05; cn.motorsport.com no longer syndicating
     },
 
     # --- EUROPEAN MARKETS (Tier 2) ---
