@@ -172,6 +172,74 @@ export function useCategories(lang = "zh-TW") {
   return { data, loading, error };
 }
 
+export function useTeams() {
+  const [data, setData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<any>(null);
+
+  useEffect(() => {
+    const fetchTeams = async () => {
+      try {
+        const response = await axios.get(`${API_BASE}/teams/`);
+        setData(response.data);
+      } catch (err) {
+        setError(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchTeams();
+  }, []);
+
+  return { data, loading, error };
+}
+
+export function useDrivers() {
+  const [data, setData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<any>(null);
+
+  useEffect(() => {
+    const fetchDrivers = async () => {
+      try {
+        const response = await axios.get(`${API_BASE}/drivers/`);
+        setData(response.data);
+      } catch (err) {
+        setError(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchDrivers();
+  }, []);
+
+  return { data, loading, error };
+}
+
+export function useContracts(params: Record<string, string | number> = {}) {
+  const [data, setData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<any>(null);
+
+  const paramsKey = useMemo(() => JSON.stringify(params), [params]);
+
+  useEffect(() => {
+    const fetchContracts = async () => {
+      try {
+        const response = await axios.get(`${API_BASE}/contracts/`, { params });
+        setData(response.data);
+      } catch (err) {
+        setError(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchContracts();
+  }, [paramsKey]);
+
+  return { data, loading, error };
+}
+
 export function useArticle(slug: string, lang = "zh-TW") {
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);

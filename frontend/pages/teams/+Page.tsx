@@ -1,185 +1,154 @@
-import React from 'react';
+import React, { useMemo } from 'react';
+import { useTeams, useContracts } from '../../lib/hooks';
 
 export default function Page() {
-    const teams = [
-        {
-            name: "Red Bull Racing",
-            country: "Austria",
-            teamPrincipal: "Christian Horner",
-            drivers: ["Max Verstappen", "Sergio Pérez"],
-            championships: 6,
-            color: "#0600EF",
-            founded: 2005,
-            base: "Milton Keynes, UK"
-        },
-        {
-            name: "Ferrari",
-            country: "Italy", 
-            teamPrincipal: "Frédéric Vasseur",
-            drivers: ["Charles Leclerc", "Carlos Sainz"],
-            championships: 16,
-            color: "#DC143C",
-            founded: 1950,
-            base: "Maranello, Italy"
-        },
-        {
-            name: "Mercedes",
-            country: "Germany",
-            teamPrincipal: "Toto Wolff",
-            drivers: ["Lewis Hamilton", "George Russell"],
-            championships: 8,
-            color: "#00D2BE",
-            founded: 2010,
-            base: "Brackley, UK"
-        },
-        {
-            name: "McLaren",
-            country: "United Kingdom",
-            teamPrincipal: "Andrea Stella",
-            drivers: ["Lando Norris", "Oscar Piastri"],
-            championships: 12,
-            color: "#FF8700",
-            founded: 1966,
-            base: "Woking, UK"
-        },
-        {
-            name: "Aston Martin",
-            country: "United Kingdom",
-            teamPrincipal: "Mike Krack",
-            drivers: ["Fernando Alonso", "Lance Stroll"],
-            championships: 0,
-            color: "#006F62",
-            founded: 2021,
-            base: "Silverstone, UK"
-        },
-        {
-            name: "Alpine",
-            country: "France",
-            teamPrincipal: "Bruno Famin",
-            drivers: ["Pierre Gasly", "Esteban Ocon"],
-            championships: 2,
-            color: "#0090FF",
-            founded: 2021,
-            base: "Enstone, UK"
-        },
-        {
-            name: "Williams",
-            country: "United Kingdom",
-            teamPrincipal: "James Vowles",
-            drivers: ["Alex Albon", "Franco Colapinto"],
-            championships: 9,
-            color: "#005AFF",
-            founded: 1977,
-            base: "Grove, UK"
-        },
-        {
-            name: "RB",
-            country: "Italy",
-            teamPrincipal: "Laurent Mekies",
-            drivers: ["Yuki Tsunoda", "Liam Lawson"],
-            championships: 0,
-            color: "#6692FF",
-            founded: 2006,
-            base: "Faenza, Italy"
-        },
-        {
-            name: "Kick Sauber",
-            country: "Switzerland",
-            teamPrincipal: "Alessandro Alunni Bravi",
-            drivers: ["Valtteri Bottas", "Zhou Guanyu"],
-            championships: 0,
-            color: "#52E252",
-            founded: 1993,
-            base: "Hinwil, Switzerland"
-        },
-        {
-            name: "Haas",
-            country: "United States",
-            teamPrincipal: "Ayao Komatsu",
-            drivers: ["Nico Hülkenberg", "Kevin Magnussen"],
-            championships: 0,
-            color: "#FFFFFF",
-            founded: 2016,
-            base: "Kannapolis, USA"
+    const { data: teamsData, loading: teamsLoading, error: teamsError } = useTeams();
+    const { data: tpData, loading: tpLoading } = useContracts({ role: 'TEAM_PRINCIPAL', is_active: 'true' });
+    const { data: raceData, loading: raceLoading } = useContracts({ role: 'RACE', is_active: 'true' });
+
+    const loading = teamsLoading || tpLoading || raceLoading;
+
+    const { teams, tpByTeam, driversByTeam } = useMemo(() => {
+        const teams = Array.isArray(teamsData?.results)
+            ? teamsData.results
+            : Array.isArray(teamsData)
+            ? teamsData
+            : [];
+
+        const tpContracts = Array.isArray(tpData?.results)
+            ? tpData.results
+            : Array.isArray(tpData)
+            ? tpData
+            : [];
+
+        const raceContracts = Array.isArray(raceData?.results)
+            ? raceData.results
+            : Array.isArray(raceData)
+            ? raceData
+            : [];
+
+        const tpByTeam: Record<string, string> = {};
+        for (const c of tpContracts) {
+            if (c.team_code) {
+                tpByTeam[c.team_code] = c.person_name || c.driver_name || '';
+            }
         }
-    ];
+
+        const driversByTeam: Record<string, string[]> = {};
+        for (const c of raceContracts) {
+            if (c.team_code) {
+                if (!driversByTeam[c.team_code]) {
+                    driversByTeam[c.team_code] = [];
+                }
+                driversByTeam[c.team_code].push(c.driver_name || c.person_name || '');
+            }
+        }
+
+        return { teams, tpByTeam, driversByTeam };
+    }, [teamsData, tpData, raceData]);
+
+    if (loading) {
+        return (
+            <div className="bg-white py-6">
+                <div className="xl:container mx-auto px-3 sm:px-4 xl:px-2">
+                    <div className="mb-8">
+                        <h1 className="text-4xl font-bold mb-2 border-l-4 border-red-600 pl-4">F1 Teams 2026</h1>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {Array.from({ length: 10 }).map((_, i) => (
+                            <div key={i} className="bg-gray-100 rounded-lg h-48 animate-pulse" />
+                        ))}
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    if (teamsError || teams.length === 0) {
+        return (
+            <div className="bg-white py-6">
+                <div className="xl:container mx-auto px-3 sm:px-4 xl:px-2">
+                    <div className="mb-8">
+                        <h1 className="text-4xl font-bold mb-2 border-l-4 border-red-600 pl-4">F1 Teams 2026</h1>
+                        <p className="text-gray-600 text-lg">Discover all ten Formula 1 constructors competing in the 2026 championship</p>
+                    </div>
+                    <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-8 text-center">
+                        <p className="text-yellow-800 text-lg font-semibold">2026 team data coming soon</p>
+                        <p className="text-yellow-700 text-sm mt-2">Team registrations for the 2026 season have not been confirmed yet.</p>
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="bg-white py-6">
             <div className="xl:container mx-auto px-3 sm:px-4 xl:px-2">
                 {/* Header */}
                 <div className="mb-8">
-                    <h1 className="text-4xl font-bold mb-2 border-l-4 border-red-600 pl-4">F1 Teams 2025</h1>
-                    <p className="text-gray-600 text-lg">Discover all ten Formula 1 constructors competing in the 2025 championship</p>
+                    <h1 className="text-4xl font-bold mb-2 border-l-4 border-red-600 pl-4">F1 Teams 2026</h1>
+                    <p className="text-gray-600 text-lg">Discover all ten Formula 1 constructors competing in the 2026 championship</p>
                 </div>
 
                 {/* Teams Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
-                    {teams.map((team, index) => (
-                        <div key={index} className="bg-white rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden border-l-4" style={{borderLeftColor: team.color}}>
-                            {/* Team Header */}
-                            <div className="p-6 border-b border-gray-100">
-                                <div className="flex justify-between items-start mb-4">
-                                    <div>
-                                        <h3 className="text-2xl font-bold text-gray-900 mb-1">{team.name}</h3>
-                                        <p className="text-gray-600 flex items-center">
-                                            <span className="mr-2">🏁</span>
-                                            {team.base}
-                                        </p>
-                                    </div>
-                                    <div className="text-right">
-                                        <div className="w-4 h-4 rounded-full" style={{backgroundColor: team.color}}></div>
-                                    </div>
-                                </div>
-                                
-                                <div className="grid grid-cols-2 gap-4 text-sm text-gray-600">
-                                    <div>
-                                        <span className="font-semibold">Team Principal:</span>
-                                        <p>{team.teamPrincipal}</p>
-                                    </div>
-                                    <div>
-                                        <span className="font-semibold">Founded:</span>
-                                        <p>{team.founded}</p>
-                                    </div>
-                                </div>
-                            </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {teams.map((team: any) => {
+                        const color = team.primary_color || '#888888';
+                        const tp = tpByTeam[team.code] || '—';
+                        const drivers = driversByTeam[team.code] || [];
 
-                            {/* Drivers */}
-                            <div className="p-6 pt-4">
-                                <h4 className="font-bold text-gray-900 mb-3 flex items-center">
-                                    <span className="mr-2">🏎️</span>
-                                    2025 Drivers
-                                </h4>
-                                <div className="space-y-2">
-                                    {team.drivers.map((driver, dIndex) => (
-                                        <div key={dIndex} className="flex items-center justify-between bg-gray-50 rounded-lg p-3">
-                                            <span className="font-medium text-gray-900">{driver}</span>
-                                            <span className="text-xs text-gray-500">#{(index * 2) + dIndex + 1}</span>
-                                        </div>
-                                    ))}
-                                </div>
-
-                                {/* Championships */}
-                                <div className="mt-4 pt-4 border-t border-gray-100">
-                                    <div className="flex items-center justify-between">
-                                        <span className="text-sm text-gray-600">Championships Won</span>
-                                        <div className="flex items-center">
-                                            <span className="text-2xl font-bold text-gray-900">{team.championships}</span>
-                                            {team.championships > 0 && (
-                                                <span className="ml-2 text-yellow-500">🏆</span>
+                        return (
+                            <div
+                                key={team.id}
+                                className="bg-white rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden border-l-4"
+                                style={{ borderLeftColor: color }}
+                            >
+                                {/* Team Header */}
+                                <div className="p-6 border-b border-gray-100">
+                                    <div className="flex justify-between items-start mb-4">
+                                        <div className="flex items-center gap-3">
+                                            {team.logo_url && (
+                                                <img
+                                                    src={team.logo_url}
+                                                    alt={team.base_name}
+                                                    className="w-10 h-10 object-contain"
+                                                />
                                             )}
+                                            <h3 className="text-2xl font-bold text-gray-900">{team.base_name}</h3>
                                         </div>
+                                        <div className="w-4 h-4 rounded-full flex-shrink-0" style={{ backgroundColor: color }} />
+                                    </div>
+
+                                    <div className="text-sm text-gray-600">
+                                        <span className="font-semibold">Team Principal:</span>
+                                        <p>{tp}</p>
                                     </div>
                                 </div>
+
+                                {/* Drivers */}
+                                <div className="p-6 pt-4">
+                                    <h4 className="font-bold text-gray-900 mb-3">2026 Drivers</h4>
+                                    {drivers.length > 0 ? (
+                                        <div className="space-y-2">
+                                            {drivers.map((name, i) => (
+                                                <div key={i} className="flex items-center bg-gray-50 rounded-lg p-3">
+                                                    <span className="font-medium text-gray-900">{name}</span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        <p className="text-sm text-gray-400 italic">Drivers TBC</p>
+                                    )}
+                                </div>
                             </div>
-                        </div>
-                    ))}
+                        );
+                    })}
                 </div>
 
                 {/* Statistics Section */}
                 <div className="mt-12 bg-gray-50 rounded-lg p-6">
-                    <h3 className="text-2xl font-bold mb-6 border-l-4 border-red-600 pl-4">Championship Statistics</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <h3 className="text-2xl font-bold mb-6 border-l-4 border-red-600 pl-4">2026 Season</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="text-center bg-white rounded-lg p-6 shadow">
                             <div className="text-3xl font-bold text-red-600 mb-2">10</div>
                             <div className="text-gray-600">Teams Competing</div>
@@ -187,10 +156,6 @@ export default function Page() {
                         <div className="text-center bg-white rounded-lg p-6 shadow">
                             <div className="text-3xl font-bold text-red-600 mb-2">20</div>
                             <div className="text-gray-600">Drivers Total</div>
-                        </div>
-                        <div className="text-center bg-white rounded-lg p-6 shadow">
-                            <div className="text-3xl font-bold text-red-600 mb-2">24</div>
-                            <div className="text-gray-600">Race Calendar</div>
                         </div>
                     </div>
                 </div>
