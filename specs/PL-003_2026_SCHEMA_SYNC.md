@@ -1,66 +1,98 @@
 # Design Spec: PL-003 2026 Grid Schema Sync
 
 **Issue:** DON-7 / PL-003
-**Status:** 🚧 IN PROGRESS
-**Last Updated:** 2026-02-21
+**Status:** ✅ DONE
+**Last Updated:** 2026-02-22
 
 ## 1. Objective
 
-Update the database to reflect the 2026 F1 grid — primarily the Kick Sauber → Audi rebrand and any outstanding driver/team data gaps.
+Update the database to reflect the 2026 F1 grid — Kick Sauber → Audi rebrand, seed all 20 RACE driver contracts, fix API gaps blocking the UI.
 
-## 2. What's Already Done
+## 2. What's Done
 
-| Item | Command | Status |
+| Item | Command / File | Status |
 | :--- | :--- | :--- |
 | 2026 Season (24 races) | `seed_2026_schedule.py` | ✅ Done |
-| 2026 Driver Lineup | `seed_data.py` (includes HUL, BOR at Sauber) | ✅ Done |
+| 2026 Driver Lineup (20 drivers) | `seed_data.py` | ✅ Done |
 | 10 Teams seeded | `seed_data.py` | ✅ Done |
+| Kick Sauber → Audi rebrand | `seed_2026_grid.py` | ✅ Done |
+| 20 RACE DriverContract rows | `seed_2026_grid.py` | ✅ Done |
+| 37 paddock staff contracts (TP, TD, RE…) | `seed_staff_contracts.py` | ✅ Done |
+| `ContractViewSet` `is_active` filter | `api/views.py` | ✅ Done |
+| `ContractReadSerializer` exposes `primary_color` | `api/serializers.py` | ✅ Done |
 
-## 3. What's Pending
+## 3. Implementation Notes
 
-### 3.1 Kick Sauber → Audi Rebrand
-`seed_data.py` seeds the team as `Kick Sauber` (code: `SAU`). For 2026, this team competes as **Audi** with a new identity.
+### 3.1 Audi Rebrand
 
-Changes required in the `Team` model:
-- `base_name`: `"Kick Sauber"` → `"Audi F1 Team"`
+`seed_2026_grid.py` updates the existing `SAU` team record in-place (idempotent):
 - `code`: `"SAU"` → `"AUD"`
-- `primary_color`: `"#52E252"` → `"#BB0000"` (Audi red)
+- `base_name`: `"Kick Sauber"` → `"Audi F1 Team"`
+- `primary_color`: `"#52E252"` → `"#BB0000"`
 - `country`: `"Switzerland"` → `"Germany"`
 
-### 3.2 Engine Supplier Updates
-The 2026 season introduces a new PU regulation era. Supplier changes:
-- **Audi**: New works team (formerly Sauber/Ferrari PU)
-- **Honda RBPT**: Continues with Aston Martin after Red Bull split (confirm)
-- **Ford/Red Bull Powertrains**: Red Bull's new PU partner
+CSS token renamed in lockstep: `--color-team-sauber` → `--color-team-audi: #BB0000`.
 
-These should be reflected in the `EngineSupplier` / `brands` models if tracked.
+### 3.2 RACE DriverContract Rows
 
-### 3.3 Missing Management Command
-There is no `seed_2026_grid.py` command. The 2026-specific team and driver changes are currently mixed into the 2025-labelled `seed_data.py`.
+`seed_2026_grid.py` creates one `DriverContract(role='RACE')` per driver, resolved by `Driver.code`, linked to `Team` and `Season(year=2026)`. Validates against model `clean()` (RACE roles must have `driver` FK set).
 
-## 4. Implementation Plan
+2026 grid:
 
-### Step 1: Create `seed_2026_grid.py` management command
-A dedicated command that is idempotent and updates (not re-creates) the 2026-specific entries:
+| Team | Drivers |
+|---|---|
+| RBR — Red Bull Racing | VER (Verstappen), LAW (Lawson) |
+| FER — Scuderia Ferrari | LEC (Leclerc), HAM (Hamilton) |
+| MCL — McLaren F1 Team | NOR (Norris), PIA (Piastri) |
+| MER — Mercedes-AMG Petronas | RUS (Russell), ANT (Antonelli) |
+| AMR — Aston Martin Aramco | ALO (Alonso), STR (Stroll) |
+| ALP — Alpine F1 Team | GAS (Gasly), DOO (Doohan) |
+| WIL — Williams Racing | ALB (Albon), SAI (Sainz) |
+| RBT — Racing Bulls | TSU (Tsunoda), HAD (Hadjar) |
+| HAA — MoneyGram Haas F1 Team | BEA (Bearman), OCO (Ocon) |
+| AUD — Audi F1 Team | HUL (Hülkenberg), BOR (Bortoleto) |
 
+### 3.3 Staff Contracts
+
+Run after `seed_2026_grid` (requires `AUD` code to exist):
+```bash
+python manage.py seed_staff_contracts --file data/staff_contracts_2026.json --season 2026
 ```
+Creates 37 entries: 10 TEAM_PRINCIPAL, 10 TECHNICAL_DIRECTOR, 14 RACE_ENGINEER, 2 PERFORMANCE_ENGINEER, 1 STAFF.
+
+### 3.4 API Fixes
+
+`ContractViewSet.get_queryset()` now filters on `?is_active=true|false`.
+
+`ContractReadSerializer` now exposes `primary_color` (sourced from `team.primary_color`), enabling the Drivers page to colour-code cards directly from contract data without a second Teams API call.
+
+### 3.5 Engine Supplier Updates (Deferred)
+
+The 2026 PU regulation changes (Audi works unit, Honda RBPT → Aston Martin, Ford/Red Bull Powertrains) are not tracked in Phase 1 — no `EngineSupplier` model is used in the UI. Deferred to Phase 2 (PL-018 entity model).
+
+## 4. How to Re-seed (Fresh DB)
+
+```bash
+# 1. Base data
+python manage.py seed_data
+
+# 2. 2026 grid + Audi rebrand + RACE contracts
 python manage.py seed_2026_grid
+
+# 3. Staff contracts
+python manage.py seed_staff_contracts --file data/staff_contracts_2026.json --season 2026
+
+# 4. Schedule
+python manage.py seed_2026_schedule
+
+# 5. Social handles (PL-010)
+python manage.py seed_social_handles --file data/paddock_handles_2026.json
 ```
-
-Should handle:
-- Rename Kick Sauber → Audi (update existing `SAU` record)
-- Update engine supplier relationships
-- Verify all 20 drivers are linked to the correct 2026 teams via `DriverContract`
-
-### Step 2: Verify Driver–Team Contracts
-Confirm `DriverContract` records exist for the 2026 season, linking each driver to their team. Currently `seed_data.py` creates drivers but does not create `DriverContract` records.
-
-### Step 3: Validate via API
-Run `GET /api/v1/teams/` and `GET /api/v1/drivers/` and confirm the 2026 grid is correct before marking done.
 
 ## 5. Success Criteria
 
-- [ ] `Team` record for Audi reflects 2026 branding (name, code, color)
-- [ ] All 20 drivers linked to correct 2026 teams via `DriverContract`
-- [ ] `seed_2026_grid.py` command exists and is idempotent
-- [ ] API returns correct 2026 grid data
+- [x] `Team` record for Audi reflects 2026 branding (name `AUD`, color `#BB0000`)
+- [x] All 20 drivers linked to correct 2026 teams via `DriverContract(role='RACE')`
+- [x] `seed_2026_grid.py` command exists and is idempotent
+- [x] `GET /api/v1/contracts/?role=RACE&is_active=true` returns 20 rows with `primary_color`
+- [x] Teams page and Drivers page show live 2026 data (no hardcoded fallback)

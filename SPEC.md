@@ -57,7 +57,7 @@ Get the system "alive" and validated with real F1 2026 data.
 
 | # | Spec | Status | Description |
 |---|---|---|---|
-| PL-003 | 2026 Schema Sync | In Progress | Audi/Sauber rebrand, 20-driver grid, contract management |
+| PL-003 | 2026 Schema Sync | **Done** | Audi/Sauber rebrand, 20-driver grid, contract management |
 | PL-006 | Open Live Data | Active | OpenF1 telemetry integration |
 | PL-010 | Paddock Social Registry | Active | 2000+ social handles for drivers, staff, teams |
 | PL-019 | CRUD Management | Done | Teams, Drivers, Staff write API + Django Admin |
@@ -136,7 +136,7 @@ Package F1 as a reusable template; validate on a second domain.
 
 | Issue | Title | Phase |
 |---|---|---|
-| #003 | 2026 season data sync (Audi/Sauber, driver transfers) | 1 |
+| ~~#003~~ | ~~2026 season data sync (Audi/Sauber, driver transfers)~~ — **Done** | 1 |
 | #005 | DB model field inconsistency (`original_title` vs `title`) | 1 |
 
 ---
@@ -189,7 +189,7 @@ Examples:
   --color-f1-red-light: #fb7185;
 
   /* Team colors: redbull, ferrari, mercedes, mclaren, astonmartin,
-                  alpine, williams, rb, sauber/audi, haas */
+                  alpine, williams, rb, audi (#BB0000), haas */
 
   --color-surface:        #ffffff;
   --color-surface-muted:  #f8fafc;
@@ -213,7 +213,7 @@ Examples:
 | `teams/{code}/` | GET/PUT/PATCH/DELETE | Admin (write) | Team CRUD |
 | `teams/{code}/articles/` | GET | Public | Articles by team |
 | `teams/{code}/social/` | GET | Public | Social handles by team |
-| `contracts/` | GET | Public | Driver + staff contracts (filterable by `role`, `team`) |
+| `contracts/` | GET | Public | Driver + staff contracts (filterable by `role`, `team`, `is_active`) |
 | `contracts/{id}/` | POST/PATCH/DELETE | Admin (write) | Contract CRUD |
 | `social-handles/` | GET | Public | Paddock social registry |
 | `f1/live/` | GET | Public | Live race session state |
@@ -227,7 +227,7 @@ Examples:
 
 | Spec File | Status | Description |
 |---|---|---|
-| `specs/PL-003_2026_SCHEMA_SYNC.md` | In Progress | 2026 grid update |
+| `specs/PL-003_2026_SCHEMA_SYNC.md` | **Done** | 2026 grid update |
 | `specs/PL-006_OPEN_LIVE_DATA.md` | Active | OpenF1 integration |
 | `specs/PL-010_SOCIAL_REGISTRY.md` | Active | Paddock social handles |
 | `specs/PL-018_OMNI_GRAPH_ENTITY_MODEL.md` | Planned (Phase 2) | Universal entity model |
