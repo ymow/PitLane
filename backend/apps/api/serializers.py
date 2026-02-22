@@ -96,15 +96,16 @@ class ContractWriteSerializer(serializers.ModelSerializer):
 
 
 class ContractReadSerializer(serializers.ModelSerializer):
-    driver_name = serializers.SerializerMethodField()
-    team_code   = serializers.CharField(source='team.code', read_only=True)
-    season_year = serializers.IntegerField(source='season.year', read_only=True)
+    driver_name   = serializers.SerializerMethodField()
+    team_code     = serializers.CharField(source='team.code', read_only=True)
+    primary_color = serializers.CharField(source='team.primary_color', read_only=True)
+    season_year   = serializers.IntegerField(source='season.year', read_only=True)
 
     class Meta:
         model  = DriverContract
         fields = ['id', 'driver', 'driver_name', 'person_name', 'team', 'team_code',
-                  'season', 'season_year', 'role', 'car_number', 'is_active',
-                  'valid_from', 'valid_until', 'announcement_date', 'notes']
+                  'primary_color', 'season', 'season_year', 'role', 'car_number',
+                  'is_active', 'valid_from', 'valid_until', 'announcement_date', 'notes']
 
     def get_driver_name(self, obj):
         return obj.driver.full_name if obj.driver else None

@@ -280,10 +280,13 @@ class ContractViewSet(viewsets.ModelViewSet):
         qs = DriverContract.objects.select_related('driver', 'team', 'season')
         role = self.request.query_params.get('role')
         team = self.request.query_params.get('team')
+        is_active = self.request.query_params.get('is_active')
         if role:
             qs = qs.filter(role=role)
         if team:
             qs = qs.filter(team__code=team)
+        if is_active is not None:
+            qs = qs.filter(is_active=is_active.lower() == 'true')
         return qs
 
     def get_serializer_class(self):
