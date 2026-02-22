@@ -1,0 +1,768 @@
+[
+  {
+    "platform": "TWITTER",
+    "handle": "@LewisHamilton",
+    "url": "https://x.com/LewisHamilton",
+    "entity_type": "DRIVER",
+    "driver_code": "HAM",
+    "is_verified": true
+  },
+  {
+    "platform": "INSTAGRAM",
+    "handle": "@lewishamilton",
+    "url": "https://www.instagram.com/lewishamilton",
+    "entity_type": "DRIVER",
+    "driver_code": "HAM",
+    "is_verified": true
+  },
+  {
+    "platform": "TWITTER",
+    "handle": "@Max33Verstappen",
+    "url": "https://x.com/Max33Verstappen",
+    "entity_type": "DRIVER",
+    "driver_code": "VER",
+    "is_verified": true
+  },
+  {
+    "platform": "INSTAGRAM",
+    "handle": "@maxverstappen1",
+    "url": "https://www.instagram.com/maxverstappen1",
+    "entity_type": "DRIVER",
+    "driver_code": "VER",
+    "is_verified": true
+  },
+  {
+    "platform": "TWITTER",
+    "handle": "@Charles_Leclerc",
+    "url": "https://x.com/Charles_Leclerc",
+    "entity_type": "DRIVER",
+    "driver_code": "LEC",
+    "is_verified": true
+  },
+  {
+    "platform": "INSTAGRAM",
+    "handle": "@charles_leclerc",
+    "url": "https://www.instagram.com/charles_leclerc",
+    "entity_type": "DRIVER",
+    "driver_code": "LEC",
+    "is_verified": true
+  },
+  {
+    "platform": "TWITTER",
+    "handle": "@CarlosSainz55",
+    "url": "https://x.com/CarlosSainz55",
+    "entity_type": "DRIVER",
+    "driver_code": "SAI",
+    "is_verified": true
+  },
+  {
+    "platform": "INSTAGRAM",
+    "handle": "@carlossainz55",
+    "url": "https://www.instagram.com/carlossainz55",
+    "entity_type": "DRIVER",
+    "driver_code": "SAI",
+    "is_verified": true
+  },
+  {
+    "platform": "TWITTER",
+    "handle": "@LandoNorris",
+    "url": "https://x.com/LandoNorris",
+    "entity_type": "DRIVER",
+    "driver_code": "NOR",
+    "is_verified": true
+  },
+  {
+    "platform": "INSTAGRAM",
+    "handle": "@landonorris",
+    "url": "https://www.instagram.com/landonorris",
+    "entity_type": "DRIVER",
+    "driver_code": "NOR",
+    "is_verified": true
+  },
+  {
+    "platform": "TWITTER",
+    "handle": "@OscarPiastri",
+    "url": "https://x.com/OscarPiastri",
+    "entity_type": "DRIVER",
+    "driver_code": "PIA",
+    "is_verified": true
+  },
+  {
+    "platform": "INSTAGRAM",
+    "handle": "@oscarpiastri",
+    "url": "https://www.instagram.com/oscarpiastri",
+    "entity_type": "DRIVER",
+    "driver_code": "PIA",
+    "is_verified": true
+  },
+  {
+    "platform": "TWITTER",
+    "handle": "@GeorgeRussell63",
+    "url": "https://x.com/GeorgeRussell63",
+    "entity_type": "DRIVER",
+    "driver_code": "RUS",
+    "is_verified": true
+  },
+  {
+    "platform": "INSTAGRAM",
+    "handle": "@georgerussell63",
+    "url": "https://www.instagram.com/georgerussell63",
+    "entity_type": "DRIVER",
+    "driver_code": "RUS",
+    "is_verified": true
+  },
+  {
+    "platform": "TWITTER",
+    "handle": "@FernandoAlonso",
+    "url": "https://x.com/alo_oficial",
+    "entity_type": "DRIVER",
+    "driver_code": "ALO",
+    "is_verified": true
+  },
+  {
+    "platform": "INSTAGRAM",
+    "handle": "@fernandoalo_official",
+    "url": "https://www.instagram.com/fernandoalo_official",
+    "entity_type": "DRIVER",
+    "driver_code": "ALO",
+    "is_verified": true
+  },
+  {
+    "platform": "TWITTER",
+    "handle": "@lance_stroll",
+    "url": "https://x.com/lance_stroll",
+    "entity_type": "DRIVER",
+    "driver_code": "STR",
+    "is_verified": true
+  },
+  {
+    "platform": "INSTAGRAM",
+    "handle": "@lance_stroll",
+    "url": "https://www.instagram.com/lance_stroll",
+    "entity_type": "DRIVER",
+    "driver_code": "STR",
+    "is_verified": true
+  },
+  {
+    "platform": "TWITTER",
+    "handle": "@PierreGasly",
+    "url": "https://x.com/PierreGasly",
+    "entity_type": "DRIVER",
+    "driver_code": "GAS",
+    "is_verified": true
+  },
+  {
+    "platform": "INSTAGRAM",
+    "handle": "@pierre_gasly",
+    "url": "https://www.instagram.com/pierre_gasly",
+    "entity_type": "DRIVER",
+    "driver_code": "GAS",
+    "is_verified": true
+  },
+  {
+    "platform": "TWITTER",
+    "handle": "@EstebanOcon",
+    "url": "https://x.com/OconEsteban",
+    "entity_type": "DRIVER",
+    "driver_code": "OCO",
+    "is_verified": true
+  },
+  {
+    "platform": "INSTAGRAM",
+    "handle": "@esteban_ocon",
+    "url": "https://www.instagram.com/esteban_ocon",
+    "entity_type": "DRIVER",
+    "driver_code": "OCO",
+    "is_verified": true
+  },
+  {
+    "platform": "TWITTER",
+    "handle": "@kimi_antonelli",
+    "url": "https://x.com/kimi_antonelli",
+    "entity_type": "DRIVER",
+    "driver_code": "ANT",
+    "is_verified": true
+  },
+  {
+    "platform": "INSTAGRAM",
+    "handle": "@kimi.antonelli",
+    "url": "https://www.instagram.com/kimi.antonelli",
+    "entity_type": "DRIVER",
+    "driver_code": "ANT",
+    "is_verified": true
+  },
+  {
+    "platform": "TWITTER",
+    "handle": "@LiamLawson30",
+    "url": "https://x.com/LiamLawson30",
+    "entity_type": "DRIVER",
+    "driver_code": "LAW",
+    "is_verified": true
+  },
+  {
+    "platform": "INSTAGRAM",
+    "handle": "@liamlawson30",
+    "url": "https://www.instagram.com/liamlawson30",
+    "entity_type": "DRIVER",
+    "driver_code": "LAW",
+    "is_verified": true
+  },
+  {
+    "platform": "TWITTER",
+    "handle": "@yukitsunoda17",
+    "url": "https://x.com/yukitsunoda17",
+    "entity_type": "DRIVER",
+    "driver_code": "TSU",
+    "is_verified": true
+  },
+  {
+    "platform": "INSTAGRAM",
+    "handle": "@yukitsunoda17",
+    "url": "https://www.instagram.com/yukitsunoda17",
+    "entity_type": "DRIVER",
+    "driver_code": "TSU",
+    "is_verified": true
+  },
+  {
+    "platform": "TWITTER",
+    "handle": "@isackhadjar",
+    "url": "https://x.com/isackhadjar",
+    "entity_type": "DRIVER",
+    "driver_code": "HAD",
+    "is_verified": true
+  },
+  {
+    "platform": "INSTAGRAM",
+    "handle": "@isackhadjar",
+    "url": "https://www.instagram.com/isackhadjar",
+    "entity_type": "DRIVER",
+    "driver_code": "HAD",
+    "is_verified": true
+  },
+  {
+    "platform": "TWITTER",
+    "handle": "@JackDoohan_",
+    "url": "https://x.com/JackDoohan_",
+    "entity_type": "DRIVER",
+    "driver_code": "DOO",
+    "is_verified": true
+  },
+  {
+    "platform": "INSTAGRAM",
+    "handle": "@jackdoohan_",
+    "url": "https://www.instagram.com/jackdoohan_",
+    "entity_type": "DRIVER",
+    "driver_code": "DOO",
+    "is_verified": true
+  },
+  {
+    "platform": "TWITTER",
+    "handle": "@oli_bearman",
+    "url": "https://x.com/oli_bearman",
+    "entity_type": "DRIVER",
+    "driver_code": "BEA",
+    "is_verified": true
+  },
+  {
+    "platform": "INSTAGRAM",
+    "handle": "@oli_bearman",
+    "url": "https://www.instagram.com/oli_bearman",
+    "entity_type": "DRIVER",
+    "driver_code": "BEA",
+    "is_verified": true
+  },
+  {
+    "platform": "TWITTER",
+    "handle": "@KevinMagnussen",
+    "url": "https://x.com/KevinMagnussen",
+    "entity_type": "DRIVER",
+    "driver_code": "MAG",
+    "is_verified": true
+  },
+  {
+    "platform": "INSTAGRAM",
+    "handle": "@kevinmagnussen",
+    "url": "https://www.instagram.com/kevinmagnussen",
+    "entity_type": "DRIVER",
+    "driver_code": "MAG",
+    "is_verified": true
+  },
+  {
+    "platform": "TWITTER",
+    "handle": "@HulkHulkenberg",
+    "url": "https://x.com/HulkHulkenberg",
+    "entity_type": "DRIVER",
+    "driver_code": "HUL",
+    "is_verified": true
+  },
+  {
+    "platform": "INSTAGRAM",
+    "handle": "@hulkhulkenberg",
+    "url": "https://www.instagram.com/hulkhulkenberg",
+    "entity_type": "DRIVER",
+    "driver_code": "HUL",
+    "is_verified": true
+  },
+  {
+    "platform": "TWITTER",
+    "handle": "@gbortoleto",
+    "url": "https://x.com/gbortoleto",
+    "entity_type": "DRIVER",
+    "driver_code": "BOR",
+    "is_verified": true
+  },
+  {
+    "platform": "INSTAGRAM",
+    "handle": "@gbortoleto",
+    "url": "https://www.instagram.com/gbortoleto",
+    "entity_type": "DRIVER",
+    "driver_code": "BOR",
+    "is_verified": true
+  },
+  {
+    "platform": "TWITTER",
+    "handle": "@alex_albon",
+    "url": "https://x.com/alex_albon",
+    "entity_type": "DRIVER",
+    "driver_code": "ALB",
+    "is_verified": true
+  },
+  {
+    "platform": "INSTAGRAM",
+    "handle": "@alex_albon",
+    "url": "https://www.instagram.com/alex_albon",
+    "entity_type": "DRIVER",
+    "driver_code": "ALB",
+    "is_verified": true
+  },
+  {
+    "platform": "TWITTER",
+    "handle": "@ScuderiaFerrari",
+    "url": "https://x.com/ScuderiaFerrari",
+    "entity_type": "TEAM",
+    "team_code": "FER",
+    "is_verified": true
+  },
+  {
+    "platform": "INSTAGRAM",
+    "handle": "@scuderiaferrari",
+    "url": "https://www.instagram.com/scuderiaferrari",
+    "entity_type": "TEAM",
+    "team_code": "FER",
+    "is_verified": true
+  },
+  {
+    "platform": "TWITTER",
+    "handle": "@redbullracing",
+    "url": "https://x.com/redbullracing",
+    "entity_type": "TEAM",
+    "team_code": "RBR",
+    "is_verified": true
+  },
+  {
+    "platform": "INSTAGRAM",
+    "handle": "@redbullracing",
+    "url": "https://www.instagram.com/redbullracing",
+    "entity_type": "TEAM",
+    "team_code": "RBR",
+    "is_verified": true
+  },
+  {
+    "platform": "TWITTER",
+    "handle": "@MercedesAMGF1",
+    "url": "https://x.com/MercedesAMGF1",
+    "entity_type": "TEAM",
+    "team_code": "MER",
+    "is_verified": true
+  },
+  {
+    "platform": "INSTAGRAM",
+    "handle": "@mercedesamgf1",
+    "url": "https://www.instagram.com/mercedesamgf1",
+    "entity_type": "TEAM",
+    "team_code": "MER",
+    "is_verified": true
+  },
+  {
+    "platform": "TWITTER",
+    "handle": "@McLarenF1",
+    "url": "https://x.com/McLarenF1",
+    "entity_type": "TEAM",
+    "team_code": "MCL",
+    "is_verified": true
+  },
+  {
+    "platform": "INSTAGRAM",
+    "handle": "@mclaren",
+    "url": "https://www.instagram.com/mclaren",
+    "entity_type": "TEAM",
+    "team_code": "MCL",
+    "is_verified": true
+  },
+  {
+    "platform": "TWITTER",
+    "handle": "@AstonMartinF1",
+    "url": "https://x.com/AstonMartinF1",
+    "entity_type": "TEAM",
+    "team_code": "AMR",
+    "is_verified": true
+  },
+  {
+    "platform": "INSTAGRAM",
+    "handle": "@astonmartinf1",
+    "url": "https://www.instagram.com/astonmartinf1",
+    "entity_type": "TEAM",
+    "team_code": "AMR",
+    "is_verified": true
+  },
+  {
+    "platform": "TWITTER",
+    "handle": "@AlpineF1Team",
+    "url": "https://x.com/AlpineF1Team",
+    "entity_type": "TEAM",
+    "team_code": "ALP",
+    "is_verified": true
+  },
+  {
+    "platform": "INSTAGRAM",
+    "handle": "@alpinef1team",
+    "url": "https://www.instagram.com/alpinef1team",
+    "entity_type": "TEAM",
+    "team_code": "ALP",
+    "is_verified": true
+  },
+  {
+    "platform": "TWITTER",
+    "handle": "@HaasF1Team",
+    "url": "https://x.com/HaasF1Team",
+    "entity_type": "TEAM",
+    "team_code": "HAA",
+    "is_verified": true
+  },
+  {
+    "platform": "INSTAGRAM",
+    "handle": "@haasf1team",
+    "url": "https://www.instagram.com/haasf1team",
+    "entity_type": "TEAM",
+    "team_code": "HAA",
+    "is_verified": true
+  },
+  {
+    "platform": "TWITTER",
+    "handle": "@WilliamsRacing",
+    "url": "https://x.com/WilliamsRacing",
+    "entity_type": "TEAM",
+    "team_code": "WIL",
+    "is_verified": true
+  },
+  {
+    "platform": "INSTAGRAM",
+    "handle": "@williamsracing",
+    "url": "https://www.instagram.com/williamsracing",
+    "entity_type": "TEAM",
+    "team_code": "WIL",
+    "is_verified": true
+  },
+  {
+    "platform": "TWITTER",
+    "handle": "@RacingBullsF1",
+    "url": "https://x.com/RacingBullsF1",
+    "entity_type": "TEAM",
+    "team_code": "RBT",
+    "is_verified": true
+  },
+  {
+    "platform": "INSTAGRAM",
+    "handle": "@racingbullsf1",
+    "url": "https://www.instagram.com/racingbullsf1",
+    "entity_type": "TEAM",
+    "team_code": "RBT",
+    "is_verified": true
+  },
+  {
+    "platform": "TWITTER",
+    "handle": "@audif1team",
+    "url": "https://x.com/audif1team",
+    "entity_type": "TEAM",
+    "team_code": "AUD",
+    "is_verified": true
+  },
+  {
+    "platform": "INSTAGRAM",
+    "handle": "@audif1team",
+    "url": "https://www.instagram.com/audif1team",
+    "entity_type": "TEAM",
+    "team_code": "AUD",
+    "is_verified": true
+  },
+
+  {
+    "platform": "TWITTER",
+    "handle": "@TotoWolff",
+    "url": "https://x.com/TotoWolff",
+    "entity_type": "STAFF",
+    "team_code": "MER",
+    "staff_name": "Toto Wolff",
+    "role": "Team Principal & CEO",
+    "is_verified": true
+  },
+  {
+    "platform": "INSTAGRAM",
+    "handle": "@totowolff",
+    "url": "https://www.instagram.com/totowolff",
+    "entity_type": "STAFF",
+    "team_code": "MER",
+    "staff_name": "Toto Wolff",
+    "role": "Team Principal & CEO",
+    "is_verified": true
+  },
+  {
+    "platform": "TWITTER",
+    "handle": "@ZakBrown",
+    "url": "https://x.com/ZakBrown",
+    "entity_type": "STAFF",
+    "team_code": "MCL",
+    "staff_name": "Zak Brown",
+    "role": "CEO",
+    "is_verified": true
+  },
+  {
+    "platform": "INSTAGRAM",
+    "handle": "@zakbrown",
+    "url": "https://www.instagram.com/zakbrown",
+    "entity_type": "STAFF",
+    "team_code": "MCL",
+    "staff_name": "Zak Brown",
+    "role": "CEO",
+    "is_verified": true
+  },
+  {
+    "platform": "TWITTER",
+    "handle": "@AndreaStellaF1",
+    "url": "https://x.com/AndreaStellaF1",
+    "entity_type": "STAFF",
+    "team_code": "MCL",
+    "staff_name": "Andrea Stella",
+    "role": "Team Principal",
+    "is_verified": true
+  },
+  {
+    "platform": "TWITTER",
+    "handle": "@Fred_Vasseur",
+    "url": "https://x.com/Fred_Vasseur",
+    "entity_type": "STAFF",
+    "team_code": "FER",
+    "staff_name": "Frédéric Vasseur",
+    "role": "Team Principal",
+    "is_verified": true
+  },
+  {
+    "platform": "TWITTER",
+    "handle": "@ChristianHorner",
+    "url": "https://x.com/ChristianHorner",
+    "entity_type": "STAFF",
+    "team_code": "RBR",
+    "staff_name": "Christian Horner",
+    "role": "Team Principal",
+    "is_verified": true
+  },
+  {
+    "platform": "INSTAGRAM",
+    "handle": "@christianhorner",
+    "url": "https://www.instagram.com/christianhorner",
+    "entity_type": "STAFF",
+    "team_code": "RBR",
+    "staff_name": "Christian Horner",
+    "role": "Team Principal",
+    "is_verified": true
+  },
+  {
+    "platform": "TWITTER",
+    "handle": "@MikeKrack",
+    "url": "https://x.com/MikeKrack",
+    "entity_type": "STAFF",
+    "team_code": "AMR",
+    "staff_name": "Mike Krack",
+    "role": "Team Principal",
+    "is_verified": false
+  },
+  {
+    "platform": "TWITTER",
+    "handle": "@JamesVowles",
+    "url": "https://x.com/JamesVowles",
+    "entity_type": "STAFF",
+    "team_code": "WIL",
+    "staff_name": "James Vowles",
+    "role": "Team Principal",
+    "is_verified": true
+  },
+  {
+    "platform": "INSTAGRAM",
+    "handle": "@jamesvowles",
+    "url": "https://www.instagram.com/jamesvowles",
+    "entity_type": "STAFF",
+    "team_code": "WIL",
+    "staff_name": "James Vowles",
+    "role": "Team Principal",
+    "is_verified": true
+  },
+  {
+    "platform": "TWITTER",
+    "handle": "@OliverOakes",
+    "url": "https://x.com/OliverOakes",
+    "entity_type": "STAFF",
+    "team_code": "ALP",
+    "staff_name": "Oliver Oakes",
+    "role": "Team Principal",
+    "is_verified": false
+  },
+  {
+    "platform": "TWITTER",
+    "handle": "@LaurentMekies",
+    "url": "https://x.com/LaurentMekies",
+    "entity_type": "STAFF",
+    "team_code": "RBT",
+    "staff_name": "Laurent Mekies",
+    "role": "Team Principal",
+    "is_verified": false
+  },
+  {
+    "platform": "TWITTER",
+    "handle": "@AyaoKomatsu",
+    "url": "https://x.com/AyaoKomatsu",
+    "entity_type": "STAFF",
+    "team_code": "HAA",
+    "staff_name": "Ayao Komatsu",
+    "role": "Team Principal",
+    "is_verified": false
+  },
+
+  {
+    "platform": "TWITTER",
+    "handle": "@adriannewey",
+    "url": "https://x.com/adriannewey",
+    "entity_type": "STAFF",
+    "team_code": "AMR",
+    "staff_name": "Adrian Newey",
+    "role": "Chief Technical Officer",
+    "is_verified": false
+  },
+  {
+    "platform": "TWITTER",
+    "handle": "@james_allison",
+    "url": "https://x.com/james_allison",
+    "entity_type": "STAFF",
+    "team_code": "MER",
+    "staff_name": "James Allison",
+    "role": "Technical Director",
+    "is_verified": false
+  },
+  {
+    "platform": "TWITTER",
+    "handle": "@PatFryF1",
+    "url": "https://x.com/PatFryF1",
+    "entity_type": "STAFF",
+    "team_code": "WIL",
+    "staff_name": "Pat Fry",
+    "role": "Technical Director",
+    "is_verified": false
+  },
+  {
+    "platform": "TWITTER",
+    "handle": "@enricard",
+    "url": "https://x.com/enricard",
+    "entity_type": "STAFF",
+    "team_code": "FER",
+    "staff_name": "Enrico Cardile",
+    "role": "Technical Director",
+    "is_verified": false
+  },
+
+  {
+    "platform": "TWITTER",
+    "handle": "@gianpiero_lambiase",
+    "url": "https://x.com/gianpiero_lambiase",
+    "entity_type": "STAFF",
+    "team_code": "RBR",
+    "staff_name": "Gianpiero Lambiase",
+    "role": "Race Engineer (Verstappen)",
+    "is_verified": false
+  },
+  {
+    "platform": "TWITTER",
+    "handle": "@XaviMarcoF1",
+    "url": "https://x.com/XaviMarcoF1",
+    "entity_type": "STAFF",
+    "team_code": "FER",
+    "staff_name": "Xavier Marcos Padros",
+    "role": "Race Engineer (Leclerc)",
+    "is_verified": false
+  },
+  {
+    "platform": "TWITTER",
+    "handle": "@riccardoadami",
+    "url": "https://x.com/riccardoadami",
+    "entity_type": "STAFF",
+    "team_code": "FER",
+    "staff_name": "Riccardo Adami",
+    "role": "Race Engineer (Hamilton)",
+    "is_verified": false
+  },
+  {
+    "platform": "TWITTER",
+    "handle": "@petebonnington",
+    "url": "https://x.com/petebonnington",
+    "entity_type": "STAFF",
+    "team_code": "MER",
+    "staff_name": "Pete Bonnington",
+    "role": "Race Engineer (Russell)",
+    "is_verified": false
+  },
+  {
+    "platform": "TWITTER",
+    "handle": "@w_joseph_f1",
+    "url": "https://x.com/w_joseph_f1",
+    "entity_type": "STAFF",
+    "team_code": "MCL",
+    "staff_name": "Will Joseph",
+    "role": "Race Engineer (Norris)",
+    "is_verified": false
+  },
+
+  {
+    "platform": "TWITTER",
+    "handle": "@LukesF1",
+    "url": "https://x.com/LukesF1",
+    "entity_type": "PARTNER",
+    "staff_name": "Luke Smith",
+    "role": "F1 Journalist (The Athletic)",
+    "is_verified": true
+  },
+  {
+    "platform": "TWITTER",
+    "handle": "@ChiefF1",
+    "url": "https://x.com/ChiefF1",
+    "entity_type": "PARTNER",
+    "staff_name": "Will Buxton",
+    "role": "F1 Broadcaster & Journalist",
+    "is_verified": true
+  },
+  {
+    "platform": "TWITTER",
+    "handle": "@ScarbsF1",
+    "url": "https://x.com/ScarbsF1",
+    "entity_type": "PARTNER",
+    "staff_name": "Craig Scarborough",
+    "role": "F1 Technical Analyst",
+    "is_verified": true
+  },
+  {
+    "platform": "TWITTER",
+    "handle": "@RacingLines_F1",
+    "url": "https://x.com/RacingLines_F1",
+    "entity_type": "PARTNER",
+    "staff_name": "Edd Straw",
+    "role": "F1 Journalist (The Race)",
+    "is_verified": true
+  }
+]

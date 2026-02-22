@@ -3,6 +3,7 @@ from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from .views import (
     ArticleViewSet, DriverViewSet, TeamViewSet, CategoryViewSet,
+    SocialHandleViewSet, ContractViewSet,
     I18nView, SearchView,
     F1StandingsAPIView, F1RaceScheduleAPIView, F1RaceResultsAPIView,
     F1DriversAPIView, F1ConstructorsAPIView, F1QualifyingAPIView,
@@ -14,6 +15,8 @@ router.register(r'articles', ArticleViewSet, basename='article')
 router.register(r'drivers', DriverViewSet, basename='driver')
 router.register(r'teams', TeamViewSet, basename='team')
 router.register(r'categories', CategoryViewSet, basename='category')
+router.register(r'social-handles', SocialHandleViewSet, basename='social-handle')
+router.register(r'contracts', ContractViewSet, basename='contract')
 
 urlpatterns = [
     path('', include(router.urls)),

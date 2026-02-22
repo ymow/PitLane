@@ -174,24 +174,39 @@ class TeamIdentity(models.Model):
 
 class DriverContract(models.Model):
     """
-    Temporal driver contract - tracks driver team assignments with role and dates.
-    Supports full contract history including race driver, reserve, test, and loan deals.
+    Temporal driver/staff contract - tracks driver and paddock staff assignments per team.
+    Supports full history including race drivers, reserve/test drivers, and staff roles
+    (team principals, engineers, mechanics, etc.).
     """
     CONTRACT_ROLE_CHOICES = [
-        ('RACE', 'Race Driver'),
-        ('RESERVE', 'Reserve Driver'),
-        ('TEST', 'Test Driver'),
+        # Driver roles
+        ('RACE',        'Race Driver'),
+        ('RESERVE',     'Reserve Driver'),
+        ('TEST',        'Test Driver'),
         ('DEVELOPMENT', 'Development Driver'),
-        ('LOAN', 'On Loan'),
-        ('GUEST', 'Guest Driver'),
+        ('LOAN',        'On Loan'),
+        ('GUEST',       'Guest Driver'),
+        # Staff / paddock roles
+        ('TEAM_PRINCIPAL',       'Team Principal'),
+        ('TECHNICAL_DIRECTOR',   'Technical Director'),
+        ('RACE_ENGINEER',        'Race Engineer'),
+        ('PERFORMANCE_ENGINEER', 'Performance Engineer'),
+        ('HEAD_AERO',            'Head of Aerodynamics'),
+        ('MECHANIC',             'Mechanic'),
+        ('STAFF',                'Staff (Other)'),
     ]
+
+    DRIVER_ROLES = {'RACE', 'RESERVE', 'TEST', 'DEVELOPMENT', 'LOAN', 'GUEST'}
 
     id = models.CharField(max_length=32, primary_key=True, default=generate_id, editable=False)
     driver = models.ForeignKey(
         Driver,
-        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
         related_name='contracts'
     )
+    person_name = models.CharField(max_length=200, null=True, blank=True)
     team = models.ForeignKey(
         Team,
         on_delete=models.CASCADE,
@@ -204,7 +219,7 @@ class DriverContract(models.Model):
     )
 
     # Contract details
-    role = models.CharField(max_length=20, choices=CONTRACT_ROLE_CHOICES, db_index=True)
+    role = models.CharField(max_length=30, choices=CONTRACT_ROLE_CHOICES, db_index=True)
     car_number = models.IntegerField(null=True, blank=True)  # Pre-2014 variable numbers
     is_active = models.BooleanField(default=True, db_index=True)
 
@@ -228,8 +243,16 @@ class DriverContract(models.Model):
             models.Index(fields=['season', 'role']),
         ]
 
+    def clean(self):
+        from django.core.exceptions import ValidationError
+        if self.role in self.DRIVER_ROLES and not self.driver_id:
+            raise ValidationError("Driver roles require a linked Driver.")
+        if self.role not in self.DRIVER_ROLES and not self.person_name:
+            raise ValidationError("Staff roles require a person_name.")
+
     def __str__(self):
-        return f"{self.driver.full_name} - {self.team.base_name} ({self.season.year}) [{self.get_role_display()}]"
+        person = self.driver.full_name if self.driver else self.person_name
+        return f"{person} - {self.team.base_name} ({self.season.year}) [{self.get_role_display()}]"
 
 
 class TeamSponsor(models.Model):
@@ -330,3 +353,53 @@ class DriverSponsor(models.Model):
 
     def __str__(self):
         return f"{self.sponsor.name} - {self.driver.full_name} ({self.get_sponsorship_type_display()})"
+
+
+class Platform(models.TextChoices):
+    TWITTER   = 'TWITTER',   'Twitter / X'
+    INSTAGRAM = 'INSTAGRAM', 'Instagram'
+    TIKTOK    = 'TIKTOK',    'TikTok'
+    YOUTUBE   = 'YOUTUBE',   'YouTube'
+    FACEBOOK  = 'FACEBOOK',  'Facebook'
+    LINKEDIN  = 'LINKEDIN',  'LinkedIn'
+
+
+class SocialEntityType(models.TextChoices):
+    DRIVER  = 'DRIVER',  'Driver'
+    TEAM    = 'TEAM',    'Team'
+    STAFF   = 'STAFF',   'Staff / Engineer / Mechanic'
+    PARTNER = 'PARTNER', 'Partner / Brand'
+
+
+class SocialHandle(models.Model):
+    id            = models.CharField(max_length=32, primary_key=True, default=generate_id, editable=False)
+    platform      = models.CharField(max_length=20, choices=Platform.choices, db_index=True)
+    handle        = models.CharField(max_length=100)           # e.g. "@LewisHamilton"
+    url           = models.URLField(max_length=500)
+    entity_type   = models.CharField(max_length=20, choices=SocialEntityType.choices, db_index=True)
+
+    # Per-type nullable FKs (Phase 1). Migrates to universal Entity FK in PL-018.
+    driver        = models.ForeignKey('Driver', null=True, blank=True,
+                                      on_delete=models.SET_NULL, related_name='social_handles')
+    team          = models.ForeignKey('Team', null=True, blank=True,
+                                      on_delete=models.SET_NULL, related_name='social_handles')
+    staff_name    = models.CharField(max_length=200, null=True, blank=True)
+    role          = models.CharField(max_length=100, null=True, blank=True)
+
+    is_verified   = models.BooleanField(default=False)
+    is_active     = models.BooleanField(default=True, db_index=True)
+    valid_from    = models.DateField(null=True, blank=True)
+    valid_until   = models.DateField(null=True, blank=True)
+    follower_count = models.IntegerField(null=True, blank=True)
+
+    created_at    = models.DateTimeField(auto_now_add=True)
+    updated_at    = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = 'social_handles'
+        unique_together = [['platform', 'handle']]
+        ordering = ['entity_type', 'platform']
+        verbose_name_plural = 'Social Handles'
+
+    def __str__(self):
+        return f"{self.handle} ({self.platform})"

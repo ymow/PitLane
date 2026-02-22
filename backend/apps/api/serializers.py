@@ -1,7 +1,7 @@
 """API serializers."""
 from rest_framework import serializers
 from apps.news.models import Article, Translation, Source, Tag, NewsCategory
-from apps.teams.models import Driver, Team
+from apps.teams.models import Driver, Team, SocialHandle, DriverContract
 
 
 class SourceSerializer(serializers.ModelSerializer):
@@ -45,6 +45,69 @@ class CategorySerializer(serializers.ModelSerializer):
         lang = self.context.get('lang', 'en')
         translation = obj.translations.filter(lang=lang).first()
         return translation.name if translation else obj.name
+
+
+class SocialHandleSerializer(serializers.ModelSerializer):
+    driver_name = serializers.SerializerMethodField()
+    team_name   = serializers.SerializerMethodField()
+
+    class Meta:
+        model = SocialHandle
+        fields = ['id', 'platform', 'handle', 'url', 'entity_type',
+                  'driver_name', 'team_name', 'staff_name', 'role',
+                  'is_verified', 'follower_count']
+
+    def get_driver_name(self, obj):
+        return obj.driver.full_name if obj.driver else None
+
+    def get_team_name(self, obj):
+        return obj.team.base_name if obj.team else None
+
+
+class TeamWriteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Team
+        fields = ['code', 'base_name', 'country', 'headquarters', 'founded_year',
+                  'primary_color', 'secondary_color', 'logo_url', 'website', 'is_active']
+
+
+class DriverWriteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Driver
+        fields = ['code', 'first_name', 'last_name', 'full_name', 'nationality',
+                  'date_of_birth', 'place_of_birth', 'racing_number',
+                  'headshot_url', 'profile_image_url', 'status', 'is_active']
+
+
+class ContractWriteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model  = DriverContract
+        fields = ['driver', 'team', 'season', 'role', 'person_name',
+                  'car_number', 'is_active', 'valid_from', 'valid_until',
+                  'announcement_date', 'notes']
+
+    def validate(self, data):
+        driver_roles = {'RACE', 'RESERVE', 'TEST', 'DEVELOPMENT', 'LOAN', 'GUEST'}
+        if data.get('role') in driver_roles and not data.get('driver'):
+            raise serializers.ValidationError("Driver roles require a linked driver.")
+        if data.get('role') not in driver_roles and not data.get('person_name'):
+            raise serializers.ValidationError("Staff roles require person_name.")
+        return data
+
+
+class ContractReadSerializer(serializers.ModelSerializer):
+    driver_name = serializers.SerializerMethodField()
+    team_code   = serializers.CharField(source='team.code', read_only=True)
+    season_year = serializers.IntegerField(source='season.year', read_only=True)
+
+    class Meta:
+        model  = DriverContract
+        fields = ['id', 'driver', 'driver_name', 'person_name', 'team', 'team_code',
+                  'season', 'season_year', 'role', 'car_number', 'is_active',
+                  'valid_from', 'valid_until', 'announcement_date', 'notes']
+
+    def get_driver_name(self, obj):
+        return obj.driver.full_name if obj.driver else None
 
 
 class ArticleChunkSerializer(serializers.Serializer):

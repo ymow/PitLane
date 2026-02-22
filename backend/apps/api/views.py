@@ -1,6 +1,7 @@
 """API views."""
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
+from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from django.core.cache import cache
@@ -12,13 +13,22 @@ import secrets
 logger = logging.getLogger(__name__)
 
 from apps.news.models import Article, Translation, NewsCategory
-from apps.teams.models import Driver, Team
+from apps.teams.models import Driver, Team, SocialHandle, DriverContract
 from apps.racing.models import Race, Session, RaceResult
 from .serializers import (
     ArticleListSerializer, ArticleDetailSerializer,
-    DriverSerializer, TeamSerializer, CategorySerializer
+    DriverSerializer, DriverWriteSerializer,
+    TeamSerializer, TeamWriteSerializer,
+    CategorySerializer, SocialHandleSerializer,
+    ContractReadSerializer, ContractWriteSerializer,
 )
 from .services import ergast_service, racing_service
+
+
+def _write_permissions(action):
+    if action in ('create', 'update', 'partial_update', 'destroy'):
+        return [IsAdminUser()]
+    return []
 
 
 class ArticleViewSet(viewsets.ReadOnlyModelViewSet):
@@ -149,11 +159,37 @@ class ArticleViewSet(viewsets.ReadOnlyModelViewSet):
         return Response({'items': serializer.data})
 
 
-class DriverViewSet(viewsets.ReadOnlyModelViewSet):
-    """ViewSet for Driver listing and detail."""
-    queryset = Driver.objects.select_related('team').all()
-    serializer_class = DriverSerializer
+class SocialHandleViewSet(viewsets.ReadOnlyModelViewSet):
+    """ViewSet for paddock social handles (read-only, filterable)."""
+    serializer_class = SocialHandleSerializer
+
+    def get_queryset(self):
+        qs = SocialHandle.objects.filter(is_active=True).select_related('driver', 'team')
+        entity_type = self.request.query_params.get('entity_type')
+        platform    = self.request.query_params.get('platform')
+        team        = self.request.query_params.get('team')
+        driver      = self.request.query_params.get('driver')
+        if entity_type: qs = qs.filter(entity_type=entity_type)
+        if platform:    qs = qs.filter(platform=platform)
+        if team:        qs = qs.filter(team__code=team)
+        if driver:      qs = qs.filter(driver__code=driver)
+        return qs
+
+
+class DriverViewSet(viewsets.ModelViewSet):
+    """ViewSet for Driver listing, detail, and write operations (admin only)."""
     lookup_field = 'code'
+
+    def get_queryset(self):
+        return Driver.objects.all()
+
+    def get_serializer_class(self):
+        if self.action in ('create', 'update', 'partial_update'):
+            return DriverWriteSerializer
+        return DriverSerializer
+
+    def get_permissions(self):
+        return _write_permissions(self.action)
 
     @action(detail=True, methods=['get'])
     def articles(self, request, code=None):
@@ -181,12 +217,28 @@ class DriverViewSet(viewsets.ReadOnlyModelViewSet):
         )
         return Response({'items': serializer.data})
 
+    @action(detail=True, methods=['get'])
+    def social(self, request, code=None):
+        """Get social handles for this driver."""
+        driver = self.get_object()
+        handles = driver.social_handles.filter(is_active=True)
+        return Response(SocialHandleSerializer(handles, many=True).data)
 
-class TeamViewSet(viewsets.ReadOnlyModelViewSet):
-    """ViewSet for Team listing and detail."""
-    queryset = Team.objects.prefetch_related('drivers').all()
-    serializer_class = TeamSerializer
+
+class TeamViewSet(viewsets.ModelViewSet):
+    """ViewSet for Team listing, detail, and write operations (admin only)."""
     lookup_field = 'code'
+
+    def get_queryset(self):
+        return Team.objects.all()
+
+    def get_serializer_class(self):
+        if self.action in ('create', 'update', 'partial_update'):
+            return TeamWriteSerializer
+        return TeamSerializer
+
+    def get_permissions(self):
+        return _write_permissions(self.action)
 
     @action(detail=True, methods=['get'])
     def articles(self, request, code=None):
@@ -212,6 +264,35 @@ class TeamViewSet(viewsets.ReadOnlyModelViewSet):
             articles, many=True, context={'lang': lang}
         )
         return Response({'items': serializer.data})
+
+    @action(detail=True, methods=['get'])
+    def social(self, request, code=None):
+        """Get social handles for this team."""
+        team = self.get_object()
+        handles = team.social_handles.filter(is_active=True)
+        return Response(SocialHandleSerializer(handles, many=True).data)
+
+
+class ContractViewSet(viewsets.ModelViewSet):
+    """ViewSet for DriverContract (drivers + staff). Writes are admin-only."""
+
+    def get_queryset(self):
+        qs = DriverContract.objects.select_related('driver', 'team', 'season')
+        role = self.request.query_params.get('role')
+        team = self.request.query_params.get('team')
+        if role:
+            qs = qs.filter(role=role)
+        if team:
+            qs = qs.filter(team__code=team)
+        return qs
+
+    def get_serializer_class(self):
+        if self.action in ('create', 'update', 'partial_update'):
+            return ContractWriteSerializer
+        return ContractReadSerializer
+
+    def get_permissions(self):
+        return _write_permissions(self.action)
 
 
 class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
