@@ -495,7 +495,266 @@
     "team_code": "AUD",
     "is_verified": true
   },
-
+  {
+    "platform": "YOUTUBE",
+    "handle": "@redbullracing",
+    "url": "https://www.youtube.com/@redbullracing",
+    "entity_type": "TEAM",
+    "team_code": "RBR",
+    "is_verified": true
+  },
+  {
+    "platform": "YOUTUBE",
+    "handle": "@ScuderiaFerrari",
+    "url": "https://www.youtube.com/@ScuderiaFerrari",
+    "entity_type": "TEAM",
+    "team_code": "FER",
+    "is_verified": true
+  },
+  {
+    "platform": "YOUTUBE",
+    "handle": "@MercedesAMGF1",
+    "url": "https://www.youtube.com/@MercedesAMGF1",
+    "entity_type": "TEAM",
+    "team_code": "MER",
+    "is_verified": true
+  },
+  {
+    "platform": "YOUTUBE",
+    "handle": "@McLarenF1",
+    "url": "https://www.youtube.com/@McLarenF1",
+    "entity_type": "TEAM",
+    "team_code": "MCL",
+    "is_verified": true
+  },
+  {
+    "platform": "YOUTUBE",
+    "handle": "@AstonMartinF1",
+    "url": "https://www.youtube.com/@AstonMartinF1",
+    "entity_type": "TEAM",
+    "team_code": "AMR",
+    "is_verified": true
+  },
+  {
+    "platform": "YOUTUBE",
+    "handle": "@AlpineF1Team",
+    "url": "https://www.youtube.com/@AlpineF1Team",
+    "entity_type": "TEAM",
+    "team_code": "ALP",
+    "is_verified": true
+  },
+  {
+    "platform": "YOUTUBE",
+    "handle": "@WilliamsRacing",
+    "url": "https://www.youtube.com/@WilliamsRacing",
+    "entity_type": "TEAM",
+    "team_code": "WIL",
+    "is_verified": true
+  },
+  {
+    "platform": "YOUTUBE",
+    "handle": "@VisaCashAppRBF1Team",
+    "url": "https://www.youtube.com/@VisaCashAppRBF1Team",
+    "entity_type": "TEAM",
+    "team_code": "RBT",
+    "is_verified": true
+  },
+  {
+    "platform": "YOUTUBE",
+    "handle": "@HaasF1Team",
+    "url": "https://www.youtube.com/@HaasF1Team",
+    "entity_type": "TEAM",
+    "team_code": "HAA",
+    "is_verified": true
+  },
+  {
+    "platform": "YOUTUBE",
+    "handle": "@audif1team",
+    "url": "https://www.youtube.com/@audif1team",
+    "entity_type": "TEAM",
+    "team_code": "AUD",
+    "is_verified": true
+  },
+  {
+    "platform": "TIKTOK",
+    "handle": "@redbullracing",
+    "url": "https://www.tiktok.com/@redbullracing",
+    "entity_type": "TEAM",
+    "team_code": "RBR",
+    "is_verified": true
+  },
+  {
+    "platform": "TIKTOK",
+    "handle": "@scuderiaferrari",
+    "url": "https://www.tiktok.com/@scuderiaferrari",
+    "entity_type": "TEAM",
+    "team_code": "FER",
+    "is_verified": true
+  },
+  {
+    "platform": "TIKTOK",
+    "handle": "@mercedesamgf1",
+    "url": "https://www.tiktok.com/@mercedesamgf1",
+    "entity_type": "TEAM",
+    "team_code": "MER",
+    "is_verified": true
+  },
+  {
+    "platform": "TIKTOK",
+    "handle": "@mclaren",
+    "url": "https://www.tiktok.com/@mclaren",
+    "entity_type": "TEAM",
+    "team_code": "MCL",
+    "is_verified": true
+  },
+  {
+    "platform": "TIKTOK",
+    "handle": "@astonmartinf1",
+    "url": "https://www.tiktok.com/@astonmartinf1",
+    "entity_type": "TEAM",
+    "team_code": "AMR",
+    "is_verified": true
+  },
+  {
+    "platform": "TIKTOK",
+    "handle": "@alpinef1team",
+    "url": "https://www.tiktok.com/@alpinef1team",
+    "entity_type": "TEAM",
+    "team_code": "ALP",
+    "is_verified": true
+  },
+  {
+    "platform": "TIKTOK",
+    "handle": "@williamsracing",
+    "url": "https://www.tiktok.com/@williamsracing",
+    "entity_type": "TEAM",
+    "team_code": "WIL",
+    "is_verified": true
+  },
+  {
+    "platform": "TIKTOK",
+    "handle": "@racingbullsf1",
+    "url": "https://www.tiktok.com/@racingbullsf1",
+    "entity_type": "TEAM",
+    "team_code": "RBT",
+    "is_verified": true
+  },
+  {
+    "platform": "TIKTOK",
+    "handle": "@haasf1team",
+    "url": "https://www.tiktok.com/@haasf1team",
+    "entity_type": "TEAM",
+    "team_code": "HAA",
+    "is_verified": true
+  },
+  {
+    "platform": "TIKTOK",
+    "handle": "@audif1team",
+    "url": "https://www.tiktok.com/@audif1team",
+    "entity_type": "TEAM",
+    "team_code": "AUD",
+    "is_verified": true
+  },
+  {
+    "platform": "TWITTER",
+    "handle": "@ChristianHorner",
+    "url": "https://x.com/ChristianHorner",
+    "entity_type": "STAFF",
+    "team_code": "RBR",
+    "staff_name": "Christian Horner",
+    "role": "Team Principal",
+    "is_verified": true
+  },
+  {
+    "platform": "INSTAGRAM",
+    "handle": "@christianhorner",
+    "url": "https://www.instagram.com/christianhorner",
+    "entity_type": "STAFF",
+    "team_code": "RBR",
+    "staff_name": "Christian Horner",
+    "role": "Team Principal",
+    "is_verified": true
+  },
+  {
+    "platform": "TWITTER",
+    "handle": "@PierreWache",
+    "url": "https://x.com/PierreWache",
+    "entity_type": "STAFF",
+    "team_code": "RBR",
+    "staff_name": "Pierre Waché",
+    "role": "Technical Director",
+    "is_verified": false
+  },
+  {
+    "platform": "TWITTER",
+    "handle": "@gianpiero_lambiase",
+    "url": "https://x.com/gianpiero_lambiase",
+    "entity_type": "STAFF",
+    "team_code": "RBR",
+    "staff_name": "Gianpiero Lambiase",
+    "role": "Race Engineer (Verstappen)",
+    "is_verified": false
+  },
+  {
+    "platform": "TWITTER",
+    "handle": "@PaulMonaghanF1",
+    "url": "https://x.com/PaulMonaghanF1",
+    "entity_type": "STAFF",
+    "team_code": "RBR",
+    "staff_name": "Paul Monaghan",
+    "role": "Chief Engineer",
+    "is_verified": false
+  },
+  {
+    "platform": "TWITTER",
+    "handle": "@Fred_Vasseur",
+    "url": "https://x.com/Fred_Vasseur",
+    "entity_type": "STAFF",
+    "team_code": "FER",
+    "staff_name": "Frédéric Vasseur",
+    "role": "Team Principal",
+    "is_verified": true
+  },
+  {
+    "platform": "TWITTER",
+    "handle": "@enricard",
+    "url": "https://x.com/enricard",
+    "entity_type": "STAFF",
+    "team_code": "FER",
+    "staff_name": "Enrico Cardile",
+    "role": "Technical Director",
+    "is_verified": false
+  },
+  {
+    "platform": "TWITTER",
+    "handle": "@XaviMarcoF1",
+    "url": "https://x.com/XaviMarcoF1",
+    "entity_type": "STAFF",
+    "team_code": "FER",
+    "staff_name": "Xavier Marcos Padros",
+    "role": "Race Engineer (Leclerc)",
+    "is_verified": false
+  },
+  {
+    "platform": "TWITTER",
+    "handle": "@petebonnington",
+    "url": "https://x.com/petebonnington",
+    "entity_type": "STAFF",
+    "team_code": "FER",
+    "staff_name": "Pete Bonnington",
+    "role": "Race Engineer (Hamilton)",
+    "is_verified": false
+  },
+  {
+    "platform": "TWITTER",
+    "handle": "@riccardoadami",
+    "url": "https://x.com/riccardoadami",
+    "entity_type": "STAFF",
+    "team_code": "FER",
+    "staff_name": "Riccardo Adami",
+    "role": "Senior Race Engineer",
+    "is_verified": false
+  },
   {
     "platform": "TWITTER",
     "handle": "@TotoWolff",
@@ -515,6 +774,36 @@
     "staff_name": "Toto Wolff",
     "role": "Team Principal & CEO",
     "is_verified": true
+  },
+  {
+    "platform": "TWITTER",
+    "handle": "@james_allison",
+    "url": "https://x.com/james_allison",
+    "entity_type": "STAFF",
+    "team_code": "MER",
+    "staff_name": "James Allison",
+    "role": "Technical Director",
+    "is_verified": false
+  },
+  {
+    "platform": "TWITTER",
+    "handle": "@andrewshovlin",
+    "url": "https://x.com/andrewshovlin",
+    "entity_type": "STAFF",
+    "team_code": "MER",
+    "staff_name": "Andrew Shovlin",
+    "role": "Head of Trackside Engineering",
+    "is_verified": false
+  },
+  {
+    "platform": "TWITTER",
+    "handle": "@MarcusDudleyF1",
+    "url": "https://x.com/MarcusDudleyF1",
+    "entity_type": "STAFF",
+    "team_code": "MER",
+    "staff_name": "Marcus Dudley",
+    "role": "Race Engineer (Russell)",
+    "is_verified": false
   },
   {
     "platform": "TWITTER",
@@ -548,33 +837,33 @@
   },
   {
     "platform": "TWITTER",
-    "handle": "@Fred_Vasseur",
-    "url": "https://x.com/Fred_Vasseur",
+    "handle": "@ProdromouPeter",
+    "url": "https://x.com/ProdromouPeter",
     "entity_type": "STAFF",
-    "team_code": "FER",
-    "staff_name": "Frédéric Vasseur",
-    "role": "Team Principal",
-    "is_verified": true
+    "team_code": "MCL",
+    "staff_name": "Peter Prodromou",
+    "role": "Technical Director",
+    "is_verified": false
   },
   {
     "platform": "TWITTER",
-    "handle": "@ChristianHorner",
-    "url": "https://x.com/ChristianHorner",
+    "handle": "@w_joseph_f1",
+    "url": "https://x.com/w_joseph_f1",
     "entity_type": "STAFF",
-    "team_code": "RBR",
-    "staff_name": "Christian Horner",
-    "role": "Team Principal",
-    "is_verified": true
+    "team_code": "MCL",
+    "staff_name": "Will Joseph",
+    "role": "Race Engineer (Norris)",
+    "is_verified": false
   },
   {
-    "platform": "INSTAGRAM",
-    "handle": "@christianhorner",
-    "url": "https://www.instagram.com/christianhorner",
+    "platform": "TWITTER",
+    "handle": "@TomStallardF1",
+    "url": "https://x.com/TomStallardF1",
     "entity_type": "STAFF",
-    "team_code": "RBR",
-    "staff_name": "Christian Horner",
-    "role": "Team Principal",
-    "is_verified": true
+    "team_code": "MCL",
+    "staff_name": "Tom Stallard",
+    "role": "Race Engineer (Piastri)",
+    "is_verified": false
   },
   {
     "platform": "TWITTER",
@@ -584,6 +873,66 @@
     "team_code": "AMR",
     "staff_name": "Mike Krack",
     "role": "Team Principal",
+    "is_verified": false
+  },
+  {
+    "platform": "TWITTER",
+    "handle": "@adriannewey",
+    "url": "https://x.com/adriannewey",
+    "entity_type": "STAFF",
+    "team_code": "AMR",
+    "staff_name": "Adrian Newey",
+    "role": "Chief Technical Officer",
+    "is_verified": false
+  },
+  {
+    "platform": "TWITTER",
+    "handle": "@DanFallowsF1",
+    "url": "https://x.com/DanFallowsF1",
+    "entity_type": "STAFF",
+    "team_code": "AMR",
+    "staff_name": "Dan Fallows",
+    "role": "Technical Director",
+    "is_verified": false
+  },
+  {
+    "platform": "TWITTER",
+    "handle": "@ramonduranf1",
+    "url": "https://x.com/ramonduranf1",
+    "entity_type": "STAFF",
+    "team_code": "AMR",
+    "staff_name": "Ramon Duran",
+    "role": "Race Engineer (Alonso)",
+    "is_verified": false
+  },
+  {
+    "platform": "TWITTER",
+    "handle": "@OliverOakes",
+    "url": "https://x.com/OliverOakes",
+    "entity_type": "STAFF",
+    "team_code": "ALP",
+    "staff_name": "Oliver Oakes",
+    "role": "Team Principal",
+    "is_verified": false
+  },
+  {
+    "platform": "TWITTER",
+    "handle": "@DavidSanchezF1",
+    "url": "https://x.com/DavidSanchezF1",
+    "entity_type": "STAFF",
+    "team_code": "ALP",
+    "staff_name": "David Sanchez",
+    "role": "Technical Director",
+    "is_verified": false
+  },
+  {
+    "platform": "TWITTER",
+    "handle": "@GuillaumeRocq",
+    "url": "https://x.com/GuillaumeRocq",
+    "entity_type": "STAFF",
+    "team_code": "ALP",
+    "staff_name": "Guillaume Rocquelin",
+    "role": "Race Engineer (Gasly)",
     "is_verified": false
   },
   {
@@ -608,12 +957,22 @@
   },
   {
     "platform": "TWITTER",
-    "handle": "@OliverOakes",
-    "url": "https://x.com/OliverOakes",
+    "handle": "@PatFryF1",
+    "url": "https://x.com/PatFryF1",
     "entity_type": "STAFF",
-    "team_code": "ALP",
-    "staff_name": "Oliver Oakes",
-    "role": "Team Principal",
+    "team_code": "WIL",
+    "staff_name": "Pat Fry",
+    "role": "Technical Director",
+    "is_verified": false
+  },
+  {
+    "platform": "TWITTER",
+    "handle": "@GaetanJego",
+    "url": "https://x.com/GaetanJego",
+    "entity_type": "STAFF",
+    "team_code": "WIL",
+    "staff_name": "Gaëtan Jego",
+    "role": "Race Engineer (Albon)",
     "is_verified": false
   },
   {
@@ -628,6 +987,16 @@
   },
   {
     "platform": "TWITTER",
+    "handle": "@MattiaSpini",
+    "url": "https://x.com/MattiaSpini",
+    "entity_type": "STAFF",
+    "team_code": "RBT",
+    "staff_name": "Mattia Spini",
+    "role": "Race Engineer (Tsunoda)",
+    "is_verified": false
+  },
+  {
+    "platform": "TWITTER",
     "handle": "@AyaoKomatsu",
     "url": "https://x.com/AyaoKomatsu",
     "entity_type": "STAFF",
@@ -636,99 +1005,46 @@
     "role": "Team Principal",
     "is_verified": false
   },
-
   {
     "platform": "TWITTER",
-    "handle": "@adriannewey",
-    "url": "https://x.com/adriannewey",
+    "handle": "@SimoneResta",
+    "url": "https://x.com/SimoneResta",
     "entity_type": "STAFF",
-    "team_code": "AMR",
-    "staff_name": "Adrian Newey",
-    "role": "Chief Technical Officer",
-    "is_verified": false
-  },
-  {
-    "platform": "TWITTER",
-    "handle": "@james_allison",
-    "url": "https://x.com/james_allison",
-    "entity_type": "STAFF",
-    "team_code": "MER",
-    "staff_name": "James Allison",
+    "team_code": "HAA",
+    "staff_name": "Simone Resta",
     "role": "Technical Director",
     "is_verified": false
   },
   {
     "platform": "TWITTER",
-    "handle": "@PatFryF1",
-    "url": "https://x.com/PatFryF1",
+    "handle": "@MattiaB_62",
+    "url": "https://x.com/MattiaB_62",
     "entity_type": "STAFF",
-    "team_code": "WIL",
-    "staff_name": "Pat Fry",
+    "team_code": "AUD",
+    "staff_name": "Mattia Binotto",
+    "role": "Team Principal",
+    "is_verified": true
+  },
+  {
+    "platform": "INSTAGRAM",
+    "handle": "@mattiabinotto",
+    "url": "https://www.instagram.com/mattiabinotto",
+    "entity_type": "STAFF",
+    "team_code": "AUD",
+    "staff_name": "Mattia Binotto",
+    "role": "Team Principal",
+    "is_verified": true
+  },
+  {
+    "platform": "TWITTER",
+    "handle": "@JanMonchaux",
+    "url": "https://x.com/JanMonchaux",
+    "entity_type": "STAFF",
+    "team_code": "AUD",
+    "staff_name": "Jan Monchaux",
     "role": "Technical Director",
     "is_verified": false
   },
-  {
-    "platform": "TWITTER",
-    "handle": "@enricard",
-    "url": "https://x.com/enricard",
-    "entity_type": "STAFF",
-    "team_code": "FER",
-    "staff_name": "Enrico Cardile",
-    "role": "Technical Director",
-    "is_verified": false
-  },
-
-  {
-    "platform": "TWITTER",
-    "handle": "@gianpiero_lambiase",
-    "url": "https://x.com/gianpiero_lambiase",
-    "entity_type": "STAFF",
-    "team_code": "RBR",
-    "staff_name": "Gianpiero Lambiase",
-    "role": "Race Engineer (Verstappen)",
-    "is_verified": false
-  },
-  {
-    "platform": "TWITTER",
-    "handle": "@XaviMarcoF1",
-    "url": "https://x.com/XaviMarcoF1",
-    "entity_type": "STAFF",
-    "team_code": "FER",
-    "staff_name": "Xavier Marcos Padros",
-    "role": "Race Engineer (Leclerc)",
-    "is_verified": false
-  },
-  {
-    "platform": "TWITTER",
-    "handle": "@riccardoadami",
-    "url": "https://x.com/riccardoadami",
-    "entity_type": "STAFF",
-    "team_code": "FER",
-    "staff_name": "Riccardo Adami",
-    "role": "Race Engineer (Hamilton)",
-    "is_verified": false
-  },
-  {
-    "platform": "TWITTER",
-    "handle": "@petebonnington",
-    "url": "https://x.com/petebonnington",
-    "entity_type": "STAFF",
-    "team_code": "MER",
-    "staff_name": "Pete Bonnington",
-    "role": "Race Engineer (Russell)",
-    "is_verified": false
-  },
-  {
-    "platform": "TWITTER",
-    "handle": "@w_joseph_f1",
-    "url": "https://x.com/w_joseph_f1",
-    "entity_type": "STAFF",
-    "team_code": "MCL",
-    "staff_name": "Will Joseph",
-    "role": "Race Engineer (Norris)",
-    "is_verified": false
-  },
-
   {
     "platform": "TWITTER",
     "handle": "@LukesF1",
@@ -764,5 +1080,41 @@
     "staff_name": "Edd Straw",
     "role": "F1 Journalist (The Race)",
     "is_verified": true
+  },
+  {
+    "platform": "TWITTER",
+    "handle": "@eddstraw",
+    "url": "https://x.com/eddstraw",
+    "entity_type": "PARTNER",
+    "staff_name": "Edd Straw",
+    "role": "F1 Journalist (The Race)",
+    "is_verified": true
+  },
+  {
+    "platform": "TWITTER",
+    "handle": "@dieterRencken",
+    "url": "https://x.com/dieterRencken",
+    "entity_type": "PARTNER",
+    "staff_name": "Dieter Rencken",
+    "role": "F1 Journalist (Racing Lines)",
+    "is_verified": true
+  },
+  {
+    "platform": "TWITTER",
+    "handle": "@BenAndersonF1",
+    "url": "https://x.com/BenAndersonF1",
+    "entity_type": "PARTNER",
+    "staff_name": "Ben Anderson",
+    "role": "F1 Journalist (Autosport)",
+    "is_verified": true
+  },
+  {
+    "platform": "TWITTER",
+    "handle": "@MikeLavallette",
+    "url": "https://x.com/MikeLavallette",
+    "entity_type": "PARTNER",
+    "staff_name": "Mike Lavallette",
+    "role": "F1 Technical Expert",
+    "is_verified": false
   }
 ]

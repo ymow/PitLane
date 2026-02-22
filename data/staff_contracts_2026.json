@@ -1,0 +1,48 @@
+[
+  { "team_code": "RBR", "person_name": "Christian Horner",       "role": "TEAM_PRINCIPAL",       "valid_from": "2026-01-01", "is_active": true },
+  { "team_code": "RBR", "person_name": "Pierre Waché",           "role": "TECHNICAL_DIRECTOR",   "valid_from": "2026-01-01", "is_active": true },
+  { "team_code": "RBR", "person_name": "Paul Monaghan",          "role": "PERFORMANCE_ENGINEER", "valid_from": "2026-01-01", "is_active": true, "notes": "Chief Engineer" },
+  { "team_code": "RBR", "person_name": "Gianpiero Lambiase",     "role": "RACE_ENGINEER",        "valid_from": "2026-01-01", "is_active": true, "notes": "Race Engineer — Verstappen" },
+  { "team_code": "RBR", "person_name": "Sebastian Lampl",        "role": "RACE_ENGINEER",        "valid_from": "2026-01-01", "is_active": true, "notes": "Race Engineer — Lawson" },
+
+  { "team_code": "FER", "person_name": "Frédéric Vasseur",       "role": "TEAM_PRINCIPAL",       "valid_from": "2026-01-01", "is_active": true },
+  { "team_code": "FER", "person_name": "Enrico Cardile",         "role": "TECHNICAL_DIRECTOR",   "valid_from": "2026-01-01", "is_active": true },
+  { "team_code": "FER", "person_name": "Pete Bonnington",        "role": "RACE_ENGINEER",        "valid_from": "2026-01-01", "is_active": true, "notes": "Race Engineer — Hamilton (moved from Mercedes)" },
+  { "team_code": "FER", "person_name": "Xavier Marcos Padros",   "role": "RACE_ENGINEER",        "valid_from": "2026-01-01", "is_active": true, "notes": "Race Engineer — Leclerc" },
+  { "team_code": "FER", "person_name": "Riccardo Adami",         "role": "RACE_ENGINEER",        "valid_from": "2026-01-01", "is_active": true, "notes": "Senior Race Engineer" },
+
+  { "team_code": "MER", "person_name": "Toto Wolff",             "role": "TEAM_PRINCIPAL",       "valid_from": "2026-01-01", "is_active": true },
+  { "team_code": "MER", "person_name": "James Allison",          "role": "TECHNICAL_DIRECTOR",   "valid_from": "2026-01-01", "is_active": true },
+  { "team_code": "MER", "person_name": "Andrew Shovlin",         "role": "PERFORMANCE_ENGINEER", "valid_from": "2026-01-01", "is_active": true, "notes": "Head of Trackside Engineering" },
+  { "team_code": "MER", "person_name": "Marcus Dudley",          "role": "RACE_ENGINEER",        "valid_from": "2026-01-01", "is_active": true, "notes": "Race Engineer — Russell" },
+  { "team_code": "MER", "person_name": "Riccardo Musconi",       "role": "RACE_ENGINEER",        "valid_from": "2026-01-01", "is_active": true, "notes": "Race Engineer — Antonelli" },
+
+  { "team_code": "MCL", "person_name": "Zak Brown",              "role": "STAFF",                "valid_from": "2026-01-01", "is_active": true, "notes": "CEO" },
+  { "team_code": "MCL", "person_name": "Andrea Stella",          "role": "TEAM_PRINCIPAL",       "valid_from": "2026-01-01", "is_active": true },
+  { "team_code": "MCL", "person_name": "Peter Prodromou",        "role": "TECHNICAL_DIRECTOR",   "valid_from": "2026-01-01", "is_active": true },
+  { "team_code": "MCL", "person_name": "Will Joseph",            "role": "RACE_ENGINEER",        "valid_from": "2026-01-01", "is_active": true, "notes": "Race Engineer — Norris" },
+  { "team_code": "MCL", "person_name": "Tom Stallard",           "role": "RACE_ENGINEER",        "valid_from": "2026-01-01", "is_active": true, "notes": "Race Engineer — Piastri" },
+
+  { "team_code": "AMR", "person_name": "Mike Krack",             "role": "TEAM_PRINCIPAL",       "valid_from": "2026-01-01", "is_active": true },
+  { "team_code": "AMR", "person_name": "Adrian Newey",           "role": "TECHNICAL_DIRECTOR",   "valid_from": "2026-01-01", "is_active": true, "notes": "Chief Technical Officer" },
+  { "team_code": "AMR", "person_name": "Dan Fallows",            "role": "TECHNICAL_DIRECTOR",   "valid_from": "2026-01-01", "is_active": true },
+  { "team_code": "AMR", "person_name": "Ramon Duran",            "role": "RACE_ENGINEER",        "valid_from": "2026-01-01", "is_active": true, "notes": "Race Engineer — Alonso" },
+  { "team_code": "AMR", "person_name": "Julien Simon-Chautemps", "role": "RACE_ENGINEER",        "valid_from": "2026-01-01", "is_active": true, "notes": "Race Engineer — Stroll" },
+
+  { "team_code": "ALP", "person_name": "Oliver Oakes",           "role": "TEAM_PRINCIPAL",       "valid_from": "2026-01-01", "is_active": true },
+  { "team_code": "ALP", "person_name": "David Sanchez",          "role": "TECHNICAL_DIRECTOR",   "valid_from": "2026-01-01", "is_active": true },
+  { "team_code": "ALP", "person_name": "Guillaume Rocquelin",    "role": "RACE_ENGINEER",        "valid_from": "2026-01-01", "is_active": true, "notes": "Race Engineer — Gasly" },
+
+  { "team_code": "WIL", "person_name": "James Vowles",           "role": "TEAM_PRINCIPAL",       "valid_from": "2026-01-01", "is_active": true },
+  { "team_code": "WIL", "person_name": "Pat Fry",                "role": "TECHNICAL_DIRECTOR",   "valid_from": "2026-01-01", "is_active": true },
+  { "team_code": "WIL", "person_name": "Gaëtan Jego",            "role": "RACE_ENGINEER",        "valid_from": "2026-01-01", "is_active": true, "notes": "Race Engineer — Albon" },
+
+  { "team_code": "RBT", "person_name": "Laurent Mekies",         "role": "TEAM_PRINCIPAL",       "valid_from": "2026-01-01", "is_active": true },
+  { "team_code": "RBT", "person_name": "Mattia Spini",           "role": "RACE_ENGINEER",        "valid_from": "2026-01-01", "is_active": true, "notes": "Race Engineer — Tsunoda" },
+
+  { "team_code": "HAA", "person_name": "Ayao Komatsu",           "role": "TEAM_PRINCIPAL",       "valid_from": "2026-01-01", "is_active": true },
+  { "team_code": "HAA", "person_name": "Simone Resta",           "role": "TECHNICAL_DIRECTOR",   "valid_from": "2026-01-01", "is_active": true },
+
+  { "team_code": "AUD", "person_name": "Mattia Binotto",         "role": "TEAM_PRINCIPAL",       "valid_from": "2026-01-01", "is_active": true },
+  { "team_code": "AUD", "person_name": "Jan Monchaux",           "role": "TECHNICAL_DIRECTOR",   "valid_from": "2026-01-01", "is_active": true }
+]
