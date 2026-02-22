@@ -48,8 +48,6 @@ class F1EntityExtractor:
         for team in Team.objects.all():
             if team.base_name:
                 self.teams_by_name[team.base_name.upper()] = team
-            if team.full_name:
-                self.teams_by_name[team.full_name.upper()] = team
             if team.code:
                 self.teams_by_name[team.code.upper()] = team
 
