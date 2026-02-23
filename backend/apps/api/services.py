@@ -12,7 +12,7 @@ class ErgastF1Service:
     """Service to interact with Ergast F1 API via Jolpica mirror."""
     
     BASE_URL = "http://api.jolpi.ca/ergast/f1"
-    CURRENT_SEASON = "2025"  # Updated for new season prep
+    CURRENT_SEASON = "2026"  # Updated for 2026 season
     
     def __init__(self):
         self.session = requests.Session()

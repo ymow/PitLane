@@ -531,15 +531,37 @@ class F1LiveDataAPIView(APIView):
     def get(self, request):
         """Get combined live data for dashboard."""
         try:
-            # Get latest standings and next race info
+            # 1. Standings - Still using external service (harder to seed locally)
             standings = ergast_service.get_current_standings()
-            schedule = ergast_service.get_race_schedule()
             
-            # Find next race
+            # 2. Schedule - Prioritize local DB for 2026
             from datetime import datetime, date
             today = date.today()
-            next_race = None
+            current_year = today.year
             
+            local_races = Race.objects.filter(season__year=current_year).order_by('round_number')
+            
+            if local_races.exists():
+                schedule = []
+                for race in local_races:
+                    schedule.append({
+                        'round': race.round_number,
+                        'name': race.official_name,
+                        'date': race.race_date.strftime('%Y-%m-%d'),
+                        'time': '13:00:00Z', # Placeholder for seeded races
+                        'circuit': {
+                            'id': race.circuit.code,
+                            'name': race.circuit.name,
+                            'location': f"{race.circuit.country}",
+                            'coordinates': {'lat': 0, 'lng': 0}
+                        }
+                    })
+            else:
+                # Fallback to external service
+                schedule = ergast_service.get_race_schedule()
+            
+            # Find next race
+            next_race = None
             for race in schedule:
                 race_date = datetime.strptime(race['date'], '%Y-%m-%d').date()
                 if race_date >= today:
@@ -550,7 +572,7 @@ class F1LiveDataAPIView(APIView):
             if next_race:
                 next_race = racing_service.enrich_race_with_telemetry(next_race)
 
-            # Get latest results (last completed race)
+            # 3. Results - Get last completed race
             latest_results = ergast_service.get_race_results()
             last_race = latest_results[-1] if latest_results else None
             
@@ -564,6 +586,7 @@ class F1LiveDataAPIView(APIView):
                 }
             })
         except Exception as e:
+            logger.error(f"F1 Live Data API error: {e}")
             return Response(
                 {'error': 'Failed to fetch live data'},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
