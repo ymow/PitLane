@@ -25,7 +25,7 @@ def _get_nlp():
             logger.info("Loading Spacy model (en_core_web_sm)...")
             _nlp = spacy.load("en_core_web_sm")
         except Exception as e:
-            logger.warning(f"Failed to load Spacy model: {e}")
+            logger.debug(f"Failed to load Spacy model: {e}")
             _nlp = None
     return _nlp
 

@@ -25,7 +25,7 @@ class F1EntityExtractor:
                 self.nlp = spacy.load("en_core_web_sm")
             except (ImportError, Exception):
                 # If spacy is missing or model not found, we will use regex fallback
-                logger.warning("Spacy not available, using Regex fallback for entity extraction")
+                logger.debug("Spacy not available, using Regex fallback for entity extraction")
                 self.nlp = None
 
         self.drivers_by_name = {}

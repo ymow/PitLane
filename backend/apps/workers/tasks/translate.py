@@ -103,6 +103,16 @@ def translate_article(self, article_id: str, target_lang: str):
         logger.info(f"Translated {article_id} → {target_lang} (confidence: {result.confidence})")
 
     except Exception as exc:
+        import anthropic
+        if isinstance(exc, anthropic.AuthenticationError):
+            logger.error(f"Translation failed {article_id} → {target_lang}: Invalid API Key (401). Skipping.")
+            return {
+                'article_id': article_id,
+                'lang': target_lang,
+                'status': 'failed',
+                'reason': 'authentication_error'
+            }
+        
         logger.error(f"Translation failed {article_id} → {target_lang}: {exc}")
         self.retry(exc=exc, countdown=120)
 
