@@ -58,6 +58,8 @@ app.conf.beat_schedule = {
             'headliner-nl', 'motorsport-nl',         # nl
             'motorsport-fr', 'f1only',               # fr
             'motorsport-jp',                         # ja
+            'motorsport-tr', 'trf1',                 # tr
+            'motorsport-pl',                         # pl
         ],),
     },
 

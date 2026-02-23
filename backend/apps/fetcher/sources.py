@@ -163,4 +163,29 @@ SOURCES = {
         "priority": 85,
         "fetch_interval": 1800,
     },
+
+    # Turkish
+    "motorsport-tr": {
+        "name": "Motorsport.com Türkiye",
+        "feed_url": "https://tr.motorsport.com/rss/f1/news/",
+        "lang": "tr",
+        "priority": 85,
+        "fetch_interval": 1800,
+    },
+    "trf1": {
+        "name": "TRF1.net",
+        "feed_url": "https://trf1.net/feed",
+        "lang": "tr",
+        "priority": 80,
+        "fetch_interval": 1800,
+    },
+
+    # Polish
+    "motorsport-pl": {
+        "name": "Motorsport.com Polska",
+        "feed_url": "https://pl.motorsport.com/rss/f1/news/",
+        "lang": "pl",
+        "priority": 85,
+        "fetch_interval": 1800,
+    },
 }

@@ -11,7 +11,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 # Target languages for translation
-TARGET_LANGUAGES = ['en', 'zh-TW', 'zh-CN', 'es', 'pt-BR', 'it', 'nl', 'de', 'ja', 'fr']
+TARGET_LANGUAGES = ['en', 'zh-TW', 'zh-CN', 'es', 'pt-BR', 'it', 'nl', 'de', 'ja', 'fr', 'tr', 'pl']
 
 
 def get_translator():
