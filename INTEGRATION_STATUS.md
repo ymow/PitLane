@@ -30,7 +30,7 @@
 - [x] **Translation Pipeline**: 10 target languages (was 4); `confidence_score`, `translator`, `published_at` fixed
 - [x] **Categorization**: Database-driven multi-language categories
 - [x] **warm_cache()**: Now actually serializes and writes to Redis (was no-op)
-- [ ] **Paddock Registry**: [ACTIVE] Social handles DB — PL-010
+- [x] **Paddock Registry**: [DONE] Social handles DB seeded (127 handles) — PL-010
 - [ ] **Visual Intelligence**: [PLANNED] VLM processing for screenshots
 
 ### 🖥️ Frontend Components
@@ -49,9 +49,9 @@
 | :--- | :--- | :--- |
 | **API → Frontend** | ✅ Stable | Standardized JSON for articles, categories, live telemetry |
 | **`/api/v1/categories/`** | ✅ Active | Lang-aware category listing for CategoryPills |
-| **Linear API** | ✅ Active | GraphQL variables pattern; `linear_auth`, `linear_issue`, `linear_update` |
+| **Linear API** | ⚠️ Expired | OAuth token expired (401); Requires re-authentication |
 | **OpenF1 → UI** | ✅ Active | Real-time telemetry widgets |
-| **Claude → Content** | ✅ Active | F1-aware translation via Anthropic API + CLI backfill path (PL-028) |
+| **Claude → Content** | ✅ Active | F1-aware translation (Note: 401 handling added) |
 | **Celery Beat** | ✅ Active | 21/21 RSS sources scheduled across 3 priority groups |
 
 ---
@@ -60,8 +60,6 @@
 
 | ID | Issue | Status |
 |---|---|---|
-| DON-12 / PL-010 | Social Registry: Seeding 2000+ paddock handles | 🔵 Active |
-| DON-7 / PL-003 | 2026 Schema Sync: Sauber → Audi transition | 📋 Planned |
 | DON-34 | sportsv-f1 RSS URL dead — zh-TW source gap | 🔵 Active |
 | PL-028 | CLI translation backfill command | 📋 Planned |
 
@@ -71,6 +69,8 @@
 
 | Commit | Description |
 |---|---|
+| `822b812` | RSS: fix Claude 401 crash, silence spaCy noise, verify 1500+ articles |
+| `8897228` | F1 2026: stabilize pipeline, seed 127 social handles, refactor Live API |
 | `343c599` | ArticleCard: design tokens, `font-display`, `border-f1-red` |
 | `153a4d9` | Add `GET /api/v1/categories/` endpoint (`CategoryViewSet`) |
 | `f30ff7f` | CategoryPills component + `useCategories` hook + `scrollbar-none` |

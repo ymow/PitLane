@@ -58,10 +58,10 @@ Get the system "alive" and validated with real F1 2026 data.
 | # | Spec | Status | Description |
 |---|---|---|---|
 | PL-003 | 2026 Schema Sync | **Done** | Audi/Sauber rebrand, 20-driver grid, contract management |
-| PL-006 | Open Live Data | Active | OpenF1 telemetry integration |
-| PL-010 | Paddock Social Registry | Active | 2000+ social handles for drivers, staff, teams |
-| PL-019 | CRUD Management | Done | Teams, Drivers, Staff write API + Django Admin |
-| — | News Pipeline | Active | 21 RSS sources, 10-language AI translation |
+| PL-006 | Open Live Data | **Done** | OpenF1 telemetry integration |
+| PL-010 | Paddock Social Registry | **Done** | 2000+ social handles for drivers, staff, teams |
+| PL-019 | CRUD Management | **Done** | Teams, Drivers, Staff write API + Django Admin |
+| — | News Pipeline | **Done** | 21 RSS sources, 10-language AI translation |
 | — | Frontend Design System | Active | Tailwind v4 tokens, ArticleCard, CategoryPills |
 
 ### Phase 2 — Graph & Abstraction
@@ -104,11 +104,11 @@ Package F1 as a reusable template; validate on a second domain.
 
 ### 🔴 Critical
 
-| Issue | Title | Phase |
-|---|---|---|
-| #001 | Environment dependency breakage (spaCy, feedparser, django_extensions) | 1 |
-| #006 | Live telemetry data sync broken for 2026 | 1 |
-| #009 | Paddock People Graph (TP, RE, Mechanic, WAG, journalist models) | 2 |
+| Issue | Title | Phase | Status |
+|---|---|---|---|
+| #001 | Environment dependency breakage (spaCy, feedparser, django_extensions) | 1 | **Done** |
+| #006 | Live telemetry data sync broken for 2026 | 1 | **Done** |
+| #009 | Paddock People Graph (TP, RE, Mechanic, WAG, journalist models) | 2 | Planned |
 | #010 | Social media ingestion (Twitter/X, IG, Apify) | 3 |
 | #012 | Entity role hierarchy & series mapping | 2 |
 | #013 | Cross-series knowledge engine (SeriesConfiguration) | 4 |
@@ -121,11 +121,11 @@ Package F1 as a reusable template; validate on a second domain.
 
 ### 🟠 High
 
-| Issue | Title | Phase |
-|---|---|---|
-| #002 | Entity extractor offline — news not linking to teams/drivers | 1 |
-| #004 | News pipeline stale (last update 2025-12-29) | 1 |
-| #007 | FastF1 post-race chart auto-generation failing | 1 |
+| Issue | Title | Phase | Status |
+|---|---|---|---|
+| #002 | Entity extractor offline — Regex fallback enabled | 1 | **Done** |
+| #004 | News pipeline stale — fixed and fetching | 1 | **Done** |
+| #007 | FastF1 post-race chart auto-generation failing | 1 | Planned |
 | #008 | Breaking news classifier latency on race weekends | 1 |
 | #011 | Gossip/Tech classifier (tone + image context) | 3 |
 | #014 | Paddock Personnel Tracker dashboard in CMS | 2 |
