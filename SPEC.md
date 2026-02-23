@@ -61,8 +61,11 @@ Get the system "alive" and validated with real F1 2026 data.
 | PL-006 | Open Live Data | **Done** | OpenF1 telemetry integration |
 | PL-010 | Paddock Social Registry | **Done** | 2000+ social handles for drivers, staff, teams |
 | PL-019 | CRUD Management | **Done** | Teams, Drivers, Staff write API + Django Admin |
-| — | News Pipeline | **Done** | 21 RSS sources, 10-language AI translation |
+| — | News Pipeline | **Done** | 22 RSS sources (en×6, de×2, it×2, es×2, pt-BR×2, nl×2, fr×2, ja×1, tr×2, pl×1), 12-language AI translation |
 | — | Frontend Design System | Active | Tailwind v4 tokens, ArticleCard, CategoryPills |
+| #023 | zh-TW / zh-CN / ko Source Gap | Open | No active RSS found after deep search; zh-TW is zero-coverage |
+| #024 | `de` Translation Parse Error | Open | Claude response occasionally returns malformed JSON for German |
+| #027 | Celery Process Supervisor | Open | Worker + Beat require manual start; no systemd/supervisor config |
 
 ### Phase 2 — Graph & Abstraction
 Transform the database from flat tables to a living entity graph.
@@ -131,6 +134,8 @@ Package F1 as a reusable template; validate on a second domain.
 | #014 | Paddock Personnel Tracker dashboard in CMS | 2 |
 | #017 | Auto feature story generator (weekly LLM deep-dive) | 3 |
 | #020 | Agent skill interface (pluggable skills) | 4 |
+| #023 | zh-TW / zh-CN / ko RSS gap — no active feed found | 1 | Open |
+| #024 | `de` translation JSON parse error — intermittent Claude response malformed | 1 | Open |
 
 ### 🟡 Medium / Low
 
@@ -138,6 +143,9 @@ Package F1 as a reusable template; validate on a second domain.
 |---|---|---|
 | ~~#003~~ | ~~2026 season data sync (Audi/Sauber, driver transfers)~~ — **Done** | 1 |
 | #005 | DB model field inconsistency (`original_title` vs `title`) | 1 |
+| #025 | racefans RSS teaser-only — 9.3 avg quality, never reaches translation gate | 1 |
+| #026 | spaCy NER deferred to Phase 3 — Regex keyword match is Phase 1 approach | 3 |
+| #027 | Celery worker / Beat require manual startup — no process supervisor configured | 1 |
 
 ---
 
