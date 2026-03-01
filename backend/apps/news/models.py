@@ -85,7 +85,14 @@ class Source(models.Model):
     feed_url = models.URLField(max_length=500)
     lang = models.CharField(max_length=10, default='en')
     priority = models.IntegerField(default=50)  # 0-100
-    fetch_interval = models.IntegerField(default=300)  # seconds
+    fetch_interval = models.IntegerField(
+        default=300,
+        help_text=(
+            "⚠️ Read-only / legacy field. The actual fetch interval is controlled by the "
+            "Celery Beat schedule defined in apps/workers/celery.py (fetch-tier-high/medium/low). "
+            "Editing this field has no effect on scheduling."
+        ),
+    )
     is_active = models.BooleanField(default=True)
 
     # Health tracking (managed by fetch pipeline, not admin-editable)
@@ -205,6 +212,10 @@ class Article(models.Model):
         default=IngestionStatus.INGESTED,
         db_index=True,
     )
+    # DEPRECATED: Use is_visible instead.
+    # is_published alone does not reflect pipeline approval state; pairing it with
+    # ingestion_status as two separate gates creates a dual truth source.
+    # Keep this field for manual editorial override (e.g. unpublish a live article).
     is_published = models.BooleanField(default=True, db_index=True)
     is_featured = models.BooleanField(default=False, db_index=True)
     is_duplicate = models.BooleanField(default=False, db_index=True, help_text="Is this a duplicate of another article?")
@@ -225,6 +236,16 @@ class Article(models.Model):
 
     def __str__(self):
         return self.original_title
+
+    @property
+    def is_visible(self) -> bool:
+        """Single source of truth for public visibility.
+
+        An article is visible iff it has cleared the ingestion pipeline
+        (ingestion_status == PUBLISHED) *and* has not been manually suppressed
+        (is_published == True).  Prefer this over checking either field alone.
+        """
+        return self.ingestion_status == IngestionStatus.PUBLISHED and self.is_published
 
     def save(self, *args, **kwargs):
         if not self.original_slug:

@@ -23,8 +23,8 @@ class SourceAdmin(admin.ModelAdmin):
     list_filter = ('lang', 'is_active', 'is_healthy', 'priority')
     search_fields = ('name', 'slug')
     prepopulated_fields = {'slug': ('name',)}
-    readonly_fields = ('last_fetched_at', 'last_success_at', 'consecutive_errors',
-                       'total_articles_fetched', 'is_healthy')
+    readonly_fields = ('fetch_interval', 'last_fetched_at', 'last_success_at',
+                       'consecutive_errors', 'total_articles_fetched', 'is_healthy')
     actions = ['reset_health']
 
     @admin.display(description='Health', ordering='is_healthy')
