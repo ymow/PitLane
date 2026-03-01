@@ -2,6 +2,7 @@
 import anthropic
 import json
 import os
+import re
 from dataclasses import dataclass
 from typing import Optional
 import logging
@@ -16,6 +17,9 @@ class TranslationResult:
     body: str
     summary: str
     confidence: float
+    input_tokens: int = 0
+    output_tokens: int = 0
+    model: str = ""
 
 
 class ClaudeTranslator:
@@ -68,6 +72,9 @@ class ClaudeTranslator:
         """Initialize Claude client."""
         self.client = anthropic.Anthropic(api_key=api_key)
 
+    # Max retries for malformed JSON responses before giving up
+    _JSON_PARSE_MAX_RETRIES = 2
+
     def translate(
         self,
         title: str,
@@ -87,19 +94,61 @@ class ClaudeTranslator:
         Returns:
             TranslationResult with title, body, summary, confidence
         """
-        prompt = self._build_prompt(title, body, source_lang, target_lang)
+        last_parse_error: Optional[Exception] = None
+        total_input_tokens = 0
+        total_output_tokens = 0
 
+        for attempt in range(self._JSON_PARSE_MAX_RETRIES + 1):
+            prompt = self._build_prompt(title, body, source_lang, target_lang)
+            if attempt > 0:
+                prompt += (
+                    "\n\nCRITICAL: Your previous response could not be parsed as JSON. "
+                    "Output ONLY a raw JSON object — no markdown fences, no explanation, "
+                    "no text before or after the JSON."
+                )
+
+            try:
+                response = self.client.messages.create(
+                    model=self.MODEL,
+                    max_tokens=8192,
+                    messages=[{"role": "user", "content": prompt}]
+                )
+                raw = response.content[0].text
+                total_input_tokens += response.usage.input_tokens
+                total_output_tokens += response.usage.output_tokens
+
+                result = self._parse_response(raw)
+                result.input_tokens = total_input_tokens
+                result.output_tokens = total_output_tokens
+                result.model = self.MODEL
+                return result
+
+            except json.JSONDecodeError as exc:
+                last_parse_error = exc
+                logger.warning(
+                    f"Translation JSON parse error (attempt {attempt + 1}/{self._JSON_PARSE_MAX_RETRIES + 1}) "
+                    f"lang={target_lang}: {exc}"
+                )
+                continue
+
+            except Exception as e:
+                logger.error(f"Translation failed: {e}")
+                raise
+
+        # All retry attempts exhausted — try regex fallback before raising
+        logger.error(
+            f"All {self._JSON_PARSE_MAX_RETRIES + 1} translation attempts returned malformed JSON "
+            f"for lang={target_lang}. Attempting regex fallback."
+        )
         try:
-            response = self.client.messages.create(
-                model=self.MODEL,
-                max_tokens=8192,
-                messages=[{"role": "user", "content": prompt}]
-            )
-
-            return self._parse_response(response.content[0].text)
-        except Exception as e:
-            logger.error(f"Translation failed: {e}")
-            raise
+            result = self._parse_response_fallback(raw, target_lang)
+            result.input_tokens = total_input_tokens
+            result.output_tokens = total_output_tokens
+            result.model = self.MODEL
+            return result
+        except Exception as fallback_exc:
+            logger.error(f"Regex fallback also failed for lang={target_lang}: {fallback_exc}")
+            raise last_parse_error
 
     def _build_prompt(
         self,
@@ -162,22 +211,59 @@ Translate this F1 news article from {source_name} to {target_name}.
 IMPORTANT: Output ONLY valid JSON. No additional text."""
 
     def _parse_response(self, response: str) -> TranslationResult:
-        """Parse Claude's JSON response."""
-        # Clean up response
+        """Parse Claude's JSON response.
+
+        Raises json.JSONDecodeError if the response cannot be parsed as valid JSON.
+        """
         text = response.strip()
 
-        # Remove markdown code blocks if present
+        # Strip markdown code fences: ```json ... ``` or ``` ... ```
         if text.startswith("```"):
-            lines = text.split("\n")
-            text = "\n".join(lines[1:-1])
-            if text.startswith("json"):
-                text = text[4:]
+            # Remove opening fence (with optional language tag) and closing fence
+            text = re.sub(r'^```(?:json)?\s*', '', text)
+            text = re.sub(r'\s*```$', '', text)
+            text = text.strip()
 
-        data = json.loads(text.strip())
+        # Extract first JSON object/array if surrounded by stray text
+        json_match = re.search(r'\{[\s\S]*\}', text)
+        if json_match:
+            text = json_match.group(0)
+
+        data = json.loads(text)
 
         return TranslationResult(
             title=data.get("title") or "",
             body=data.get("body") or "",
             summary=data.get("summary") or "",
             confidence=float(data.get("confidence", 0.7))
+        )
+
+    def _parse_response_fallback(self, response: str, target_lang: str) -> TranslationResult:
+        """Last-resort regex extraction when JSON is hopelessly malformed.
+
+        Attempts to pull field values from the raw text using regex.
+        Returns a low-confidence result marked for human review.
+        """
+        def _extract_field(field: str) -> str:
+            # Match "field": "value" allowing escaped quotes inside
+            pattern = rf'"{field}"\s*:\s*"((?:[^"\\]|\\.)*)"'
+            m = re.search(pattern, response, re.DOTALL)
+            return m.group(1).encode().decode('unicode_escape', errors='replace') if m else ""
+
+        title = _extract_field("title")
+        body = _extract_field("body")
+        summary = _extract_field("summary")
+
+        if not title and not body:
+            raise ValueError(f"Regex fallback could not extract any content from response (lang={target_lang})")
+
+        logger.warning(
+            f"Translation for lang={target_lang} recovered via regex fallback. "
+            "Confidence forced to 0.5 for human review."
+        )
+        return TranslationResult(
+            title=title,
+            body=body,
+            summary=summary,
+            confidence=0.5,  # Force DRAFT status; requires human review
         )
