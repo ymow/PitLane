@@ -16,6 +16,8 @@ class TranslationResult:
     body: str
     summary: str
     confidence: float
+    input_tokens: int = 0
+    output_tokens: int = 0
 
 
 class ClaudeTranslator:
@@ -96,7 +98,10 @@ class ClaudeTranslator:
                 messages=[{"role": "user", "content": prompt}]
             )
 
-            return self._parse_response(response.content[0].text)
+            result = self._parse_response(response.content[0].text)
+            result.input_tokens = response.usage.input_tokens
+            result.output_tokens = response.usage.output_tokens
+            return result
         except Exception as e:
             logger.error(f"Translation failed: {e}")
             raise

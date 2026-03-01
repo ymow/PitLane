@@ -1,7 +1,37 @@
 import React, { useEffect, useState } from 'react';
 import '../styles/index.css';
+import { LanguageProvider, useLanguage, SUPPORTED_LANGS } from '../lib/LanguageContext';
 
-export default function Layout({ children }: { children: React.ReactNode }) {
+function LanguageSwitcher() {
+    const { lang, setLang, supportedLangs } = useLanguage();
+    const [open, setOpen] = useState(false);
+    const current = supportedLangs.find(l => l.code === lang);
+    return (
+        <div className="relative">
+            <button
+                className="block py-3 px-4 text-gray-400 text-sm font-bold border-b-2 border-transparent"
+                onClick={() => setOpen(!open)}
+            >
+                {current?.label || lang}
+            </button>
+            {open && (
+                <div className="absolute right-0 top-full z-50 bg-white border border-gray-100 shadow-lg mt-1 min-w-[140px]">
+                    {supportedLangs.map(l => (
+                        <button
+                            key={l.code}
+                            className={`block w-full text-left px-4 py-2 text-sm hover:bg-gray-50 ${l.code === lang ? 'text-f1-red font-bold' : 'text-gray-700'}`}
+                            onClick={() => { setLang(l.code); setOpen(false); }}
+                        >
+                            {l.label}
+                        </button>
+                    ))}
+                </div>
+            )}
+        </div>
+    );
+}
+
+function LayoutInner({ children }: { children: React.ReactNode }) {
     const [currentPath, setCurrentPath] = useState('');
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [searchOpen, setSearchOpen] = useState(false);
@@ -38,6 +68,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
     const navItems = [
         { path: '/', label: 'Home' },
+        { path: '/news', label: 'News' },
         { path: '/drivers', label: 'Drivers' },
         { path: '/teams', label: 'Teams' },
         { path: '/races', label: 'Calendar' },
@@ -78,8 +109,13 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                                     ))}
                                 </ul>
 
-                                {/* Search & Mobile Menu */}
+                                {/* Search & Language & Mobile Menu */}
                                 <div className="flex flex-row items-center text-gray-300">
+                                    {/* Language Switcher */}
+                                    <div className="relative hidden lg:block border-l border-gray-800 hover:bg-gray-900">
+                                        <LanguageSwitcher />
+                                    </div>
+
                                     {/* Search Dropdown */}
                                     <div className={`search-dropdown relative border-r lg:border-l border-gray-800 hover:bg-gray-900 ${searchOpen ? 'show' : ''}`}>
                                         <button
@@ -226,6 +262,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                                         <h4 className="text-base leading-normal mb-3 uppercase text-gray-100">Sections</h4>
                                         <ul>
                                             <li className="py-1 hover:text-white"><a href="/">Home</a></li>
+                                            <li className="py-1 hover:text-white"><a href="/news">News</a></li>
                                             <li className="py-1 hover:text-white"><a href="/drivers">Drivers</a></li>
                                             <li className="py-1 hover:text-white"><a href="/teams">Teams</a></li>
                                             <li className="py-1 hover:text-white"><a href="/races">Calendar</a></li>
@@ -275,5 +312,13 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 </div>
             </footer>
         </div>
+    );
+}
+
+export default function Layout({ children }: { children: React.ReactNode }) {
+    return (
+        <LanguageProvider>
+            <LayoutInner>{children}</LayoutInner>
+        </LanguageProvider>
     );
 }

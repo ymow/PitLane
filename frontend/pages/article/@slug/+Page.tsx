@@ -1,12 +1,27 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { usePageContext } from 'vike-react/usePageContext';
 import { useArticle } from '../../../lib/hooks';
+import { useLanguage } from '../../../lib/LanguageContext';
 import { Sidebar } from '../../../components/Sidebar';
+import { ArticleCard } from '../../../components/ArticleCard';
+import axios from 'axios';
+
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
 
 export default function Page() {
     const pageContext = usePageContext();
     const { slug } = pageContext.routeParams;
-    const { data: article, loading, error } = useArticle(slug);
+    const { lang } = useLanguage();
+    const { data: article, loading, error } = useArticle(slug, lang);
+
+    const [related, setRelated] = useState<any[]>([]);
+
+    useEffect(() => {
+        if (!article?.slug) return;
+        axios.get(`${API_BASE}/articles/${article.slug}/related/`, { params: { lang, limit: 3 } })
+            .then(r => setRelated(r.data?.items || []))
+            .catch(() => setRelated([]));
+    }, [article?.slug, lang]);
 
     if (loading) {
         return (
@@ -70,12 +85,27 @@ export default function Page() {
                                 <div className="relative flex flex-row items-center justify-between overflow-hidden bg-gray-100 mt-12 mb-2 px-6 py-2">
                                     <div className="my-4 text-sm">
                                         {/* Author */}
-                                        {article.source && (
+                                        {article.author && (
                                             <span className="mr-2 md:mr-4">
                                                 <svg className="bi bi-person mr-2 inline-block" width="1rem" height="1rem" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                                                     <path fillRule="evenodd" d="M13 14s1 0 1-1-1-4-6-4-6 3-6 4 1 1 1 1h10zm-9.995-.944v-.002.002zM3.022 13h9.956a.274.274 0 00.014-.002l.008-.002c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664a1.05 1.05 0 00.022.004zm9.974.056v-.002.002zM8 7a2 2 0 100-4 2 2 0 000 4zm3-2a3 3 0 11-6 0 3 3 0 016 0z" clipRule="evenodd"></path>
                                                 </svg>
-                                                Source: <span className="font-semibold">{article.source.name}</span>
+                                                Author: <span className="font-semibold">{article.author}</span>
+                                            </span>
+                                        )}
+
+                                        {/* Source */}
+                                        {article.source && (
+                                            <span className="mr-2 md:mr-4">
+                                                Source:{' '}
+                                                <a
+                                                    href={article.original_url}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="font-semibold text-red-600 hover:underline"
+                                                >
+                                                    {article.source.name}
+                                                </a>
                                             </span>
                                         )}
 
@@ -91,9 +121,9 @@ export default function Page() {
 
                                     {/* Original Link */}
                                     <div className="hidden lg:block">
-                                        <a 
-                                            href={article.original_url} 
-                                            target="_blank" 
+                                        <a
+                                            href={article.original_url}
+                                            target="_blank"
                                             rel="noopener noreferrer"
                                             className="text-red-600 hover:text-red-800 text-sm font-bold"
                                         >
@@ -101,6 +131,18 @@ export default function Page() {
                                         </a>
                                     </div>
                                 </div>
+
+                                {/* Related Articles */}
+                                {related.length > 0 && (
+                                    <div className="mt-10">
+                                        <h2 className="text-xl font-bold mb-4 border-l-4 border-red-600 pl-3">Related Articles</h2>
+                                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                            {related.map((rel: any) => (
+                                                <ArticleCard key={rel.id} article={rel} />
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </div>
