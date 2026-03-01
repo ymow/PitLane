@@ -1,6 +1,7 @@
 """API views."""
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
+from rest_framework.pagination import CursorPagination
 from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -25,6 +26,11 @@ from .serializers import (
 from .services import ergast_service, racing_service
 
 
+class ArticleCursorPagination(CursorPagination):
+    page_size = 20
+    ordering = '-published_at'
+
+
 def _write_permissions(action):
     if action in ('create', 'update', 'partial_update', 'destroy'):
         return [IsAdminUser()]
@@ -34,6 +40,7 @@ def _write_permissions(action):
 class ArticleViewSet(viewsets.ReadOnlyModelViewSet):
     """ViewSet for Article listing and detail."""
     lookup_field = 'slug'
+    pagination_class = ArticleCursorPagination
 
     def get_queryset(self):
         lang = self.request.query_params.get('lang', 'zh-TW')
@@ -406,19 +413,42 @@ class F1StandingsAPIView(APIView):
 
 
 class F1RaceScheduleAPIView(APIView):
-    """Get F1 race schedule."""
-    
+    """Get F1 race schedule from local DB, fallback to external API."""
+
     def get(self, request):
         """Get race schedule for current season."""
+        from datetime import date
         year = request.query_params.get('year')
-        
+        target_year = int(year) if year else date.today().year
+
+        # Prefer local DB
+        local_races = Race.objects.filter(
+            season__year=target_year
+        ).select_related('circuit', 'season').order_by('round_number')
+
+        if local_races.exists():
+            schedule = []
+            for race in local_races:
+                schedule.append({
+                    'round': race.round_number,
+                    'name': race.official_name,
+                    'date': race.race_date.strftime('%Y-%m-%d'),
+                    'time': '13:00:00Z',
+                    'circuit': {
+                        'id': race.circuit.code if race.circuit else '',
+                        'name': race.circuit.name if race.circuit else '',
+                        'location': race.circuit.country if race.circuit else '',
+                        'coordinates': {'lat': 0, 'lng': 0}
+                    }
+                })
+            enriched = [racing_service.enrich_race_with_telemetry(r) for r in schedule]
+            return Response({'races': enriched})
+
+        # Fallback to external API
         try:
             schedule = ergast_service.get_race_schedule(year)
-            
-            # Use service to enrich with local session data (OpenF1 keys)
-            enriched_schedule = [racing_service.enrich_race_with_telemetry(race) for race in schedule]
-            
-            return Response({'races': enriched_schedule})
+            enriched = [racing_service.enrich_race_with_telemetry(race) for race in schedule]
+            return Response({'races': enriched})
         except Exception as e:
             return Response(
                 {'error': 'Failed to fetch race schedule'},

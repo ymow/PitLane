@@ -59,6 +59,12 @@ app.conf.beat_schedule = {
         'schedule': crontab(hour=3, minute=0),
         'args': (90,),  # Keep 90 days
     },
+
+    # Probe unhealthy sources: every 6 hours
+    'probe-unhealthy-sources': {
+        'task': 'apps.workers.tasks.fetch.probe_unhealthy_sources',
+        'schedule': crontab(minute=0, hour='*/6'),
+    },
 }
 
 

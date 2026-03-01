@@ -96,6 +96,12 @@ def translate_article(self, article_id: str, target_lang: str):
             published_at=timezone.now() if status == 'PUBLISHED' else None,
         )
 
+        logger.info(
+            f"translate_cost article_id={article_id} lang={target_lang} "
+            f"model={ClaudeTranslator.MODEL} "
+            f"input_tokens={result.input_tokens} output_tokens={result.output_tokens}"
+        )
+
         # Invalidate cache
         cache.delete(f'article:{article.original_slug}:{target_lang}')
         cache.delete(f'latest:news:{target_lang}')

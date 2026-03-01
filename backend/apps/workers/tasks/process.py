@@ -56,7 +56,8 @@ def process_article(article_id: str):
         article.quality_score = score
 
         # Early exit for low quality articles — store but don't process further
-        if score < 30:
+        # HIGH/CRITICAL priority articles bypass this gate regardless of score
+        if score < 30 and article.priority not in ['HIGH', 'CRITICAL']:
             article.ingestion_status = IngestionStatus.LOW_QUALITY
             article.is_published = False
             article.save(update_fields=['original_body', 'quality_score', 'ingestion_status', 'is_published'])

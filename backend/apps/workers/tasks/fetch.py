@@ -165,3 +165,39 @@ def fetch_all_active_sources(self):
     sources = Source.objects.filter(is_active=True).values_list('slug', flat=True)
     for slug in sources:
         fetch_single_source.delay(slug)
+
+
+@shared_task
+def probe_unhealthy_sources():
+    """Probe all unhealthy sources. Restore to active if fetch succeeds."""
+    slugs = list(Source.objects.filter(
+        is_active=True,
+        is_healthy=False,
+    ).values_list('slug', flat=True))
+    for slug in slugs:
+        probe_single_source.delay(slug)
+    logger.info(f"Probing {len(slugs)} unhealthy source(s)")
+
+
+@shared_task(bind=True, max_retries=1)
+def probe_single_source(self, source_slug: str):
+    """Probe one unhealthy source; restore health if fetch succeeds."""
+    try:
+        Source.objects.get(slug=source_slug, is_active=True, is_healthy=False)
+    except Source.DoesNotExist:
+        return  # Already restored or deactivated
+
+    try:
+        source = Source.objects.get(slug=source_slug)
+        fetcher = RSSFetcher(source.feed_url)
+        items = fetcher.fetch()
+
+        Source.objects.filter(slug=source_slug).update(
+            is_healthy=True,
+            consecutive_errors=0,
+            last_fetched_at=timezone.now(),
+            last_success_at=timezone.now(),
+        )
+        logger.info(f"Source '{source_slug}' restored (probe ok, {len(items)} items)")
+    except Exception as exc:
+        logger.warning(f"Source '{source_slug}' still unhealthy: {exc}")
