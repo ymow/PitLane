@@ -21,11 +21,14 @@ RUN poetry config virtualenvs.create false && \
 # Copy application
 COPY . .
 
-# Make manage.py executable
-RUN chmod +x manage.py
+# Collect static files at build time (uses fallback SECRET_KEY from base settings)
+RUN DJANGO_SETTINGS_MODULE=config.settings.base \
+    python manage.py collectstatic --noinput --clear
 
-# Expose port
+# Make scripts executable
+RUN chmod +x manage.py entrypoint.sh
+
 EXPOSE 8000
 
-# Default command
-CMD ["gunicorn", "config.wsgi:application", "--bind", "0.0.0.0:8000", "--workers", "4"]
+# APP_ROLE: api (default) | worker | beat
+CMD ["./entrypoint.sh"]

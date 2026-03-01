@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { usePageContext } from 'vike-react/usePageContext';
+import { useConfig } from 'vike-react/useConfig';
 import { useArticle } from '../../../lib/hooks';
 import { useLanguage } from '../../../lib/LanguageContext';
 import { Sidebar } from '../../../components/Sidebar';
@@ -7,12 +8,39 @@ import { ArticleCard } from '../../../components/ArticleCard';
 import axios from 'axios';
 
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
+const SITE_URL = import.meta.env.VITE_SITE_URL || '';
 
 export default function Page() {
     const pageContext = usePageContext();
     const { slug } = pageContext.routeParams;
     const { lang } = useLanguage();
     const { data: article, loading, error } = useArticle(slug, lang);
+    const setConfig = useConfig();
+
+    const plainText = article?.body
+        ? article.body.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim().slice(0, 160)
+        : '';
+
+    useEffect(() => {
+        if (!article) return;
+        const desc = article.excerpt || plainText;
+        setConfig({
+            title: `${article.title} | PitLane F1`,
+            description: desc,
+            Head: () => (
+                <>
+                    <meta property="og:type" content="article" />
+                    <meta property="og:site_name" content="PitLane F1" />
+                    <meta property="og:title" content={article.title} />
+                    {desc && <meta property="og:description" content={desc} />}
+                    {article.image_url && <meta property="og:image" content={article.image_url} />}
+                    <meta property="og:url" content={`${SITE_URL}/article/${article.slug}`} />
+                    <meta name="twitter:card" content="summary_large_image" />
+                    <link rel="canonical" href={`${SITE_URL}/article/${article.slug}`} />
+                </>
+            ),
+        });
+    }, [article]);
 
     const [related, setRelated] = useState<any[]>([]);
 
@@ -115,7 +143,7 @@ export default function Page() {
                                                 <path fillRule="evenodd" d="M14 0H2a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2V2a2 2 0 00-2-2zM1 3.857C1 3.384 1.448 3 2 3h12c.552 0 1 .384 1 .857v10.286c0 .473-.448.857-1 .857H2c-.552 0-1-.384-1-.857V3.857z" clipRule="evenodd"></path>
                                                 <path fillRule="evenodd" d="M6.5 7a1 1 0 100-2 1 1 0 000 2zm3 0a1 1 0 100-2 1 1 0 000 2zm3 0a1 1 0 100-2 1 1 0 000 2zm-9 3a1 1 0 100-2 1 1 0 000 2zm3 0a1 1 0 100-2 1 1 0 000 2zm3 0a1 1 0 100-2 1 1 0 000 2zm3 0a1 1 0 100-2 1 1 0 000 2zm-9 3a1 1 0 100-2 1 1 0 000 2zm3 0a1 1 0 100-2 1 1 0 000 2zm3 0a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd"></path>
                                             </svg>
-                                            {new Date(article.published_at).toLocaleDateString('zh-TW', { month: 'short', day: 'numeric', year: 'numeric' })}
+                                            {new Date(article.published_at).toLocaleDateString(lang, { month: 'short', day: 'numeric', year: 'numeric' })}
                                         </time>
                                     </div>
 

@@ -247,6 +247,8 @@ export function useArticle(slug: string, lang = "zh-TW") {
 
   useEffect(() => {
     if (!slug) return;
+    setLoading(true);
+    setError(null);
     const fetchArticle = async () => {
       try {
         const response = await axios.get(`${API_BASE}/articles/${slug}/`, { params: { lang } });

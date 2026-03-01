@@ -1,6 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import '../styles/index.css';
 import { LanguageProvider, useLanguage, SUPPORTED_LANGS } from '../lib/LanguageContext';
+
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
 
 function LanguageSwitcher() {
     const { lang, setLang, supportedLangs } = useLanguage();
@@ -35,6 +37,9 @@ function LayoutInner({ children }: { children: React.ReactNode }) {
     const [currentPath, setCurrentPath] = useState('');
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [searchOpen, setSearchOpen] = useState(false);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [searchResults, setSearchResults] = useState<any[]>([]);
+    const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     useEffect(() => {
         setCurrentPath(window.location.pathname);
@@ -78,7 +83,44 @@ function LayoutInner({ children }: { children: React.ReactNode }) {
     const isActive = (path: string) => currentPath === path;
 
     const toggleMobileMenu = () => setMobileMenuOpen(!mobileMenuOpen);
-    const toggleSearch = () => setSearchOpen(!searchOpen);
+    const toggleSearch = () => {
+        setSearchOpen(!searchOpen);
+        if (searchOpen) {
+            setSearchQuery('');
+            setSearchResults([]);
+        }
+    };
+
+    const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const q = e.target.value;
+        setSearchQuery(q);
+        if (debounceRef.current) clearTimeout(debounceRef.current);
+        if (q.trim().length < 2) {
+            setSearchResults([]);
+            return;
+        }
+        debounceRef.current = setTimeout(async () => {
+            try {
+                const res = await fetch(`${API_BASE}/search/?q=${encodeURIComponent(q.trim())}`);
+                if (res.ok) {
+                    const data = await res.json();
+                    setSearchResults((data.items || []).slice(0, 5));
+                }
+            } catch {
+                setSearchResults([]);
+            }
+        }, 300);
+    };
+
+    const handleSearchSubmit = () => {
+        if (searchQuery.trim()) {
+            window.location.href = `/news?q=${encodeURIComponent(searchQuery.trim())}`;
+        }
+    };
+
+    const handleSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === 'Enter') handleSearchSubmit();
+    };
 
     return (
         <div className="text-gray-700 pt-9 sm:pt-10">
@@ -137,15 +179,41 @@ function LayoutInner({ children }: { children: React.ReactNode }) {
                                                     className="flex-shrink flex-grow max-w-full leading-5 w-px flex-1 relative py-2 px-5 text-gray-800 bg-white border border-gray-300 focus:outline-none focus:border-gray-400 focus:ring-0"
                                                     placeholder="Search..."
                                                     aria-label="search"
+                                                    value={searchQuery}
+                                                    onChange={handleSearchChange}
+                                                    onKeyDown={handleSearchKeyDown}
                                                 />
                                                 <div className="flex -mr-px">
-                                                    <button className="flex items-center py-2 px-5 -ml-1 leading-5 text-gray-100 bg-black hover:text-white hover:bg-gray-900 focus:outline-none focus:ring-0" type="submit">
+                                                    <button
+                                                        className="flex items-center py-2 px-5 -ml-1 leading-5 text-gray-100 bg-black hover:text-white hover:bg-gray-900 focus:outline-none focus:ring-0"
+                                                        type="button"
+                                                        onClick={handleSearchSubmit}
+                                                    >
                                                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-search" viewBox="0 0 16 16">
                                                             <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"></path>
                                                         </svg>
                                                     </button>
                                                 </div>
                                             </div>
+                                            {searchResults.length > 0 && (
+                                                <div className="mt-1 border-t border-gray-100">
+                                                    {searchResults.map((article: any) => (
+                                                        <a
+                                                            key={article.id || article.slug}
+                                                            href={`/article/${article.slug}`}
+                                                            className="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 truncate"
+                                                        >
+                                                            {article.title}
+                                                        </a>
+                                                    ))}
+                                                    <button
+                                                        className="block w-full text-left px-3 py-2 text-xs text-f1-red font-semibold hover:bg-gray-50 border-t border-gray-100"
+                                                        onClick={handleSearchSubmit}
+                                                    >
+                                                        See all results →
+                                                    </button>
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
 

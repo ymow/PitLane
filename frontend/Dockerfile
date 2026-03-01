@@ -1,18 +1,27 @@
+# Stage 1: build
+FROM node:20-alpine AS builder
+
+WORKDIR /app
+
+COPY package*.json ./
+RUN npm ci
+
+COPY . .
+# VITE_API_URL injected at build time (set in Zeabur dashboard as build arg)
+ARG VITE_API_URL
+ENV VITE_API_URL=${VITE_API_URL}
+
+RUN npm run build
+
+# Stage 2: serve
 FROM node:20-alpine
 
 WORKDIR /app
 
-# Copy package.json and package-lock.json
-COPY package*.json ./
+RUN npm install -g serve
 
-# Install dependencies
-RUN npm install
+COPY --from=builder /app/dist ./dist
 
-# Copy source code
-COPY . .
-
-# Expose port
 EXPOSE 3000
 
-# Default command (can be overridden in docker-compose)
-CMD ["npm", "run", "dev", "--", "--host", "--port", "3000"]
+CMD ["serve", "dist", "-p", "3000", "--single"]
