@@ -67,53 +67,98 @@ Get the system "alive" and validated with real F1 2026 data.
 | #024 | — | `de` Translation Parse Error | Open | Claude response occasionally returns malformed JSON for German |
 | #027 | — | Celery Process Supervisor | Open | Worker + Beat require manual start; no systemd/supervisor config |
 
-#### Phase 1.5 — Pipeline Hardening (Linear: DON-36–DON-40, DON-62–DON-63)
+#### Execution Order (4-week plan, revised 2026-03-01)
 
-| Linear | Ticket | Priority | Description |
+```
+Week 1 — 資料正確性 + Pipeline 穩定
+  DON-59  F1 · Cadillac 合約完整性（資料基礎，前端所有工作前提）
+  DON-57  E2 · Seed 2026 賽程 24 站
+  DON-62  G1 · NewsCategory seed 確認
+  DON-36  A1 · probe_unhealthy_sources
+  DON-37  A2 · Quality gate priority bypass
+  DON-64  A6 · is_published vs ingestion_status truth source（新增）
+
+Week 2 — 前端核心體驗
+  DON-41  B1 · 語言切換器（3-4h 實際）
+  DON-42  B2 · /news 列表頁 + 分頁（4-5h 實際，含 G2 CategoryPills）
+  DON-43  B3 · 文章詳情頁補強
+  DON-58  E3 · Calendar 頁切換本地 DB（吸收 E1，跳過 Jolpica 中間層）
+  DON-39  A4 · Article API 分頁
+
+Week 3 — 部署上線
+  DON-51  D2 · Production settings（含 DON-68 Sentry 一起做）
+  DON-50  D1 · zeabur.yaml 全棧定義（Zeabur 首次 debug 預留 3-4h）
+  DON-52  D3 · Backend Dockerfile 確認
+  DON-53  D4 · DB Migration on Deploy
+  DON-54  D5 · Frontend Dockerfile 確認
+  DON-55  D6 · Health Check /health/
+  DON-40  A5 · API Rate Limiting
+  DON-67  D7 · CI/CD GitHub Actions（新增）
+
+Week 4 — 補強
+  DON-44  B4 · Search 接通
+  DON-45  B5 · SEO meta tags
+  DON-60  F2 · car_number + team_color 確認
+  DON-46  C1 · Seed OpenF1 Session Keys（降 P1，等 3/6 澳洲站有資料）
+  DON-47  C2 · LiveRaceWidget 接通（降 P1，依賴 C1）
+  DON-48  C3 · Celery poll_live_session
+  DON-66  A8 · 翻譯成本 logging（新增）
+```
+
+> **工時說明：** P0 合計估計 24-28h（含 buffer），原估 18.5h 偏樂觀 30-50%。
+
+#### Phase 1.5 — Pipeline Hardening
+
+| Linear | Ticket | Priority | Note |
 |---|---|---|---|
-| DON-36 | A1 · probe_unhealthy_sources | P0 | Source auto-recovery probe every 6h |
-| DON-37 | A2 · Quality gate priority bypass | P0 | HIGH/CRITICAL articles skip LOW_QUALITY early exit |
-| DON-38 | A3 · fetch_interval 死欄位標記 | P1 | Mark as readonly in admin, add help_text |
-| DON-39 | A4 · Article Cursor Pagination | P1 | CursorPagination on main articles list |
-| DON-40 | A5 · API Rate Limiting | P1 | AnonRateThrottle 60/min on public endpoints |
-| DON-62 | G1 · NewsCategory seed 確認 | P0 | Ensure categories exist for CategoryPills |
-| DON-63 | G3 · Article source label 確認 | P1 | Verify source.name + original_url in article detail |
+| DON-36 | A1 · probe_unhealthy_sources | P0 | 每 6h probe，成功即恢復 |
+| DON-37 | A2 · Quality gate priority bypass | P0 | HIGH/CRITICAL 跳過 LOW_QUALITY early exit |
+| DON-38 | A3 · fetch_interval 死欄位標記 | P1 | readonly + help_text |
+| DON-39 | A4 · Article Cursor Pagination | P1 | CursorPagination, page_size=20 |
+| DON-40 | A5 · API Rate Limiting | P1 | AnonRateThrottle 60/min |
+| DON-62 | G1 · NewsCategory seed 確認 | P0 | CategoryPills 前提 |
+| DON-63 | G3 · Article source label 確認 | P1 | source.name + original_url |
+| DON-64 | A6 · is_published vs ingestion_status | P1 | `@property is_visible`，定義唯一 truth source |
+| DON-65 | A7 · sources.py seed data 定位 | P1 | update_or_create + docstring |
+| DON-66 | A8 · 翻譯成本 structured logging | P1 | input/output tokens per call |
 
-#### Phase 1.6 — Frontend MVP (Linear: DON-41–DON-45, DON-59–DON-61)
+#### Phase 1.6 — Frontend MVP
 
-| Linear | Ticket | Priority | Description |
+| Linear | Ticket | Priority | Note |
 |---|---|---|---|
-| DON-41 | B1 · 語言切換器 | P0 | LanguageContext + header dropdown, 12 languages |
-| DON-42 | B2 · /news 列表頁 + 分頁 | P0 | Standalone paginated news page with CategoryPills |
-| DON-43 | B3 · 文章詳情頁補強 | P0 | Related articles, author display, lang-aware refetch |
-| DON-44 | B4 · Search 接通 | P1 | Wire header search to /api/v1/search/ |
-| DON-45 | B5 · SEO Meta Tags | P1 | og:title / og:image / canonical per article |
-| DON-59 | F1 · Cadillac 合約完整性 | P0 | Verify 11 teams × 2 = 22 RACE contracts |
-| DON-60 | F2 · car_number + team_color 確認 | P0 | Verify driver card displays correct data |
-| DON-61 | F3 · 車手詳情頁 /drivers/{slug} | P2 | Driver detail page with news + contract info |
+| DON-59 | F1 · Cadillac + 22 RACE 合約完整性 | P0 | **Week 1 首要** — 前端所有顯示的資料基礎 |
+| DON-60 | F2 · car_number + team_color 確認 | P0 | 依賴 F1 完成 |
+| DON-61 | F3 · 車手詳情頁 /drivers/{slug} | P2 | Driver detail page |
+| DON-41 | B1 · 語言切換器 | P0 | LanguageContext + 12 langs，估 3-4h |
+| DON-42 | B2 · /news 列表頁 + 分頁 | P0 | 含 G2 CategoryPills，估 4-5h |
+| DON-43 | B3 · 文章詳情頁補強 | P0 | Related articles + author + lang refetch |
+| DON-44 | B4 · Search 接通 | P1 | debounce + /api/v1/search/ |
+| DON-45 | B5 · SEO Meta Tags | P1 | og:title / og:image / canonical |
 
-#### Phase 1.7 — Race Calendar & Telemetry (Linear: DON-46–DON-48, DON-56–DON-58)
+#### Phase 1.7 — Race Calendar & Telemetry
 
-| Linear | Ticket | Priority | Description |
+| Linear | Ticket | Priority | Note |
 |---|---|---|---|
-| DON-56 | E1 · 切換 Jolpica API | P0 | Replace defunct Ergast with Jolpica (compatible format) |
-| DON-57 | E2 · Seed 2026 賽程 24 站 | P0 | Seed all 24 races into local Race model |
-| DON-58 | E3 · Calendar 頁切換本地 DB | P1 | Remove external API dependency for race calendar |
-| DON-46 | C1 · Seed OpenF1 Session Keys | P0 | Populate Session.openf1_session_key for 2026 |
-| DON-47 | C2 · LiveRaceWidget 接通 | P0 | Wire home page live banner to OpenF1 |
-| DON-48 | C3 · Celery poll_live_session | P1 | Periodic session status sync task |
-| DON-49 | C4–C7 · WebSocket 串流 | P3 | Full real-time telemetry (Phase 3 scope) |
+| ~~DON-56~~ | ~~E1 · Jolpica API~~ | **Cancelled** | 直接做 E2+E3，省略 Jolpica 中間層 |
+| DON-57 | E2 · Seed 2026 賽程 24 站 | P0 | 澳洲(3/6) → 阿布達比(12/6) |
+| DON-58 | E3 · Calendar 頁切換本地 DB | P0 | 吸收 E1，估 1.5h |
+| DON-46 | C1 · Seed OpenF1 Session Keys | P1 | ⚠️ 降 P1：等 3/6 澳洲站確認有資料 |
+| DON-47 | C2 · LiveRaceWidget 接通 | P1 | ⚠️ 降 P1：依賴 C1 |
+| DON-48 | C3 · Celery poll_live_session | P1 | 每分鐘同步 session 狀態 |
+| DON-49 | C4–C7 · WebSocket 完整串流 | P3 | Phase 3 規模，佔位 |
 
-#### Phase 1.8 — Zeabur Deploy (Linear: DON-50–DON-55)
+#### Phase 1.8 — Zeabur Deploy + CI/CD
 
-| Linear | Ticket | Priority | Description |
+| Linear | Ticket | Priority | Note |
 |---|---|---|---|
-| DON-50 | D1 · zeabur.yaml 全棧定義 | P0 | 6 services: PostgreSQL, Redis, API, Worker, Beat, Frontend |
-| DON-51 | D2 · Production Django Settings | P0 | DEBUG=False, env-driven, WhiteNoise static files |
+| DON-50 | D1 · zeabur.yaml 全棧定義 | P0 | 6 services，首次 debug 預留 3-4h |
+| DON-51 | D2 · Production Django Settings | P0 | 含 DON-68 Sentry 一起做 |
 | DON-52 | D3 · Backend Dockerfile 確認 | P0 | 3 entrypoints: API / Worker / Beat |
-| DON-53 | D4 · DB Migration on Deploy | P0 | Auto-run migrate on deploy |
-| DON-54 | D5 · Frontend Dockerfile 確認 | P0 | Vike SSR production build |
-| DON-55 | D6 · Health Check `/health/` | P0 | Liveness probe for Zeabur |
+| DON-53 | D4 · DB Migration on Deploy | P0 | preDeployCommand |
+| DON-54 | D5 · Frontend Dockerfile 確認 | P0 | Vike SSR production |
+| DON-55 | D6 · Health Check `/health/` | P0 | Zeabur liveness probe |
+| DON-67 | D7 · CI/CD GitHub Actions | P1 | manage.py check + pytest + ruff |
+| DON-68 | D8 · Sentry error tracking | P1 | 含在 D2，SENTRY_DSN env var |
 
 ### Phase 2 — Graph & Abstraction
 Transform the database from flat tables to a living entity graph.
