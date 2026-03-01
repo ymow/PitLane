@@ -23,6 +23,7 @@ class Command(BaseCommand):
             {"code": "RBT", "base_name": "Racing Bulls", "country": "Italy", "founded_year": 2024, "color": "#6692FF"},
             {"code": "HAA", "base_name": "MoneyGram Haas F1 Team", "country": "United States", "founded_year": 2016, "color": "#B6BABD"},
             {"code": "SAU", "base_name": "Kick Sauber", "country": "Switzerland", "founded_year": 1993, "color": "#52E252"},
+            {"code": "CAD", "base_name": "Cadillac F1 Team", "country": "United States", "founded_year": 2026, "color": "#000000"},
         ]
 
         teams = {}
@@ -102,9 +103,13 @@ class Command(BaseCommand):
             {"code": "BEA", "number": 50, "first_name": "Oliver", "last_name": "Bearman", "dob": "2005-05-08", "nationality": "British"},
             {"code": "OCO", "number": 31, "first_name": "Esteban", "last_name": "Ocon", "dob": "1996-09-17", "nationality": "French"},
 
-            # Kick Sauber
+            # Kick Sauber (renamed Audi for 2026 via seed_2026_grid)
             {"code": "HUL", "number": 27, "first_name": "Nico", "last_name": "Hülkenberg", "dob": "1987-08-19", "nationality": "German"},
             {"code": "BOR", "number": 5, "first_name": "Gabriel", "last_name": "Bortoleto", "dob": "2004-10-14", "nationality": "Brazilian"},
+
+            # Cadillac F1 Team (11th team, 2026 entry)
+            {"code": "PER", "number": 11, "first_name": "Sergio", "last_name": "Perez", "dob": "1990-01-26", "nationality": "Mexican"},
+            {"code": "BOT", "number": 77, "first_name": "Valtteri", "last_name": "Bottas", "dob": "1989-08-28", "nationality": "Finnish"},
         ]
 
         for driver_data in drivers_data:

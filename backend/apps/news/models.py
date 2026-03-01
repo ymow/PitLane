@@ -85,7 +85,10 @@ class Source(models.Model):
     feed_url = models.URLField(max_length=500)
     lang = models.CharField(max_length=10, default='en')
     priority = models.IntegerField(default=50)  # 0-100
-    fetch_interval = models.IntegerField(default=300)  # seconds
+    fetch_interval = models.IntegerField(
+        default=300,
+        help_text="[DEPRECATED] Not used for scheduling. Sources are fetched by tier (priority 0-100) via Celery beat at fixed intervals."
+    )  # seconds
     is_active = models.BooleanField(default=True)
 
     # Health tracking (managed by fetch pipeline, not admin-editable)
@@ -205,7 +208,7 @@ class Article(models.Model):
         default=IngestionStatus.INGESTED,
         db_index=True,
     )
-    is_published = models.BooleanField(default=True, db_index=True)
+    is_published = models.BooleanField(default=True, db_index=True)  # DEPRECATED: use ingestion_status == PUBLISHED (is_visible property)
     is_featured = models.BooleanField(default=False, db_index=True)
     is_duplicate = models.BooleanField(default=False, db_index=True, help_text="Is this a duplicate of another article?")
     quality_score = models.FloatField(default=0.0, db_index=True, help_text="Content quality score 0.0-100.0")
@@ -225,6 +228,11 @@ class Article(models.Model):
 
     def __str__(self):
         return self.original_title
+
+    @property
+    def is_visible(self) -> bool:
+        """Single truth source for article visibility. Use this instead of is_published."""
+        return self.ingestion_status == IngestionStatus.PUBLISHED
 
     def save(self, *args, **kwargs):
         if not self.original_slug:

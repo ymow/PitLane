@@ -1,4 +1,14 @@
-"""RSS source configurations."""
+"""
+RSS source configurations — initial seed data only.
+
+This module defines the SOURCES dict used by `sync_sources` management command
+(update_or_create semantics). Once seeded, sources are managed via Django Admin
+or DB directly. Adding/removing sources here does NOT auto-apply; run:
+
+    python manage.py sync_sources
+
+to push changes to the database.
+"""
 
 SOURCES = {
     # --- OFFICIAL / GOVERNING BODY ---
