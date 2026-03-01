@@ -25,42 +25,26 @@ app.conf.task_annotations = {
 
 # Celery Beat Schedule
 app.conf.beat_schedule = {
-    # High priority sources: every 5 minutes
-    'fetch-high-priority': {
-        'task': 'apps.workers.tasks.fetch.fetch_sources_by_priority',
+    # DB-driven tier fetch — sources read dynamically from DB at runtime
+    # high (priority 90-100): every 5 minutes
+    'fetch-tier-high': {
+        'task': 'apps.workers.tasks.fetch.fetch_by_tier',
         'schedule': crontab(minute='*/5'),
-        'args': (['fia-press', 'motorsport', 'the-race', 'autosport'],),
+        'args': ['high'],
     },
 
-    # Medium priority: every 15 minutes
-    'fetch-medium-priority': {
-        'task': 'apps.workers.tasks.fetch.fetch_sources_by_priority',
+    # medium (priority 70-89): every 15 minutes
+    'fetch-tier-medium': {
+        'task': 'apps.workers.tasks.fetch.fetch_by_tier',
         'schedule': crontab(minute='*/15'),
-        'args': (['racefans', 'f1i'],),
+        'args': ['medium'],
     },
 
-    # Low priority (EN): every 30 minutes
-    'fetch-low-priority': {
-        'task': 'apps.workers.tasks.fetch.fetch_sources_by_priority',
+    # low (priority 0-69): every 30 minutes
+    'fetch-tier-low': {
+        'task': 'apps.workers.tasks.fetch.fetch_by_tier',
         'schedule': crontab(minute='*/30'),
-        'args': (['formel1-de', 'motorsport-it'],),
-    },
-
-    # European/Japanese markets: every 30 minutes
-    'fetch-international': {
-        'task': 'apps.workers.tasks.fetch.fetch_sources_by_priority',
-        'schedule': crontab(minute='*/30'),
-        'args': ([
-            'motorsport-total',                      # de
-            'f1grandprix-it',                        # it
-            'motorsport-es', 'f1latam',              # es
-            'motorsport-br', 'autoracing',           # pt-BR
-            'headliner-nl', 'motorsport-nl',         # nl
-            'motorsport-fr', 'f1only',               # fr
-            'motorsport-jp',                         # ja
-            'motorsport-tr', 'trf1',                 # tr
-            'motorsport-pl',                         # pl
-        ],),
+        'args': ['low'],
     },
 
     # Cache warmup: every hour

@@ -3,11 +3,12 @@ import logging
 import redis
 import hashlib
 from celery import shared_task
+from django.db.models import F
 from django.utils import timezone
 from django.conf import settings
 from apps.fetcher.rss import RSSFetcher
 from apps.fetcher.sources import SOURCES
-from apps.news.models import Article, Source
+from apps.news.models import Article, Source, IngestionStatus
 from apps.workers.tasks.process import process_article
 from apps.processor.deduplicator import Deduplicator
 
@@ -16,10 +17,32 @@ logger = logging.getLogger(__name__)
 # Initialize Redis client for locking
 redis_client = redis.from_url(getattr(settings, 'CELERY_BROKER_URL', 'redis://localhost:6379/0'))
 
+# Priority tier thresholds (inclusive)
+TIER_THRESHOLDS = {
+    'high':   (90, 100),
+    'medium': (70, 89),
+    'low':    (0,  69),
+}
+
+
+@shared_task
+def fetch_by_tier(tier: str):
+    """Fetch all healthy active sources in a priority tier. Replaces fetch_sources_by_priority."""
+    lo, hi = TIER_THRESHOLDS.get(tier, (0, 100))
+    slugs = list(Source.objects.filter(
+        is_active=True,
+        is_healthy=True,
+        priority__gte=lo,
+        priority__lte=hi,
+    ).values_list('slug', flat=True))
+    for slug in slugs:
+        fetch_single_source.delay(slug)
+    logger.info(f"Queued {len(slugs)} sources for tier '{tier}'")
+
 
 @shared_task(bind=True, max_retries=3)
 def fetch_sources_by_priority(self, source_slugs: list):
-    """Fetch articles from multiple sources."""
+    """Fetch articles from multiple sources. Kept for backwards compatibility."""
     for slug in source_slugs:
         fetch_single_source.delay(slug)
 
@@ -32,7 +55,7 @@ def fetch_single_source(self, source_slug: str):
     lock_key = f"lock:fetch:{source_slug}"
     # Acquire lock for 5 minutes max
     lock = redis_client.lock(lock_key, timeout=300, blocking_timeout=2)
-    
+
     acquired = False
     try:
         acquired = lock.acquire()
@@ -51,7 +74,6 @@ def fetch_single_source(self, source_slug: str):
         return
 
     try:
-        # ... (rest of processing)
         fetcher = RSSFetcher(source.feed_url)
         items = fetcher.fetch()
         deduplicator = Deduplicator()
@@ -63,14 +85,15 @@ def fetch_single_source(self, source_slug: str):
                 continue
 
             # Check content duplication (Cross-source)
-            # Combine title and body for fingerprinting
             content_text = f"{item.title} {item.body}"
-            is_duplicate = deduplicator.is_duplicate(content_text, source.lang)
-            
+            is_sim_duplicate = deduplicator.is_duplicate(content_text, source.lang)
+
             # Compute Hash for storage
             content_hash = deduplicator.compute_hash(content_text)
 
-            # Create article
+            initial_status = IngestionStatus.DUPLICATE if is_sim_duplicate else IngestionStatus.INGESTED
+
+            # Always create article — duplicates are stored as reference corpus
             article = Article.objects.create(
                 external_id=item.external_id,
                 source=source,
@@ -82,12 +105,13 @@ def fetch_single_source(self, source_slug: str):
                 published_at=item.published_at,
                 fetched_at=timezone.now(),
                 featured_image_url=item.image_url,
-                is_duplicate=is_duplicate,
-                simhash=content_hash
+                is_duplicate=is_sim_duplicate,
+                simhash=content_hash,
+                ingestion_status=initial_status,
+                is_published=not is_sim_duplicate,
             )
 
-            # Only process if NOT a duplicate
-            if not is_duplicate:
+            if not is_sim_duplicate:
                 try:
                     process_article.delay(article.id)
                 except Exception as e:
@@ -96,17 +120,38 @@ def fetch_single_source(self, source_slug: str):
                     process_sync(article.id)
                 new_count += 1
             else:
-                logger.info(f"Skipped processing for duplicate: {item.title}")
+                logger.info(f"Stored duplicate (not processed): {item.title}")
 
         logger.info(f"Fetched {new_count} new (unique) articles from {source_slug}")
 
+        # Update source health on success
+        Source.objects.filter(slug=source_slug).update(
+            consecutive_errors=0,
+            is_healthy=True,
+            last_fetched_at=timezone.now(),
+            last_success_at=timezone.now(),
+            total_articles_fetched=F('total_articles_fetched') + new_count,
+        )
+
     except Exception as exc:
         logger.error(f"Error fetching {source_slug}: {exc}")
-        # Only retry if it's a celery task context
+
+        # Update error counters
+        Source.objects.filter(slug=source_slug).update(
+            consecutive_errors=F('consecutive_errors') + 1,
+            last_fetched_at=timezone.now(),
+        )
+
+        # Auto-pause after 5 consecutive errors
+        paused = Source.objects.filter(
+            slug=source_slug, consecutive_errors__gte=5, is_healthy=True
+        ).update(is_healthy=False)
+        if paused:
+            logger.warning(f"Source '{source_slug}' auto-paused after 5 consecutive errors.")
+
         if hasattr(self, 'request') and self.request.id:
             self.retry(exc=exc, countdown=60)
     finally:
-        # Always release the lock if it was acquired
         try:
             if acquired:
                 lock.release()

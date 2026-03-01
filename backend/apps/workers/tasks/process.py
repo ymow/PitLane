@@ -1,6 +1,6 @@
 """Celery tasks for processing articles."""
 from celery import shared_task
-from apps.news.models import Article, ArticleDriver, ArticleTeam, ArticleChunk, ArticleCategory
+from apps.news.models import Article, ArticleDriver, ArticleTeam, ArticleChunk, ArticleCategory, IngestionStatus
 from apps.processor.entity_extractor import F1EntityExtractor
 from apps.processor.categorizer import ArticleCategorizer
 from apps.processor.chunker import HTMLChunker
@@ -54,6 +54,15 @@ def process_article(article_id: str):
             has_image=bool(article.featured_image_url)
         )
         article.quality_score = score
+
+        # Early exit for low quality articles — store but don't process further
+        if score < 30:
+            article.ingestion_status = IngestionStatus.LOW_QUALITY
+            article.is_published = False
+            article.save(update_fields=['original_body', 'quality_score', 'ingestion_status', 'is_published'])
+            logger.info(f"Article {article_id} marked LOW_QUALITY (score={score:.1f})")
+            return
+
         # Note: save() deferred — merged with priority save below
 
         # 1. Content Chunking (using cleaned body)
@@ -128,18 +137,25 @@ def process_article(article_id: str):
             title=article.original_title,
             body=cleaned_body
         )
-        # Single save for all field changes (quality_score, original_body, priority)
-        article.save(update_fields=['original_body', 'quality_score', 'priority'])
-
-        logger.info(
-            f"Processed {article_id}: Score={score}, Cat={category.name if category else 'None'}, "
-            f"Chunks={len(chunks)}"
-        )
 
         # 4. Translation Policy (Cost Optimization)
         # Only translate if AI features are enabled AND (high quality or high priority)
         from django.conf import settings
         should_translate = settings.ENABLE_AI_FEATURES and (score >= 50.0 or article.priority in ['HIGH', 'CRITICAL'])
+
+        # Set ingestion status based on translation decision
+        if should_translate:
+            article.ingestion_status = IngestionStatus.PUBLISHED
+        else:
+            article.ingestion_status = IngestionStatus.PROCESSED
+
+        # Single save for all field changes
+        article.save(update_fields=['original_body', 'quality_score', 'priority', 'ingestion_status'])
+
+        logger.info(
+            f"Processed {article_id}: Score={score}, Cat={category.name if category else 'None'}, "
+            f"Chunks={len(chunks)}, Status={article.ingestion_status}"
+        )
         
         if should_translate:
             try:

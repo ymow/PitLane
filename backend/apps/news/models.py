@@ -68,6 +68,15 @@ class TranslationStatus(models.TextChoices):
     REJECTED = 'REJECTED', 'Rejected'
 
 
+class IngestionStatus(models.TextChoices):
+    """Article ingestion pipeline status."""
+    INGESTED    = 'INGESTED',    'Ingested'     # 入庫，尚未處理
+    PROCESSED   = 'PROCESSED',  'Processed'    # quality >= 30，entity/categorize 完成
+    PUBLISHED   = 'PUBLISHED',  'Published'    # quality >= 50，翻譯已排入
+    LOW_QUALITY = 'LOW_QUALITY', 'Low Quality' # quality < 30，保留不公開
+    DUPLICATE   = 'DUPLICATE',  'Duplicate'    # SimHash 近似重複，存 reference
+
+
 class Source(models.Model):
     """RSS feed source."""
     id = models.CharField(max_length=32, primary_key=True, default=generate_id)
@@ -78,6 +87,14 @@ class Source(models.Model):
     priority = models.IntegerField(default=50)  # 0-100
     fetch_interval = models.IntegerField(default=300)  # seconds
     is_active = models.BooleanField(default=True)
+
+    # Health tracking (managed by fetch pipeline, not admin-editable)
+    last_fetched_at = models.DateTimeField(null=True, blank=True)
+    last_success_at = models.DateTimeField(null=True, blank=True)
+    consecutive_errors = models.IntegerField(default=0)
+    is_healthy = models.BooleanField(default=True, db_index=True)
+    total_articles_fetched = models.IntegerField(default=0)
+
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -182,6 +199,12 @@ class Article(models.Model):
     )
 
     # Status
+    ingestion_status = models.CharField(
+        max_length=20,
+        choices=IngestionStatus.choices,
+        default=IngestionStatus.INGESTED,
+        db_index=True,
+    )
     is_published = models.BooleanField(default=True, db_index=True)
     is_featured = models.BooleanField(default=False, db_index=True)
     is_duplicate = models.BooleanField(default=False, db_index=True, help_text="Is this a duplicate of another article?")
