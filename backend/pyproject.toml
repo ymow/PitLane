@@ -33,7 +33,20 @@ pytest = "^7.4"
 pytest-django = "^4.7"
 black = "^23.12"
 flake8 = "^7.0"
+ruff = "^0.3"
 ipython = "^8.20"
+
+[tool.ruff]
+line-length = 120
+exclude = ["migrations", "staticfiles"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I"]
+ignore = ["E501"]
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "config.settings.development"
+python_files = ["tests.py", "test_*.py", "*_tests.py"]
 
 [build-system]
 requires = ["poetry-core"]
