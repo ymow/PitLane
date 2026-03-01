@@ -152,13 +152,13 @@ Week 4 — 補強
 | Linear | Ticket | Priority | Note |
 |---|---|---|---|
 | DON-50 | D1 · zeabur.yaml 全棧定義 | P0 | 6 services，首次 debug 預留 3-4h |
-| DON-51 | D2 · Production Django Settings | P0 | 含 DON-68 Sentry 一起做 |
+| DON-51 | D2 · Production Django Settings | P0 | 含 Sentry init + TRANSLATION_DAILY_LIMIT circuit breaker，估 2h |
 | DON-52 | D3 · Backend Dockerfile 確認 | P0 | 3 entrypoints: API / Worker / Beat |
 | DON-53 | D4 · DB Migration on Deploy | P0 | preDeployCommand |
 | DON-54 | D5 · Frontend Dockerfile 確認 | P0 | Vike SSR production |
 | DON-55 | D6 · Health Check `/health/` | P0 | Zeabur liveness probe |
 | DON-67 | D7 · CI/CD GitHub Actions | P1 | manage.py check + pytest + ruff |
-| DON-68 | D8 · Sentry error tracking | P1 | 含在 D2，SENTRY_DSN env var |
+| ~~DON-68~~ | ~~D8 · Sentry~~ | — | **併入 DON-51**，`sentry_sdk.init()` 在 production.py，無需獨立 ticket |
 
 ### Phase 2 — Graph & Abstraction
 Transform the database from flat tables to a living entity graph.
