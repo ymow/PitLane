@@ -1,6 +1,6 @@
 # PitLane: Universal Domain Intelligence Engine — Master Spec
 
-**Last Updated:** 2026-02-22
+**Last Updated:** 2026-03-01
 
 ---
 
@@ -55,17 +55,65 @@ The system is not a news site; it **reconstructs the race in the database**. Whe
 ### Phase 1 — Repair & Stabilize (F1 2026 Pilot) ← **Current**
 Get the system "alive" and validated with real F1 2026 data.
 
-| # | Spec | Status | Description |
+| # | Linear | Spec | Status | Description |
+|---|---|---|---|---|
+| PL-003 | — | 2026 Schema Sync | **Done** | Audi/Sauber rebrand, 20-driver grid, contract management |
+| PL-006 | — | Open Live Data | **Done** | OpenF1 telemetry integration |
+| PL-010 | — | Paddock Social Registry | **Done** | 2000+ social handles for drivers, staff, teams |
+| PL-019 | — | CRUD Management | **Done** | Teams, Drivers, Staff write API + Django Admin |
+| — | — | News Pipeline Infra | **Done** | DB-driven sources, ingestion_status state machine, health tracking, SimHash corpus |
+| — | — | Frontend Design System | **Done** | Tailwind v4 tokens, ArticleCard, CategoryPills, ArticleDetail page, Home page |
+| #023 | — | zh-TW / zh-CN / ko Source Gap | Open | No active RSS found; zh-TW is zero-coverage |
+| #024 | — | `de` Translation Parse Error | Open | Claude response occasionally returns malformed JSON for German |
+| #027 | — | Celery Process Supervisor | Open | Worker + Beat require manual start; no systemd/supervisor config |
+
+#### Phase 1.5 — Pipeline Hardening (Linear: DON-36–DON-40, DON-62–DON-63)
+
+| Linear | Ticket | Priority | Description |
 |---|---|---|---|
-| PL-003 | 2026 Schema Sync | **Done** | Audi/Sauber rebrand, 20-driver grid, contract management |
-| PL-006 | Open Live Data | **Done** | OpenF1 telemetry integration |
-| PL-010 | Paddock Social Registry | **Done** | 2000+ social handles for drivers, staff, teams |
-| PL-019 | CRUD Management | **Done** | Teams, Drivers, Staff write API + Django Admin |
-| — | News Pipeline | **Done** | 22 RSS sources (en×6, de×2, it×2, es×2, pt-BR×2, nl×2, fr×2, ja×1, tr×2, pl×1), 12-language AI translation |
-| — | Frontend Design System | Active | Tailwind v4 tokens, ArticleCard, CategoryPills |
-| #023 | zh-TW / zh-CN / ko Source Gap | Open | No active RSS found after deep search; zh-TW is zero-coverage |
-| #024 | `de` Translation Parse Error | Open | Claude response occasionally returns malformed JSON for German |
-| #027 | Celery Process Supervisor | Open | Worker + Beat require manual start; no systemd/supervisor config |
+| DON-36 | A1 · probe_unhealthy_sources | P0 | Source auto-recovery probe every 6h |
+| DON-37 | A2 · Quality gate priority bypass | P0 | HIGH/CRITICAL articles skip LOW_QUALITY early exit |
+| DON-38 | A3 · fetch_interval 死欄位標記 | P1 | Mark as readonly in admin, add help_text |
+| DON-39 | A4 · Article Cursor Pagination | P1 | CursorPagination on main articles list |
+| DON-40 | A5 · API Rate Limiting | P1 | AnonRateThrottle 60/min on public endpoints |
+| DON-62 | G1 · NewsCategory seed 確認 | P0 | Ensure categories exist for CategoryPills |
+| DON-63 | G3 · Article source label 確認 | P1 | Verify source.name + original_url in article detail |
+
+#### Phase 1.6 — Frontend MVP (Linear: DON-41–DON-45, DON-59–DON-61)
+
+| Linear | Ticket | Priority | Description |
+|---|---|---|---|
+| DON-41 | B1 · 語言切換器 | P0 | LanguageContext + header dropdown, 12 languages |
+| DON-42 | B2 · /news 列表頁 + 分頁 | P0 | Standalone paginated news page with CategoryPills |
+| DON-43 | B3 · 文章詳情頁補強 | P0 | Related articles, author display, lang-aware refetch |
+| DON-44 | B4 · Search 接通 | P1 | Wire header search to /api/v1/search/ |
+| DON-45 | B5 · SEO Meta Tags | P1 | og:title / og:image / canonical per article |
+| DON-59 | F1 · Cadillac 合約完整性 | P0 | Verify 11 teams × 2 = 22 RACE contracts |
+| DON-60 | F2 · car_number + team_color 確認 | P0 | Verify driver card displays correct data |
+| DON-61 | F3 · 車手詳情頁 /drivers/{slug} | P2 | Driver detail page with news + contract info |
+
+#### Phase 1.7 — Race Calendar & Telemetry (Linear: DON-46–DON-48, DON-56–DON-58)
+
+| Linear | Ticket | Priority | Description |
+|---|---|---|---|
+| DON-56 | E1 · 切換 Jolpica API | P0 | Replace defunct Ergast with Jolpica (compatible format) |
+| DON-57 | E2 · Seed 2026 賽程 24 站 | P0 | Seed all 24 races into local Race model |
+| DON-58 | E3 · Calendar 頁切換本地 DB | P1 | Remove external API dependency for race calendar |
+| DON-46 | C1 · Seed OpenF1 Session Keys | P0 | Populate Session.openf1_session_key for 2026 |
+| DON-47 | C2 · LiveRaceWidget 接通 | P0 | Wire home page live banner to OpenF1 |
+| DON-48 | C3 · Celery poll_live_session | P1 | Periodic session status sync task |
+| DON-49 | C4–C7 · WebSocket 串流 | P3 | Full real-time telemetry (Phase 3 scope) |
+
+#### Phase 1.8 — Zeabur Deploy (Linear: DON-50–DON-55)
+
+| Linear | Ticket | Priority | Description |
+|---|---|---|---|
+| DON-50 | D1 · zeabur.yaml 全棧定義 | P0 | 6 services: PostgreSQL, Redis, API, Worker, Beat, Frontend |
+| DON-51 | D2 · Production Django Settings | P0 | DEBUG=False, env-driven, WhiteNoise static files |
+| DON-52 | D3 · Backend Dockerfile 確認 | P0 | 3 entrypoints: API / Worker / Beat |
+| DON-53 | D4 · DB Migration on Deploy | P0 | Auto-run migrate on deploy |
+| DON-54 | D5 · Frontend Dockerfile 確認 | P0 | Vike SSR production build |
+| DON-55 | D6 · Health Check `/health/` | P0 | Liveness probe for Zeabur |
 
 ### Phase 2 — Graph & Abstraction
 Transform the database from flat tables to a living entity graph.
@@ -90,6 +138,8 @@ Connect the engine to the full information universe.
 | Issue #021 | Live Race State Machine | WebSocket/SSE high-concurrency backend, <1s latency |
 | Issue #022 | Data-Content Correlation | Anomaly detection → auto gossip search → draft incident report |
 | PL-028 | CLI Translation Command | Zero-API-cost Claude Code subprocess translation |
+| Issue #031 | Article Full-Text Search Index | Postgres FTS + pgvector on article corpus; keyword + semantic search across all ingested content |
+| Issue #032 | Domain-Pluggable Processing Adapters | Entity extractor / categorizer / translation terminology as injected adapters; domain config drives which adapter loads |
 
 ### Phase 4 — Template & Expand
 Package F1 as a reusable template; validate on a second domain.
@@ -99,6 +149,7 @@ Package F1 as a reusable template; validate on a second domain.
 | Issue #019 | Domain Template Configuration (YAML-driven domain switching) |
 | Issue #020 | Agent Skill Interface (pluggable `Input → Process → Output` skills) |
 | Issue #013 | Cross-Series Knowledge Engine (SeriesConfiguration for MotoGP, etc.) |
+| Issue #033 | YAML Domain Config — f1_domain.yaml → motogp_domain.yaml: sources, entity_types, categories, terminology |
 | — | Second domain pilot: MotoGP or Cinema |
 
 ---
@@ -137,6 +188,14 @@ Package F1 as a reusable template; validate on a second domain.
 | #023 | zh-TW / zh-CN / ko RSS gap — no active feed found | 1 | Open |
 | #024 | `de` translation JSON parse error — intermittent Claude response malformed | 1 | Open |
 
+### 🟠 High (Phase 2 — Infrastructure)
+
+| Issue | Title | Phase | Status |
+|---|---|---|---|
+| #028 | DB-Driven RSS Source Registry — sources as DB rows; add/remove without code deploy; admin UI | 2 | Planned |
+| #029 | Source Health Monitor — track `last_fetched_at`, `error_count`, `is_healthy`; dead feed alerting; auto-pause broken sources | 2 | Planned |
+| #030 | Dynamic Celery Beat from DB — replace hardcoded beat_schedule slugs with DB query; `fetch_interval` per source row drives scheduling | 2 | Planned |
+
 ### 🟡 Medium / Low
 
 | Issue | Title | Phase |
@@ -146,6 +205,9 @@ Package F1 as a reusable template; validate on a second domain.
 | #025 | racefans RSS teaser-only — 9.3 avg quality, never reaches translation gate | 1 |
 | #026 | spaCy NER deferred to Phase 3 — Regex keyword match is Phase 1 approach | 3 |
 | #027 | Celery worker / Beat require manual startup — no process supervisor configured | 1 |
+| #031 | Article Full-Text Search Index (Postgres FTS + pgvector) | 3 |
+| #032 | Domain-Pluggable Processing Adapters (entity / category / terminology) | 3 |
+| #033 | YAML Domain Config for cross-domain template switching | 4 |
 
 ---
 
