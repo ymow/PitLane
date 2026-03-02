@@ -4,11 +4,10 @@ import { useCategories } from '../lib/hooks';
 interface CategoryPillsProps {
     selected: string | null;
     onSelect: (slug: string | null) => void;
-    lang?: string;
 }
 
-export function CategoryPills({ selected, onSelect, lang = 'zh-TW' }: CategoryPillsProps) {
-    const { data, loading } = useCategories(lang);
+export function CategoryPills({ selected, onSelect }: CategoryPillsProps) {
+    const { data, loading } = useCategories();
     const categories = data?.results || data || [];
 
     return (

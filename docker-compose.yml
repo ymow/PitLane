@@ -59,7 +59,7 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    command: celery -A apps.workers.celery worker --loglevel=info
+    command: celery -A apps.workers.celery worker --loglevel=info -Q fetch,translate,process,celery
     volumes:
       - ./backend:/app
     environment:
@@ -81,7 +81,7 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    command: celery -A apps.workers.celery beat --loglevel=info
+    command: celery -A apps.workers.celery beat --loglevel=info --scheduler django_celery_beat.schedulers:DatabaseScheduler
     volumes:
       - ./backend:/app
     environment:

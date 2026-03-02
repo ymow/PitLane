@@ -4,7 +4,8 @@ Idempotent management command: sync 2026 F1 grid data.
 What it does
 ------------
 1. Rename Kick Sauber → Audi F1 Team (SAU → AUD, new color, country).
-2. Create/update RACE DriverContract rows for all 20 2026 race drivers,
+2. Ensure Cadillac F1 Team (CAD) exists.
+3. Create/update RACE DriverContract rows for all 22 2026 race drivers,
    linked to the correct team via DriverContract.driver FK and season FK.
 
 Usage
@@ -29,15 +30,16 @@ RACE_GRID_2026 = [
     ("ALO", "AMR"),
     ("STR", "AMR"),
     ("GAS", "ALP"),
-    ("DOO", "ALP"),
     ("ALB", "WIL"),
     ("SAI", "WIL"),
     ("TSU", "RBT"),
     ("HAD", "RBT"),
-    ("BEA", "HAA"),
     ("OCO", "HAA"),
     ("HUL", "AUD"),
     ("BOR", "AUD"),
+    # Cadillac F1 Team — 11th constructor (DON-59)
+    ("BEA", "CAD"),
+    ("DOO", "CAD"),
 ]
 
 SEASON_YEAR = 2026
@@ -45,7 +47,7 @@ VALID_FROM   = date(2026, 1, 1)
 
 
 class Command(BaseCommand):
-    help = "Sync 2026 F1 grid: Audi rebrand + 20 RACE DriverContract rows"
+    help = "Sync 2026 F1 grid: Audi rebrand + Cadillac F1 Team + 22 RACE DriverContract rows"
 
     def add_arguments(self, parser):
         parser.add_argument(
@@ -86,8 +88,26 @@ class Command(BaseCommand):
                 ))
                 return
 
-        # ── Step 2: Season ───────────────────────────────────────────────────
-        self.stdout.write(self.style.MIGRATE_HEADING("Step 2 — Season"))
+        # ── Step 2: Cadillac F1 Team ─────────────────────────────────────────
+        self.stdout.write(self.style.MIGRATE_HEADING("Step 2 — Cadillac F1 Team"))
+        if dry_run:
+            self.stdout.write("  [DRY-RUN] Would get_or_create Team(code=CAD, Cadillac F1 Team)")
+        else:
+            cadillac, created = Team.objects.get_or_create(
+                code="CAD",
+                defaults={
+                    "base_name": "Cadillac F1 Team",
+                    "country": "United States",
+                    "founded_year": 2026,
+                    "primary_color": "#041E42",
+                    "is_active": True,
+                },
+            )
+            label = "created" if created else "exists"
+            self.stdout.write(self.style.SUCCESS(f"  ✓ Cadillac F1 Team (CAD) — {label}"))
+
+        # ── Step 3: Season ───────────────────────────────────────────────────
+        self.stdout.write(self.style.MIGRATE_HEADING("Step 3 — Season"))
         if dry_run:
             self.stdout.write(f"  [DRY-RUN] Would get_or_create Season(year={SEASON_YEAR})")
             season = None
@@ -99,8 +119,8 @@ class Command(BaseCommand):
             label = "created" if created else "exists"
             self.stdout.write(self.style.SUCCESS(f"  ✓ Season {SEASON_YEAR} ({label})"))
 
-        # ── Step 3: RACE contracts ───────────────────────────────────────────
-        self.stdout.write(self.style.MIGRATE_HEADING("Step 3 — RACE DriverContracts"))
+        # ── Step 4: RACE contracts ───────────────────────────────────────────
+        self.stdout.write(self.style.MIGRATE_HEADING("Step 4 — RACE DriverContracts"))
         created_count = updated_count = skipped_count = 0
 
         for driver_code, team_code in RACE_GRID_2026:
@@ -122,6 +142,14 @@ class Command(BaseCommand):
                         self.stderr.write(f"  Team not found: {team_code} — skipping {driver_code}")
                         skipped_count += 1
                         continue
+                elif dry_run and team_code == "CAD":
+                    # CAD created in Step 2 (dry-run skipped) — show preview anyway
+                    self.stdout.write(
+                        f"  [DRY-RUN] {driver_code:4} → Cadillac F1 Team (CAD) [RACE]"
+                        " — CAD will be created by Step 2"
+                    )
+                    created_count += 1
+                    continue
                 else:
                     self.stderr.write(f"  Team not found: {team_code} — skipping {driver_code}")
                     skipped_count += 1

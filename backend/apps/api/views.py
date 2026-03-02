@@ -23,6 +23,7 @@ from .serializers import (
     ContractReadSerializer, ContractWriteSerializer,
 )
 from .services import ergast_service, racing_service
+from .pagination import ArticleCursorPagination
 
 
 def _write_permissions(action):
@@ -34,6 +35,7 @@ def _write_permissions(action):
 class ArticleViewSet(viewsets.ReadOnlyModelViewSet):
     """ViewSet for Article listing and detail."""
     lookup_field = 'slug'
+    pagination_class = ArticleCursorPagination
 
     def get_queryset(self):
         lang = self.request.query_params.get('lang', 'zh-TW')
@@ -114,7 +116,10 @@ class ArticleViewSet(viewsets.ReadOnlyModelViewSet):
     def breaking(self, request):
         """Get breaking news articles."""
         lang = request.query_params.get('lang', 'en')
-        limit = min(int(request.query_params.get('limit', 5)), 10)
+        try:
+            limit = min(int(request.query_params.get('limit', 5)), 10)
+        except (ValueError, TypeError):
+            limit = 5
 
         # Try cache first
         cache_key = f'breaking:news:{lang}'
@@ -139,7 +144,10 @@ class ArticleViewSet(viewsets.ReadOnlyModelViewSet):
     def related(self, request, slug=None):
         """Get related articles."""
         lang = request.query_params.get('lang', 'en')
-        limit = min(int(request.query_params.get('limit', 5)), 10)
+        try:
+            limit = min(int(request.query_params.get('limit', 5)), 10)
+        except (ValueError, TypeError):
+            limit = 5
 
         article = self.get_object()
 
@@ -340,7 +348,7 @@ class I18nView(APIView):
         for key in keys:
             try:
                 translations[key] = i18n.t(key)
-            except:
+            except Exception:
                 translations[key] = key  # Fallback to key itself
 
         result = {
@@ -360,7 +368,10 @@ class SearchView(APIView):
     def get(self, request):
         query = request.query_params.get('q', '').strip()
         lang = request.query_params.get('lang', 'en')
-        limit = min(int(request.query_params.get('limit', 20)), 50)
+        try:
+            limit = min(int(request.query_params.get('limit', 20)), 50)
+        except (ValueError, TypeError):
+            limit = 20
 
         if len(query) < 2:
             return Response(
@@ -407,19 +418,23 @@ class F1StandingsAPIView(APIView):
 
 class F1RaceScheduleAPIView(APIView):
     """Get F1 race schedule."""
-    
+
     def get(self, request):
-        """Get race schedule for current season."""
-        year = request.query_params.get('year')
-        
+        """Get race schedule — prefers local DB, falls back to Jolpica for past seasons."""
+        year_param = request.query_params.get('year')
         try:
-            schedule = ergast_service.get_race_schedule(year)
-            
-            # Use service to enrich with local session data (OpenF1 keys)
-            enriched_schedule = [racing_service.enrich_race_with_telemetry(race) for race in schedule]
-            
+            target_year = int(year_param) if year_param else 2026
+            if Race.objects.filter(season__year=target_year).exists():
+                schedule = racing_service.get_local_schedule(target_year)
+            else:
+                schedule = ergast_service.get_race_schedule(year_param)
+                schedule = [racing_service.enrich_race_with_telemetry(r) for r in schedule]
+                return Response({'races': schedule})
+
+            enriched_schedule = [racing_service.enrich_race_with_telemetry(r) for r in schedule]
             return Response({'races': enriched_schedule})
         except Exception as e:
+            logger.error(f"F1RaceScheduleAPIView error: {e}")
             return Response(
                 {'error': 'Failed to fetch race schedule'},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
@@ -542,20 +557,7 @@ class F1LiveDataAPIView(APIView):
             local_races = Race.objects.filter(season__year=current_year).order_by('round_number')
             
             if local_races.exists():
-                schedule = []
-                for race in local_races:
-                    schedule.append({
-                        'round': race.round_number,
-                        'name': race.official_name,
-                        'date': race.race_date.strftime('%Y-%m-%d'),
-                        'time': '13:00:00Z', # Placeholder for seeded races
-                        'circuit': {
-                            'id': race.circuit.code,
-                            'name': race.circuit.name,
-                            'location': f"{race.circuit.country}",
-                            'coordinates': {'lat': 0, 'lng': 0}
-                        }
-                    })
+                schedule = racing_service.get_local_schedule(current_year)
             else:
                 # Fallback to external service
                 schedule = ergast_service.get_race_schedule()

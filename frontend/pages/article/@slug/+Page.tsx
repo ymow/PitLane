@@ -67,7 +67,7 @@ export default function Page() {
                                 />
 
                                 {/* Article Meta */}
-                                <div className="relative flex flex-row items-center justify-between overflow-hidden bg-gray-100 mt-12 mb-2 px-6 py-2">
+                                <div className="relative flex flex-wrap items-center justify-between overflow-hidden bg-gray-100 mt-12 mb-2 px-6 py-2">
                                     <div className="my-4 text-sm">
                                         {/* Author */}
                                         {article.source && (
@@ -90,16 +90,18 @@ export default function Page() {
                                     </div>
 
                                     {/* Original Link */}
-                                    <div className="hidden lg:block">
-                                        <a 
-                                            href={article.original_url} 
-                                            target="_blank" 
-                                            rel="noopener noreferrer"
-                                            className="text-red-600 hover:text-red-800 text-sm font-bold"
-                                        >
-                                            VIEW ORIGINAL →
-                                        </a>
-                                    </div>
+                                    {article.original_url && (
+                                        <div className="my-2">
+                                            <a
+                                                href={article.original_url}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="text-red-600 hover:text-red-800 text-sm font-bold"
+                                            >
+                                                VIEW ORIGINAL →
+                                            </a>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         </div>

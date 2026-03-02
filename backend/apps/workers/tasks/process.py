@@ -56,7 +56,8 @@ def process_article(article_id: str):
         article.quality_score = score
 
         # Early exit for low quality articles — store but don't process further
-        if score < 30:
+        # DON-37: HIGH/CRITICAL priority articles bypass the quality gate
+        if score < 30 and article.priority not in ('HIGH', 'CRITICAL'):
             article.ingestion_status = IngestionStatus.LOW_QUALITY
             article.is_published = False
             article.save(update_fields=['original_body', 'quality_score', 'ingestion_status', 'is_published'])
@@ -175,7 +176,7 @@ def process_article(article_id: str):
                             except Exception as te:
                                 logger.error(f"Sync translation failed for {lang}: {te}")
                 except Exception as loop_e:
-                     logger.error(f"Sync translation loop failed: {loop_e}")
+                    logger.error(f"Sync translation loop failed: {loop_e}")
         else:
             logger.info(f"Skipping translation for low quality article {article_id} (Score: {score})")
 

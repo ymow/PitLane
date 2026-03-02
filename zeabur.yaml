@@ -1,0 +1,102 @@
+apiVersion: zeabur.com/v1
+kind: ZeaburStackConfig
+metadata:
+  name: pitlane
+  description: F1 Universal Domain Intelligence Engine
+
+spec:
+  services:
+    # ── Managed infrastructure ─────────────────────────────────────────────────
+
+    - name: pitlane-db
+      template: POSTGRESQL
+      spec:
+        source:
+          endpointKey: POSTGRESQL_CONNECTION_URI
+
+    - name: pitlane-redis
+      template: REDIS
+      spec:
+        source:
+          endpointKey: REDIS_URI
+
+    # ── Backend: API ────────────────────────────────────────────────────────────
+    # Runs migrations on deploy (entrypoint.sh gates on PROCESS_TYPE=gunicorn).
+
+    - name: pitlane-api
+      template: DOCKERFILE
+      domainKey: API_DOMAIN
+      spec:
+        source:
+          rootPath: /backend
+        build:
+          dockerfile: Dockerfile
+        deployment:
+          startCommand: gunicorn config.wsgi:application --bind 0.0.0.0:8000 --workers 4
+          envs:
+            - key: DJANGO_SETTINGS_MODULE
+              value: config.settings.production
+            - key: PROCESS_TYPE
+              value: gunicorn
+          healthCheck:
+            path: /health/
+            port: 8000
+
+    # ── Backend: Celery Worker ──────────────────────────────────────────────────
+    # Processes all task queues: fetch, translate, process, celery (default).
+    # Skip migrations (no PROCESS_TYPE=gunicorn → entrypoint.sh bypasses migrate).
+
+    - name: pitlane-worker
+      template: DOCKERFILE
+      spec:
+        source:
+          rootPath: /backend
+        build:
+          dockerfile: Dockerfile
+        deployment:
+          startCommand: celery -A apps.workers.celery worker --loglevel=info -Q fetch,translate,process,celery
+          envs:
+            - key: DJANGO_SETTINGS_MODULE
+              value: config.settings.production
+
+    # ── Backend: Celery Beat ────────────────────────────────────────────────────
+    # Periodic task scheduler. ONLY ONE instance must run at a time.
+    # Uses DatabaseScheduler so schedules can be managed via Django admin.
+
+    - name: pitlane-beat
+      template: DOCKERFILE
+      spec:
+        source:
+          rootPath: /backend
+        build:
+          dockerfile: Dockerfile
+        deployment:
+          startCommand: celery -A apps.workers.celery beat --loglevel=info --scheduler django_celery_beat.schedulers:DatabaseScheduler
+          envs:
+            - key: DJANGO_SETTINGS_MODULE
+              value: config.settings.production
+
+    # ── Frontend ────────────────────────────────────────────────────────────────
+
+    - name: pitlane-frontend
+      template: DOCKERFILE
+      domainKey: FRONTEND_DOMAIN
+      spec:
+        source:
+          rootPath: /frontend
+        build:
+          dockerfile: Dockerfile
+        deployment:
+          envs:
+            - key: VITE_API_URL
+              value: https://${API_DOMAIN}/api/v1
+
+  # ── Required env vars (set in Zeabur dashboard per service) ──────────────────
+  # pitlane-api / pitlane-worker / pitlane-beat all need:
+  #   SECRET_KEY            Django secret key
+  #   DB_HOST / DB_PORT / DB_NAME / DB_USER / DB_PASSWORD
+  #   REDIS_URL             e.g. redis://<host>:6379/0
+  #   ANTHROPIC_API_KEY     Claude API key
+  #   ALLOWED_HOSTS         comma-separated domains
+  #   CORS_ALLOWED_ORIGINS  comma-separated origins
+  #   SENTRY_DSN            (optional) error tracking

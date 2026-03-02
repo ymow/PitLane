@@ -1,5 +1,76 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import '../styles/index.css';
+import { LanguageProvider, useLanguage, SUPPORTED_LANGUAGES } from '../lib/LanguageContext';
+
+function LanguageDropdown() {
+    const { lang, setLang } = useLanguage();
+    const [open, setOpen] = useState(false);
+    const ref = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        if (!open) return;
+        const handler = (e: MouseEvent) => {
+            if (ref.current && !ref.current.contains(e.target as Node)) {
+                setOpen(false);
+            }
+        };
+        document.addEventListener('mousedown', handler);
+        return () => document.removeEventListener('mousedown', handler);
+    }, [open]);
+
+    return (
+        <div ref={ref} className="relative border-l border-gray-800 hover:bg-gray-900 hidden lg:flex items-center">
+            <button
+                className="flex items-center gap-1 py-3 px-4 border-b-2 border-transparent text-xs font-bold text-gray-300"
+                onClick={() => setOpen(!open)}
+                aria-label="Select language"
+            >
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm7.5-6.923c-.67.204-1.335.82-1.887 1.855A7.97 7.97 0 0 0 5.145 4H7.5V1.077zM4.09 4a9.267 9.267 0 0 1 .64-1.539 6.7 6.7 0 0 1 .597-.933A7.025 7.025 0 0 0 2.255 4H4.09zm-.582 3.5c.03-.877.138-1.718.312-2.5H1.674a6.958 6.958 0 0 0-.656 2.5h2.49zM4.847 5a12.5 12.5 0 0 0-.338 2.5H7.5V5H4.847zM8.5 5v2.5h2.99a12.495 12.495 0 0 0-.337-2.5H8.5zM4.51 8.5a12.5 12.5 0 0 0 .337 2.5H7.5V8.5H4.51zm3.99 0V11h2.653c.187-.765.306-1.608.338-2.5H8.5zM5.145 12c.138.386.295.744.468 1.068.552 1.035 1.218 1.65 1.887 1.855V12H5.145zm.182 2.472a6.696 6.696 0 0 1-.597-.933A9.268 9.268 0 0 1 4.09 12H2.255a7.024 7.024 0 0 0 3.072 2.472zM3.82 11a13.652 13.652 0 0 1-.312-2.5h-2.49c.062.89.291 1.733.656 2.5H3.82zm6.853 3.472A7.024 7.024 0 0 0 13.745 12H11.91a9.27 9.27 0 0 1-.64 1.539 6.688 6.688 0 0 1-.597.933zM8.5 12v2.923c.67-.204 1.335-.82 1.887-1.855.173-.324.33-.682.468-1.068H8.5zm3.68-1h2.146c.365-.767.594-1.61.656-2.5h-2.49a13.65 13.65 0 0 1-.312 2.5zm2.802-3.5a6.959 6.959 0 0 0-.656-2.5H12.18c.174.782.282 1.623.312 2.5h2.49zM11.27 2.461c.247.464.462.98.64 1.539h1.835a7.024 7.024 0 0 0-3.072-2.472c.218.284.418.598.597.933zM10.855 4a7.966 7.966 0 0 0-.468-1.068C9.835 1.897 9.17 1.282 8.5 1.077V4h2.355z"/>
+                </svg>
+                {lang}
+            </button>
+            {open && (
+                <div className="absolute right-0 top-full z-50 bg-white text-gray-700 border border-gray-100 mt-1 shadow-lg py-1" style={{ minWidth: '10rem' }}>
+                    {SUPPORTED_LANGUAGES.map(l => (
+                        <button
+                            key={l.code}
+                            onClick={() => { setLang(l.code); setOpen(false); }}
+                            className={`block w-full text-left px-4 py-2 text-sm hover:bg-gray-50 transition-colors ${lang === l.code ? 'font-bold text-f1-red' : ''}`}
+                        >
+                            {l.label}
+                        </button>
+                    ))}
+                </div>
+            )}
+        </div>
+    );
+}
+
+function MobileLangSelector() {
+    const { lang, setLang } = useLanguage();
+
+    return (
+        <div className="px-5 py-3 border-b border-gray-100">
+            <p className="text-xs text-gray-400 mb-2 uppercase font-bold tracking-wide">Language</p>
+            <div className="flex flex-wrap gap-1">
+                {SUPPORTED_LANGUAGES.map(l => (
+                    <button
+                        key={l.code}
+                        onClick={() => setLang(l.code)}
+                        className={`px-2 py-1 text-xs rounded border transition-colors ${
+                            lang === l.code
+                                ? 'border-f1-red text-f1-red font-bold bg-red-50'
+                                : 'border-gray-200 text-gray-500 hover:border-gray-400'
+                        }`}
+                    >
+                        {l.code}
+                    </button>
+                ))}
+            </div>
+        </div>
+    );
+}
 
 export default function Layout({ children }: { children: React.ReactNode }) {
     const [currentPath, setCurrentPath] = useState('');
@@ -50,6 +121,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     const toggleSearch = () => setSearchOpen(!searchOpen);
 
     return (
+        <LanguageProvider>
         <div className="text-gray-700 pt-9 sm:pt-10">
             {/* ========== HEADER ========== */}
             <header className="fixed top-0 left-0 right-0 z-50">
@@ -113,6 +185,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                                         </div>
                                     </div>
 
+                                    {/* Language Dropdown (desktop) */}
+                                    <LanguageDropdown />
+
                                     {/* Mobile Menu Button */}
                                     <div className="relative hover:bg-gray-800 block lg:hidden">
                                         <button
@@ -167,6 +242,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                             </ul>
                         </nav>
                     </div>
+                    {/* Language Selector (mobile) */}
+                    <MobileLangSelector />
                     {/* Copyright */}
                     <div className="py-4 px-6 text-sm mt-6 text-center">
                         <p>Copyright <a href="/" className="text-f1-red">PitLane</a> - All rights reserved</p>
@@ -275,5 +352,6 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 </div>
             </footer>
         </div>
+        </LanguageProvider>
     );
 }

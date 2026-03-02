@@ -23,6 +23,7 @@ class Command(BaseCommand):
             {"code": "RBT", "base_name": "Racing Bulls", "country": "Italy", "founded_year": 2024, "color": "#6692FF"},
             {"code": "HAA", "base_name": "MoneyGram Haas F1 Team", "country": "United States", "founded_year": 2016, "color": "#B6BABD"},
             {"code": "SAU", "base_name": "Kick Sauber", "country": "Switzerland", "founded_year": 1993, "color": "#52E252"},
+            {"code": "CAD", "base_name": "Cadillac F1 Team", "country": "United States", "founded_year": 2026, "color": "#041E42"},
         ]
 
         teams = {}
@@ -88,7 +89,6 @@ class Command(BaseCommand):
 
             # Alpine
             {"code": "GAS", "number": 10, "first_name": "Pierre", "last_name": "Gasly", "dob": "1996-02-07", "nationality": "French"},
-            {"code": "DOO", "number": 7, "first_name": "Jack", "last_name": "Doohan", "dob": "2003-01-20", "nationality": "Australian"},
 
             # Williams
             {"code": "ALB", "number": 23, "first_name": "Alexander", "last_name": "Albon", "dob": "1996-03-23", "nationality": "Thai"},
@@ -99,12 +99,15 @@ class Command(BaseCommand):
             {"code": "HAD", "number": 6, "first_name": "Isack", "last_name": "Hadjar", "dob": "2004-09-28", "nationality": "French"},
 
             # Haas
-            {"code": "BEA", "number": 50, "first_name": "Oliver", "last_name": "Bearman", "dob": "2005-05-08", "nationality": "British"},
             {"code": "OCO", "number": 31, "first_name": "Esteban", "last_name": "Ocon", "dob": "1996-09-17", "nationality": "French"},
 
             # Kick Sauber
             {"code": "HUL", "number": 27, "first_name": "Nico", "last_name": "Hülkenberg", "dob": "1987-08-19", "nationality": "German"},
             {"code": "BOR", "number": 5, "first_name": "Gabriel", "last_name": "Bortoleto", "dob": "2004-10-14", "nationality": "Brazilian"},
+
+            # Cadillac F1 Team
+            {"code": "BEA", "number": 50, "first_name": "Oliver", "last_name": "Bearman", "dob": "2005-05-08", "nationality": "British"},
+            {"code": "DOO", "number": 7, "first_name": "Jack", "last_name": "Doohan", "dob": "2003-01-20", "nationality": "Australian"},
         ]
 
         for driver_data in drivers_data:

@@ -275,7 +275,38 @@ class ErgastF1Service:
 
 class RacingService:
     """Service for internal racing data logic and OpenF1 integration."""
-    
+
+    @staticmethod
+    def get_local_schedule(year):
+        """Build schedule response from local Race DB (same shape as get_race_schedule)."""
+        from apps.racing.models import Race
+        races = Race.objects.filter(
+            season__year=year
+        ).select_related('circuit').order_by('round_number')
+
+        result = []
+        for race in races:
+            c = race.circuit
+            location = f"{c.city}, {c.country}" if c.city else c.country
+            lat = float(c.latitude) if c.latitude is not None else 0.0
+            lng = float(c.longitude) if c.longitude is not None else 0.0
+            result.append({
+                'round': race.round_number,
+                'name': race.official_name,
+                'date': race.race_date.strftime('%Y-%m-%d'),
+                'time': '13:00:00Z',
+                'circuit': {
+                    'id': c.code,
+                    'name': c.name,
+                    'location': location,
+                    'coordinates': {'lat': lat, 'lng': lng},
+                },
+                'url': '',
+                'status': race.status,
+                'is_sprint_weekend': race.is_sprint_weekend,
+            })
+        return result
+
     @staticmethod
     def get_session_info(year, round_number, session_type='RACE'):
         """Retrieve local session info including OpenF1 keys."""

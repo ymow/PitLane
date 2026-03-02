@@ -2,7 +2,7 @@ import React from 'react';
 import { useBreakingNews } from '../lib/hooks';
 
 export function BreakingNews() {
-  const { data, loading, error } = useBreakingNews(5, 'zh-TW');
+  const { data, loading, error } = useBreakingNews(5);
 
   if (loading) {
     return (

@@ -59,6 +59,12 @@ app.conf.beat_schedule = {
         'schedule': crontab(hour=3, minute=0),
         'args': (90,),  # Keep 90 days
     },
+
+    # C3: Poll OpenF1 for live session status — every minute
+    'poll-live-session': {
+        'task': 'apps.workers.tasks.telemetry.poll_live_session',
+        'schedule': crontab(minute='*'),
+    },
 }
 
 

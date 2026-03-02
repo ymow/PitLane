@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import axios from 'axios';
+import { useLanguage } from './LanguageContext';
 
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
 
@@ -106,7 +107,8 @@ export function useLiveRaceSession() {
   return { isLive, sessionType };
 }
 
-export function useBreakingNews(limit = 5, lang = "zh-TW") {
+export function useBreakingNews(limit = 5) {
+  const { lang } = useLanguage();
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<any>(null);
@@ -123,7 +125,7 @@ export function useBreakingNews(limit = 5, lang = "zh-TW") {
       }
     };
     fetchBreaking();
-  }, [limit]);
+  }, [limit, lang]);
 
   return { data, loading, error };
 }
@@ -150,7 +152,8 @@ export function useF1Standings() {
   return { data, loading, error };
 }
 
-export function useCategories(lang = "zh-TW") {
+export function useCategories() {
+  const { lang } = useLanguage();
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<any>(null);
@@ -240,7 +243,8 @@ export function useContracts(params: Record<string, string | number> = {}) {
   return { data, loading, error };
 }
 
-export function useArticle(slug: string, lang = "zh-TW") {
+export function useArticle(slug: string) {
+  const { lang } = useLanguage();
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<any>(null);

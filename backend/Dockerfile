@@ -6,9 +6,7 @@ WORKDIR /app
 RUN apt-get update && apt-get install -y \
     libpq-dev \
     gcc \
-    supervisor \
-    && rm -rf /var/lib/apt/lists/* \
-    && mkdir -p /var/log/supervisor
+    && rm -rf /var/lib/apt/lists/*
 
 # Install Poetry
 RUN pip install poetry
@@ -26,18 +24,16 @@ COPY . .
 # Make manage.py executable
 RUN chmod +x manage.py
 
-# Copy entrypoint and supervisor config
+# Copy entrypoint
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
-COPY supervisord.conf /etc/supervisor/conf.d/pitlane.conf
 
 # Expose port
 EXPOSE 8000
 
-# Default CMD: API server.
+# Default CMD: API server (gunicorn).
 # Override per Zeabur service:
-#   Worker:     celery -A apps.workers worker --loglevel=info -Q fetch,translate,process,celery
-#   Beat:       celery -A apps.workers beat --loglevel=info
-#   All-in-one: supervisord -c /etc/supervisor/conf.d/pitlane.conf
+#   Worker: celery -A apps.workers.celery worker --loglevel=info -Q fetch,translate,process,celery
+#   Beat:   celery -A apps.workers.celery beat --loglevel=info --scheduler django_celery_beat.schedulers:DatabaseScheduler
 ENTRYPOINT ["/entrypoint.sh"]
 CMD ["gunicorn", "config.wsgi:application", "--bind", "0.0.0.0:8000", "--workers", "4"]
