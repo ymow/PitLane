@@ -1,6 +1,6 @@
 # PitLane: Universal Domain Intelligence Engine — Master Spec
 
-**Last Updated:** 2026-03-01
+**Last Updated:** 2026-03-10
 
 ---
 
@@ -63,8 +63,8 @@ Get the system "alive" and validated with real F1 2026 data.
 | PL-019 | — | CRUD Management | **Done** | Teams, Drivers, Staff write API + Django Admin |
 | — | — | News Pipeline Infra | **Done** | DB-driven sources, ingestion_status state machine, health tracking, SimHash corpus |
 | — | — | Frontend Design System | **Done** | Tailwind v4 tokens, ArticleCard, CategoryPills, ArticleDetail page, Home page |
-| #023 | — | zh-TW / zh-CN / ko Source Gap | Open | No active RSS found; zh-TW is zero-coverage |
-| #024 | — | `de` Translation Parse Error | Open | Claude response occasionally returns malformed JSON for German |
+| #023 | DON-80 | zh-TW / zh-CN / ko Source Gap | **Todo** | No active RSS found; zh-TW is zero-coverage |
+| #024 | DON-81 | `de` Translation Parse Error | **Todo** | Claude response occasionally returns malformed JSON for German |
 | #027 | — | Celery Process Supervisor | Open | Worker + Beat require manual start; no systemd/supervisor config |
 
 #### Execution Order (4-week plan, revised 2026-03-01)
@@ -163,39 +163,43 @@ Week 4 — 補強
 ### Phase 2 — Graph & Abstraction
 Transform the database from flat tables to a living entity graph.
 
-| # | Spec | Description |
-|---|---|---|
-| PL-018 | Omni-Graph Entity Model | Replace hardcoded models with universal `Entity` + `Relationship` |
-| Issue #009 | Paddock Graph | Track mechanics, TPs, race engineers, physios, WAGs, journalists |
-| Issue #012 | Series & Role Mapping | One person → multiple roles (F2 driver + F1 reserve) |
-| Issue #016 | Temporal Causal Graph | `Event` nodes with `CAUSED_BY` edges (e.g., Honda exit → 2008 crisis) |
-| PL-027 | Temporal Infrastructure | `RaceTemplate` heritage + `IncidentVerdict` state machine |
+| # | Linear | Spec | Description |
+|---|---|---|---|
+| PL-018 | DON-82 | Omni-Graph Entity Model | Replace hardcoded models with universal `Entity` + `Relationship` |
+| Issue #009 | DON-83 | Paddock Graph | Track mechanics, TPs, race engineers, physios, WAGs, journalists |
+| Issue #012 | DON-84 | Series & Role Mapping | One person → multiple roles (F2 driver + F1 reserve) |
+| Issue #016 | DON-85 | Temporal Causal Graph | `Event` nodes with `CAUSED_BY` edges (e.g., Honda exit → 2008 crisis) |
+| PL-027 | DON-86 | Temporal Infrastructure | `RaceTemplate` heritage + `IncidentVerdict` state machine |
+| Issue #014 | DON-87 | Paddock Personnel Tracker | CMS dashboard tracking personnel movements |
+| Issue #028 | DON-88 | DB-Driven RSS Source Registry | Sources as DB rows; add/remove without code deploy |
+| Issue #029 | DON-89 | Source Health Monitor | Track `last_fetched_at`, `error_count`; dead feed alerting |
+| Issue #030 | DON-90 | Dynamic Celery Beat from DB | `fetch_interval` per source row drives scheduling |
 
 ### Phase 3 — Intelligence & Social
 Connect the engine to the full information universe.
 
-| # | Spec | Description |
-|---|---|---|
-| Issue #010 | Social Intelligence Ingestion | Twitter/X API, Instagram Graph API, Apify (Stories) |
-| Issue #011 | Gossip/Tech Classifier | AI reads tone + image context to classify paddock signals |
-| Issue #015 | Historical RAG | pgvector + F1 books + Wikipedia + regulations |
-| Issue #017 | Auto Feature Story Generator | Weekly LLM deep-dive from current news + history |
-| Issue #021 | Live Race State Machine | WebSocket/SSE high-concurrency backend, <1s latency |
-| Issue #022 | Data-Content Correlation | Anomaly detection → auto gossip search → draft incident report |
-| PL-028 | CLI Translation Command | Zero-API-cost Claude Code subprocess translation |
-| Issue #031 | Article Full-Text Search Index | Postgres FTS + pgvector on article corpus; keyword + semantic search across all ingested content |
-| Issue #032 | Domain-Pluggable Processing Adapters | Entity extractor / categorizer / translation terminology as injected adapters; domain config drives which adapter loads |
+| # | Linear | Spec | Description |
+|---|---|---|---|
+| Issue #010 | DON-91 | Social Intelligence Ingestion | Twitter/X API, Instagram Graph API, Apify (Stories) |
+| Issue #011 | DON-92 | Gossip/Tech Classifier | AI reads tone + image context to classify paddock signals |
+| Issue #015 | DON-93 | Historical RAG | pgvector + F1 books + Wikipedia + regulations |
+| Issue #017 | DON-94 | Auto Feature Story Generator | Weekly LLM deep-dive from current news + history |
+| Issue #021 | DON-95 | Live Race State Machine | WebSocket/SSE high-concurrency backend, <1s latency |
+| Issue #022 | DON-96 | Data-Content Correlation | Anomaly detection → auto gossip search → draft incident report |
+| PL-028 | DON-97 | CLI Translation Command | Zero-API-cost Claude Code subprocess translation |
+| Issue #031 | DON-98 | Article Full-Text Search Index | Postgres FTS + pgvector on article corpus; keyword + semantic search across all ingested content |
+| Issue #032 | DON-99 | Domain-Pluggable Processing Adapters | Entity extractor / categorizer / translation terminology as injected adapters; domain config drives which adapter loads |
 
 ### Phase 4 — Template & Expand
 Package F1 as a reusable template; validate on a second domain.
 
-| # | Description |
-|---|---|
-| Issue #019 | Domain Template Configuration (YAML-driven domain switching) |
-| Issue #020 | Agent Skill Interface (pluggable `Input → Process → Output` skills) |
-| Issue #013 | Cross-Series Knowledge Engine (SeriesConfiguration for MotoGP, etc.) |
-| Issue #033 | YAML Domain Config — f1_domain.yaml → motogp_domain.yaml: sources, entity_types, categories, terminology |
-| — | Second domain pilot: MotoGP or Cinema |
+| # | Linear | Description |
+|---|---|---|
+| Issue #019 | DON-100 | Domain Template Configuration (YAML-driven domain switching) |
+| Issue #020 | DON-101 | Agent Skill Interface (pluggable `Input → Process → Output` skills) |
+| Issue #013 | DON-102 | Cross-Series Knowledge Engine (SeriesConfiguration for MotoGP, etc.) |
+| Issue #033 | DON-103 | YAML Domain Config — f1_domain.yaml → motogp_domain.yaml: sources, entity_types, categories, terminology |
+| — | — | Second domain pilot: MotoGP or Cinema |
 
 ---
 
@@ -203,56 +207,56 @@ Package F1 as a reusable template; validate on a second domain.
 
 ### 🔴 Critical
 
-| Issue | Title | Phase | Status |
-|---|---|---|---|
-| #001 | Environment dependency breakage (spaCy, feedparser, django_extensions) | 1 | **Done** |
-| #006 | Live telemetry data sync broken for 2026 | 1 | **Done** |
-| #009 | Paddock People Graph (TP, RE, Mechanic, WAG, journalist models) | 2 | Planned |
-| #010 | Social media ingestion (Twitter/X, IG, Apify) | 3 |
-| #012 | Entity role hierarchy & series mapping | 2 |
-| #013 | Cross-series knowledge engine (SeriesConfiguration) | 4 |
-| #015 | Historical contextual knowledge base (RAG) | 3 |
-| #016 | Temporal causal graph (`Event` + `CAUSED_BY`) | 2 |
-| #018 | Entity system abstraction (universal `Entity`/`Relationship`) | 2 |
-| #019 | Domain template configuration (YAML) | 4 |
-| #021 | Live race state machine (WebSocket/SSE, <1s latency) | 3 |
-| #022 | Data-content correlation (anomaly → gossip → draft report) | 3 |
+| Issue | Linear | Title | Phase | Status |
+|---|---|---|---|---|
+| #001 | — | Environment dependency breakage (spaCy, feedparser, django_extensions) | 1 | **Done** |
+| #006 | — | Live telemetry data sync broken for 2026 | 1 | **Done** |
+| #009 | DON-83 | Paddock People Graph (TP, RE, Mechanic, WAG, journalist models) | 2 | Backlog |
+| #010 | DON-91 | Social media ingestion (Twitter/X, IG, Apify) | 3 | Backlog |
+| #012 | DON-84 | Entity role hierarchy & series mapping | 2 | Backlog |
+| #013 | DON-102 | Cross-series knowledge engine (SeriesConfiguration) | 4 | Backlog |
+| #015 | DON-93 | Historical contextual knowledge base (RAG) | 3 | Backlog |
+| #016 | DON-85 | Temporal causal graph (`Event` + `CAUSED_BY`) | 2 | Backlog |
+| #018 | DON-82 | Entity system abstraction (universal `Entity`/`Relationship`) | 2 | Backlog |
+| #019 | DON-100 | Domain template configuration (YAML) | 4 | Backlog |
+| #021 | DON-95 | Live race state machine (WebSocket/SSE, <1s latency) | 3 | Backlog |
+| #022 | DON-96 | Data-content correlation (anomaly → gossip → draft report) | 3 | Backlog |
 
 ### 🟠 High
 
-| Issue | Title | Phase | Status |
-|---|---|---|---|
-| #002 | Entity extractor offline — Regex fallback enabled | 1 | **Done** |
-| #004 | News pipeline stale — fixed and fetching | 1 | **Done** |
-| #007 | FastF1 post-race chart auto-generation failing | 1 | Planned |
-| #008 | Breaking news classifier latency on race weekends | 1 |
-| #011 | Gossip/Tech classifier (tone + image context) | 3 |
-| #014 | Paddock Personnel Tracker dashboard in CMS | 2 |
-| #017 | Auto feature story generator (weekly LLM deep-dive) | 3 |
-| #020 | Agent skill interface (pluggable skills) | 4 |
-| #023 | zh-TW / zh-CN / ko RSS gap — no active feed found | 1 | Open |
-| #024 | `de` translation JSON parse error — intermittent Claude response malformed | 1 | Open |
+| Issue | Linear | Title | Phase | Status |
+|---|---|---|---|---|
+| #002 | — | Entity extractor offline — Regex fallback enabled | 1 | **Done** |
+| #004 | — | News pipeline stale — fixed and fetching | 1 | **Done** |
+| #007 | DON-76 | FastF1 post-race chart auto-generation failing | 1 | Backlog |
+| #008 | DON-77 | Breaking news classifier latency on race weekends | 1 | Backlog |
+| #011 | DON-92 | Gossip/Tech classifier (tone + image context) | 3 | Backlog |
+| #014 | DON-87 | Paddock Personnel Tracker dashboard in CMS | 2 | Backlog |
+| #017 | DON-94 | Auto feature story generator (weekly LLM deep-dive) | 3 | Backlog |
+| #020 | DON-101 | Agent skill interface (pluggable skills) | 4 | Backlog |
+| #023 | DON-80 | zh-TW / zh-CN / ko RSS gap — no active feed found | 1 | **Todo** |
+| #024 | DON-81 | `de` translation JSON parse error — intermittent Claude response malformed | 1 | **Todo** |
 
 ### 🟠 High (Phase 2 — Infrastructure)
 
-| Issue | Title | Phase | Status |
-|---|---|---|---|
-| #028 | DB-Driven RSS Source Registry — sources as DB rows; add/remove without code deploy; admin UI | 2 | Planned |
-| #029 | Source Health Monitor — track `last_fetched_at`, `error_count`, `is_healthy`; dead feed alerting; auto-pause broken sources | 2 | Planned |
-| #030 | Dynamic Celery Beat from DB — replace hardcoded beat_schedule slugs with DB query; `fetch_interval` per source row drives scheduling | 2 | Planned |
+| Issue | Linear | Title | Phase | Status |
+|---|---|---|---|---|
+| #028 | DON-88 | DB-Driven RSS Source Registry — sources as DB rows; add/remove without code deploy; admin UI | 2 | Backlog |
+| #029 | DON-89 | Source Health Monitor — track `last_fetched_at`, `error_count`, `is_healthy`; dead feed alerting; auto-pause broken sources | 2 | Backlog |
+| #030 | DON-90 | Dynamic Celery Beat from DB — replace hardcoded beat_schedule slugs with DB query; `fetch_interval` per source row drives scheduling | 2 | Backlog |
 
 ### 🟡 Medium / Low
 
-| Issue | Title | Phase |
-|---|---|---|
-| ~~#003~~ | ~~2026 season data sync (Audi/Sauber, driver transfers)~~ — **Done** | 1 |
-| #005 | DB model field inconsistency (`original_title` vs `title`) | 1 |
-| #025 | racefans RSS teaser-only — 9.3 avg quality, never reaches translation gate | 1 |
-| #026 | spaCy NER deferred to Phase 3 — Regex keyword match is Phase 1 approach | 3 |
-| #027 | Celery worker / Beat require manual startup — no process supervisor configured | 1 |
-| #031 | Article Full-Text Search Index (Postgres FTS + pgvector) | 3 |
-| #032 | Domain-Pluggable Processing Adapters (entity / category / terminology) | 3 |
-| #033 | YAML Domain Config for cross-domain template switching | 4 |
+| Issue | Linear | Title | Phase | Status |
+|---|---|---|---|---|
+| ~~#003~~ | — | ~~2026 season data sync (Audi/Sauber, driver transfers)~~ — **Done** | 1 | **Done** |
+| #005 | — | DB model field inconsistency (`original_title` vs `title`) | 1 | Open |
+| #025 | DON-78 | racefans RSS teaser-only — 9.3 avg quality, never reaches translation gate | 1 | Backlog |
+| #026 | DON-79 | spaCy NER deferred to Phase 3 — Regex keyword match is Phase 1 approach | 3 | Backlog |
+| #027 | — | Celery worker / Beat require manual startup — no process supervisor configured | 1 | Open |
+| #031 | DON-98 | Article Full-Text Search Index (Postgres FTS + pgvector) | 3 | Backlog |
+| #032 | DON-99 | Domain-Pluggable Processing Adapters (entity / category / terminology) | 3 | Backlog |
+| #033 | DON-103 | YAML Domain Config for cross-domain template switching | 4 | Backlog |
 
 ---
 
