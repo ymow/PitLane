@@ -1,0 +1,82 @@
+# Sarment V1（SPEC §6.1 V1：可見 F2P + 迴歸測試）——PitLane 版。
+# 由 coordinator 以 GitHub App 的 workflow_dispatch 觸發；這個檔案與 .sarment/ 的核心永遠取自預設分支（§6.2.4）。
+# holdout 不在這裡跑（Actions 的 log 與 cache 會洩題）。
+name: sarment-v1
+
+on:
+  workflow_dispatch:
+    inputs:
+      head_sha:
+        description: 交付的 head commit（已由 coordinator 推到 sarment/wu/* 分支）
+        required: true
+      tests:
+        description: JSON list，相對 repo 根的 pytest 目標
+        required: true
+      pythonpath:
+        description: JSON list，加進 PYTHONPATH 的相對目錄
+        required: false
+        default: "[]"
+      workdir:
+        description: pytest 從哪個子目錄啟動（PitLane：backend）
+        required: false
+        default: "backend"
+      delivery_id:
+        description: 只用於 run 名稱與 artifact 命名
+        required: true
+
+run-name: "sarment-v1 ${{ inputs.delivery_id }} @ ${{ inputs.head_sha }}"
+
+permissions:
+  contents: read
+
+jobs:
+  v1:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.head_sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: install verification core (from default branch, not from the delivery)
+        run: |
+          git fetch --depth=1 origin "+refs/heads/${{ github.event.repository.default_branch }}:refs/remotes/origin/${{ github.event.repository.default_branch }}"
+          git worktree add --detach /tmp/core "origin/${{ github.event.repository.default_branch }}"
+          pip install -q pytest==8.4.1 pytest-django==4.9.0 /tmp/core/.sarment/sarment_verify-*.whl
+      - name: install project dependencies (poetry, from the delivery's pyproject)
+        working-directory: backend
+        run: |
+          pip install -q poetry
+          poetry config virtualenvs.create false
+          poetry install --with dev --no-root --no-interaction --no-ansi -q
+      - name: run V1
+        env:
+          TESTS: ${{ inputs.tests }}
+          PYTHONPATH_EXTRA: ${{ inputs.pythonpath }}
+          WORKDIR: ${{ inputs.workdir }}
+        run: |
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          tests = json.loads(os.environ["TESTS"])
+          extra = json.loads(os.environ.get("PYTHONPATH_EXTRA") or "[]")
+          workdir = os.environ.get("WORKDIR") or None
+          from sarment.verify.testrun import run_pytest
+          env = {"PATH": os.environ["PATH"], "HOME": os.environ.get("HOME", "/tmp"), "LANG": "C.UTF-8",
+                 "PYTHONDONTWRITEBYTECODE": "1",
+                 "PYTHONPATH": os.pathsep.join([str(Path.cwd() / (workdir or ".")), str(Path.cwd())] + [str(Path.cwd() / e) for e in extra])}
+          r = run_pytest(Path.cwd(), tests, timeout_s=900, env=env, workdir=workdir)
+          Path("sarment-v1-result.json").write_text(r.to_json())
+          print(f"rc={r.rc} passed={r.passed} failed={r.failed} crashed={r.crashed}")
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as fh:
+              fh.write(f"### Sarment V1\n\n`rc={r.rc}` passed={r.passed} failed={r.failed} crashed={r.crashed}\n\n")
+              fh.write("```\n" + r.stdout_tail[-1500:] + "\n```\n")
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: sarment-v1-${{ inputs.delivery_id }}
+          path: sarment-v1-result.json
+          retention-days: 7
