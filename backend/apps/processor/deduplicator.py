@@ -14,7 +14,7 @@ class Deduplicator:
     """Checks for duplicate articles using SimHash fingerprints."""
 
     # Hamming distance threshold (3 bits difference is standard for 'near-duplicate')
-    HAMMING_DISTANCE_THRESHOLD = 3
+    HAMMING_DISTANCE_THRESHOLD = 8   # 64-bit word-bag SimHash: near-duplicates that differ by one sentence land at 5-6 bits; unrelated articles at 25+
 
     def _get_features(self, text: str) -> list:
         """Tokenize text into features for SimHash."""
