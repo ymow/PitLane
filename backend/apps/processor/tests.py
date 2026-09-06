@@ -103,6 +103,67 @@ class SimHashDeduplicationTests(TestCase):
             "Should detect syndicated near-duplicate against DB content",
         )
 
+    def test_unrelated_spanish_articles_are_not_duplicates(self):
+        """Regression: with single-word features these two collided at Hamming distance 5.
+
+        Real bodies from this project's own corpus. Different stories (FIA sporting code update vs
+        Honda explaining the Aston Martin tie-up), <25% word overlap. Short non-English teasers are
+        where word-bag SimHash loses its margin, and this site ingests es/fr sources.
+        """
+        a = (
+            "La FIA ha lanzado una profunda actualizacion del Codigo Deportivo Internacional de cara a la "
+            "temporada 2026, una intervencion estructural destinada a modernizar el marco reglamentario y a "
+            "uniformizar los procedimientos aplicados en las principales categorias bajo el arbitraje de la "
+            "Federacion. Los cambios introducidos afectaran al trabajo de los comisarios en la Formula 1, "
+            "pero tambien ... Sigue leyendo"
+        )
+        b = (
+            "La temporada 2026 de la Formula 1 esta a la vuelta de la esquina y llega con un importante "
+            "cambio reglamentario, que afectara tanto a los monoplazas como a las unidades de potencia. Para "
+            "Honda y Aston Martin tambien sera el comienzo de una nueva union, que ambas partes ven con mucha "
+            "ambicion. Si bien Honda tomo la decision de abandonar la F1 a finales de 2021, en 2023 "
+            "anunciaron que ... Sigue leyendo"
+        )
+        h1 = self.deduplicator.compute_hash(a)
+        h2 = self.deduplicator.compute_hash(b)
+        distance = bin(int(h1, 16) ^ int(h2, 16)).count('1')
+        self.assertGreater(
+            distance, Deduplicator.HAMMING_DISTANCE_THRESHOLD,
+            f"Unrelated Spanish articles must stay above the threshold, got {distance}",
+        )
+
+    def test_unrelated_french_articles_are_not_duplicates(self):
+        """Regression: with single-word features these two collided at Hamming distance 7."""
+        a = (
+            "Si les dernieres annees ont vu de nombreux departs chez Red Bull, les deux plus spectaculaires "
+            "ont eu lieu ces six derniers mois, avec notamment l'eviction de Christian Horner de son poste de "
+            "PDG et directeur de l'ecurie, et la retraite presentee comme volontaire d'Helmut Marko de son "
+            "poste de conseiller de la marque. Deux figures tutelaires, presentes depuis les debuts de la ... "
+            "Continuez de lire"
+        )
+        b = (
+            "Le groupe Red Bull Racing a officialise les plans concernant la designation de ses deux equipes "
+            "de Formule 1 a partir de la saison 2026, annee qui verra l'introduction d'une nouvelle ere de "
+            "reglementation technique et l'arrivee du motoriste Red Bull Ford Powertrains. La presentation "
+            "des livrees 2026 de Red Bull Racing et de l'ecurie soeur, Visa Cash App Racing Bulls, aura lieu "
+            "le jeudi 15 janvier 2026 aux Etats-Unis, plus precisement a Detroit, Michigan."
+        )
+        h1 = self.deduplicator.compute_hash(a)
+        h2 = self.deduplicator.compute_hash(b)
+        distance = bin(int(h1, 16) ^ int(h2, 16)).count('1')
+        self.assertGreater(
+            distance, Deduplicator.HAMMING_DISTANCE_THRESHOLD,
+            f"Unrelated French articles must stay above the threshold, got {distance}",
+        )
+
+    def test_features_are_word_bigrams(self):
+        """The threshold is calibrated for bigrams; changing the feature shape invalidates it."""
+        self.assertEqual(
+            self.deduplicator._get_features("alpha beta gamma"),
+            ["alpha beta", "beta gamma"],
+        )
+        self.assertEqual(self.deduplicator._get_features("solo"), ["solo"])
+
     def test_empty_content_returns_false(self):
         """Empty string must never be flagged as a duplicate."""
         self.assertFalse(self.deduplicator.is_duplicate("", "en"))
